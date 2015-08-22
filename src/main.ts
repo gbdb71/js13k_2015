@@ -1,6 +1,7 @@
 /// <reference path="core/Game" />
 /// <reference path="core/MouseInputManger" />
 /// <reference path="gfx/Rectangle" />
+/// <reference path="gfx/Text" />
 
 let canvas = <HTMLCanvasElement>document.getElementById('canvas'),
 	ctx = canvas.getContext('2d');
@@ -16,6 +17,7 @@ class DemoState implements core.IState {
 	Down: boolean = false;
 	DO: core.DisplayObject[] = [];
 	Sprite = new gfx.Rectangle(300, 240, 80, 80, {fillStyle: 'green'});
+	SomeText = new gfx.Text(10, 10, "01A10");
 	
 	Start(game: core.IGame): void
 	{
@@ -56,7 +58,8 @@ class DemoState implements core.IState {
 	Draw(ctx: CanvasRenderingContext2D): void
 	{
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.fillText(this.timeDelta.toFixed(2), 10, 10);
+		//ctx.fillText(this.timeDelta.toFixed(2), 10, 10);
+		this.SomeText.Draw(ctx);
 		if (this.Point) {
 			ctx.strokeRect(0, 0, 80, 80);
 			ctx.fillRect(this.Point.x - 2, this.Point.y - 2, 4, 4);

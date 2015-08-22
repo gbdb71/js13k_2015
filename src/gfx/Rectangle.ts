@@ -22,9 +22,7 @@ namespace gfx {
 		{
 			ctx.fillStyle = this.Style.fillStyle;
 			ctx.fillRect(
-				// -this.Anchor.x * this.Size.x, -this.Anchor.y * this.Size.y,
-				0, 0,
-				this.Size.x, this.Size.y
+				0, 0, this.Size.x, this.Size.y
 			);
 		}
 		
