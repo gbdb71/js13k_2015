@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"sourceRoot": "src/",
+		"out": "bin/app.js"
+	},
+	"files": [
+		"src/main.ts"
+	]
+}
