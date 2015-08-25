@@ -68,6 +68,17 @@ namespace core.vector {
 		o.y = a.y * b.y;
 	}
 	
+	export function Scale(a: IVector, s: number, o: IVector = a): void
+	{
+		o.x = a.x * s;
+		o.y = a.y * s;
+	}
+	
+	export function Length(a: IVector): number
+	{
+		return Math.sqrt(a.x*a.x + a.y*a.y);
+	}
+	
 	export function Rotate(a: IVector, angle: number, o: IVector): void
 	{
 		let sin = Math.sin(angle), cos = Math.cos(angle);

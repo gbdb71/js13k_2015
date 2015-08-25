@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"sourceRoot": "src/",
 		"target": "ES5",
 		"out": "bin/app.js"
 	},

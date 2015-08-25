@@ -2,11 +2,8 @@
 /// <reference path="core/MouseInputManger" />
 /// <reference path="gfx/Rectangle" />
 /// <reference path="gfx/Text" />
-
-let canvas = <HTMLCanvasElement>document.getElementById('canvas'),
-	ctx = canvas.getContext('2d');
-	
-ctx.fillText('Hello World', 20, 20);
+/// <reference path="game/World" />
+/// <reference path="game/shapes/RectangleShape" />
 
 class DemoState implements core.IState {
 	
@@ -14,63 +11,75 @@ class DemoState implements core.IState {
 	Mouse: core.MouseInputManager;
 	Cursor = new gfx.Rectangle(0, 0, 10, 10, {fillStyle: 'red'});
 	Point: core.IVector;
-	Down: boolean = false;
-	DO: core.DisplayObject[] = [];
-	Sprite = new gfx.Rectangle(300, 240, 80, 80, {fillStyle: 'green'});
-	SomeText = new gfx.Text(10, 10, "01A10");
+	Childs: core.DisplayObject[] = [];
+	World = new game.World();
+	SelectedShape: game.shapes.AbstractShape;
 	
-	Start(game: core.IGame): void
+	Start(myGame: core.IGame): void
 	{
 		console.log('start');
 		this.Cursor.Anchor.Set(0.5, 0.5);
-		// this.MousePos.Scale.Set(3, 3);
-		// this.MousePos.Rotation = Math.PI / 4;
 		
-		this.Sprite.Anchor.Set(0.5, 0.5);
-		this.Sprite.Scale.Set(2, 2);
+		let p = new game.shapes.RectangleShape(10, 10, 100, 100);
+		p.Velocity.Set(10, 10);
+		p.Anchor.Set(0.5, 0.5);
+		this.Childs.push(p);
+		this.World.AddShape(p);
 		
-		this.Mouse = new core.MouseInputManager(game);
-		this.Mouse.SetOnMoveCb((x, y) => {this.Cursor.Position.x = x; this.Cursor.Position.y = y});
-		this.Mouse.SetOnDownCb((x, y) => this.Down = true);
-		this.Mouse.SetOnUpCb((x, y) => this.Down = false);
+		this.Mouse = new core.MouseInputManager(myGame);
+		this.Mouse.SetOnMoveCb(this.OnMouseMove, this);
+		this.Mouse.SetOnDownCb(this.OnMousDown, this);
+		this.Mouse.SetOnUpCb(this.OnMouseUp, this);
+	}
+	
+	OnMouseMove(x: number, y: number): void
+	{
+		this.Cursor.Position.Set(x, y);
+	}
+	
+	OnMousDown(x: number, y: number): void
+	{
+		let shape = this.World.GetShapeUnder(this.Cursor.Position);
+			
+		if (shape) {
+			shape.AddTrajectoryPoint(this.Cursor.Position);
+			this.SelectedShape = shape;
+		}
+	}
+	
+	OnMouseUp(x: number, y: number): void
+	{
+		this.SelectedShape = null;
 	}
 	
 	Update(timeDelta: number): void
 	{
 		this.timeDelta = timeDelta;
-		if (this.Down) {
-			this.DO.push(
-				new gfx.Rectangle(this.Cursor.Position.x, this.Cursor.Position.y, 10, 10, { fillStyle: 'blue' })
-			);
-		}
-		this.Sprite.Rotation += Math.PI/80;
-		let p = this.Cursor.Position.Clone();
-		this.Point = p;
-		if (this.Sprite.IsPointInside(p)) {
-			this.Sprite.Style.fillStyle = 'red';
-			// console.log('rot', this.Sprite.Rotation);
-		}
-		else {
-			this.Sprite.Style.fillStyle = 'green';
+		this.World.Update(timeDelta);
+		
+		if (this.SelectedShape) {
+			this.SelectedShape.AddTrajectoryPoint(this.Cursor.Position);
 		}
 	}
 	
 	Draw(ctx: CanvasRenderingContext2D): void
 	{
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		//ctx.fillText(this.timeDelta.toFixed(2), 10, 10);
-		this.SomeText.Draw(ctx);
-		if (this.Point) {
-			ctx.strokeRect(0, 0, 80, 80);
-			ctx.fillRect(this.Point.x - 2, this.Point.y - 2, 4, 4);
-			
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		ctx.fillText((this.timeDelta * 1000).toFixed(2), 10, 10);
+		
+		for(let o of this.Childs) o.Draw(ctx);
+		
+		for (let s of this.World.Shapes) {
+			ctx.beginPath();
+			ctx.moveTo(s.Position.x, s.Position.y);
+			ctx.lineTo(s.Velocity.x + s.Position.x, s.Velocity.y + s.Position.y);
+			ctx.stroke();
 		}
-		this.Cursor.Draw(ctx);
-		this.Sprite.Draw(ctx);
-		for(let o of this.DO) o.Draw(ctx);
+		
+		this.World.DrawTrajectories(ctx);
 	}
 }
 
-let game = new core.Game(canvas);
-game.AddState('demo', new DemoState());
-game.Play('demo');
+let mgame = new core.Game('canvas');
+mgame.AddState('demo', new DemoState());
+mgame.Play('demo');

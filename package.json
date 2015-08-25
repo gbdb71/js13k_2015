@@ -1,0 +1,26 @@
+{
+  "name": "js13k_2015",
+  "version": "1.0.0",
+  "description": "super reverse game for js13k 2015.",
+  "main": "gulpfile.js",
+  "bin": {
+    "js13k_2015": "app.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kakus/js13k_2015"
+  },
+  "author": "Kamil Misiowiec",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kakus/js13k_2015/issues"
+  },
+  "homepage": "https://github.com/kakus/js13k_2015",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-connect": "^2.2.0"
+  }
+}

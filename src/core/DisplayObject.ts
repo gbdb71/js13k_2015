@@ -14,7 +14,7 @@ namespace core {
 		{
 			this.Position = vector.New(x, y);
 			this.Size = vector.New(width, height);
-			this.Anchor = vector.New();
+			this.Anchor = vector.New(0, 0);
 			this.Scale = vector.New(1, 1);
 			this.Rotation = 0;
 		}
@@ -39,22 +39,21 @@ namespace core {
 		
 		IsPointInside(point: IVector): boolean
 		{
-			// let p = vector.Clone(point);
-			let p = point;
-			let t = vector.New();
+			let p = vector.Clone(point);
+			let tmp = vector.New();
 			
 			// Translation
 			vector.Subtract(p, this.Position, p);
 			// Scale
-			vector.Clone(this.Scale, t);
-			vector.Invert(t, t);
-			vector.Multiply(p, t, p);
+			vector.Clone(this.Scale, tmp);
+			vector.Invert(tmp, tmp);
+			vector.Multiply(p, tmp, p);
 			// Rotation
 			vector.Rotate(p, this.Rotation, p);
 			// Anchor Translation
-			vector.Clone(this.Anchor, t);
-			vector.Multiply(t, this.Size, t);
-			vector.Add(p, t, p);
+			vector.Clone(this.Anchor, tmp);
+			vector.Multiply(tmp, this.Size, tmp);
+			vector.Add(p, tmp, p);
 			
 			let xAxis = p.x > 0 && p.x < this.Size.x;
 			let yAxis = p.y > 0 && p.y < this.Size.y;

@@ -19,26 +19,26 @@ namespace core {
 		// 	);
 		// }
 		
-		SetOnMoveCb(cb: MouseCallback): void
+		SetOnMoveCb(cb: MouseCallback, ctx?: any): void
 		{
 			this.Game.Canvas.addEventListener(
-				"mousemove", this.HandleEvent.bind(null, cb)
+				"mousemove", this.HandleEvent.bind(null, cb.bind(ctx))
 			);
 			// this.OnMouseMoveCb = cb;	
 		}
 		
-		SetOnDownCb(cb: MouseCallback): void
+		SetOnDownCb(cb: MouseCallback, ctx?: any): void
 		{
 			this.Game.Canvas.addEventListener(
-				"mousedown", this.HandleEvent.bind(null, cb)
+				"mousedown", this.HandleEvent.bind(null, cb.bind(ctx))
 			);
 			// this.OnMouseMoveCb = cb;
 		}
 		
-		SetOnUpCb(cb: MouseCallback): void
+		SetOnUpCb(cb: MouseCallback, ctx?: any): void
 		{
 			this.Game.Canvas.addEventListener(
-				"mouseup", this.HandleEvent.bind(null, cb)
+				"mouseup", this.HandleEvent.bind(null, cb.bind(ctx))
 			);
 			// this.OnMouseMoveCb = cb;
 		}

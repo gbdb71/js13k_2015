@@ -21,10 +21,12 @@ namespace gfx {
 			for(let i = 0; i < this.text.length; ++i) {
 				let letter = this.text[i];
 				
-				for (let x = 0; x < font.Char.Width; ++x) {
-					for (let y = 0; y < font.Char.Height; ++y) {
-						let dot = font.Letter[letter][y * font.Char.Width + x];
-						if (dot) ctx.fillRect(x * dotSize, y * dotSize, dotSize, dotSize);
+				if (letter !== ' ') {
+					for (let x = 0; x < font.Char.Width; ++x) {
+						for (let y = 0; y < font.Char.Height; ++y) {
+							let dot = font.Letter[letter][y * font.Char.Width + x];
+							if (dot) ctx.fillRect(x * dotSize, y * dotSize, dotSize, dotSize);
+						}
 					}
 				}
 				
