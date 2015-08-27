@@ -79,13 +79,28 @@ namespace core.vector {
 		return Math.sqrt(a.x*a.x + a.y*a.y);
 	}
 	
-	export function Rotate(a: IVector, angle: number, o: IVector): void
+	export function Unit(a: IVector, o: IVector = a): void
+	{
+		let len = Length(a);
+		
+		if (len > 0) {
+			o.x = a.x / len;
+			o.y = a.y / len;
+		}
+	}
+	
+	export function Rotate(a: IVector, angle: number, o: IVector = a): void
 	{
 		let sin = Math.sin(angle), cos = Math.cos(angle);
 		if (a === o) a = Clone(a);
 		
 		o.x = a.x * cos - a.y * sin;
 		o.y = a.x * sin + a.y * cos;
+	}
+	
+	export function Angle(a: IVector): number
+	{
+		return Math.atan2(a.y, a.x);
 	}
 	
 	export function Invert(a: IVector, o: IVector): void

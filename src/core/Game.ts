@@ -10,7 +10,7 @@ namespace core {
 		
 		private ActiveState: IState;
 		private RequestAnimationFrame: Function;
-		private LastFrameTime: number;
+		private LastFrameTime: number = 0;
 		
 		constructor(public canvasId: string)
 		{
@@ -40,7 +40,8 @@ namespace core {
 		
 		private OnUpdate(now): void
 		{
-			let timeDelta = Math.min(now - this.LastFrameTime, 50) || 0;
+			let timeDelta = now - this.LastFrameTime;
+			if (timeDelta > 50) timeDelta = 50;
 			
 			this.ActiveState.Update(timeDelta/1000);
 			this.ActiveState.Draw(this.Context);

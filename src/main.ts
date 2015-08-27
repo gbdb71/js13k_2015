@@ -20,8 +20,8 @@ class DemoState implements core.IState {
 		console.log('start');
 		this.Cursor.Anchor.Set(0.5, 0.5);
 		
-		let p = new game.shapes.RectangleShape(10, 10, 100, 100);
-		p.Velocity.Set(10, 10);
+		let p = new game.shapes.RectangleShape(10, 10, 20, 20);
+		p.Velocity.Set(30, 30);
 		p.Anchor.Set(0.5, 0.5);
 		this.Childs.push(p);
 		this.World.AddShape(p);
