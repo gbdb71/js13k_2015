@@ -37,10 +37,12 @@ namespace core {
 			throw new Error('Unimplemented');
 		}
 		
-		IsPointInside(point: IVector): boolean
+		ToLocal(point: IVector): Vector;
+		ToLocal(point: IVector, out: IVector): void;
+		ToLocal(point: IVector, out?: IVector)
 		{
-			let p = vector.Clone(point);
-			let tmp = vector.New();
+			let p = out ? out : vector.Clone(point),
+				tmp = vector.Tmp;
 			
 			// Translation
 			vector.Subtract(p, this.Position, p);
@@ -54,6 +56,13 @@ namespace core {
 			vector.Clone(this.Anchor, tmp);
 			vector.Multiply(tmp, this.Size, tmp);
 			vector.Add(p, tmp, p);
+			
+			if (!out) return <Vector>p;
+		}
+		
+		IsPointInside(point: IVector): boolean
+		{
+			let p = this.ToLocal(point);
 			
 			let xAxis = p.x > 0 && p.x < this.Size.x;
 			let yAxis = p.y > 0 && p.y < this.Size.y;

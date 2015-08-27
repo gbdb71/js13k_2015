@@ -5,6 +5,26 @@
 /// <reference path="game/World" />
 /// <reference path="game/shapes/RectangleShape" />
 
+class FillWindowResizeStrategy 
+{
+	Listener: EventListener;
+	
+	constructor(
+		public Game: core.IGame,
+		public Callback: (w: number, h: number) => void
+	) {
+		this.Listener = this.OnResize.bind(this);
+		window.addEventListener('resize', this.Listener);
+	}
+	
+	OnResize(): void
+	{
+		let w = this.Game.Canvas.width = window.innerWidth;
+		let h = this.Game.Canvas.height = window.innerHeight;
+		this.Callback(w, h);
+	}
+}
+
 class DemoState implements core.IState {
 	
 	timeDelta: number;
@@ -14,27 +34,36 @@ class DemoState implements core.IState {
 	Childs: core.DisplayObject[] = [];
 	World = new game.World();
 	SelectedShape: game.shapes.AbstractShape;
+	ResizeStrategy: FillWindowResizeStrategy;
+	
+	Shape0: game.shapes.RectangleShape;
 	
 	Start(myGame: core.IGame): void
 	{
 		console.log('start');
 		this.Cursor.Anchor.Set(0.5, 0.5);
 		
-		let p = new game.shapes.RectangleShape(10, 10, 20, 20);
+		let p = new game.shapes.RectangleShape(10, 10, 50, 50);
 		p.Velocity.Set(30, 30);
 		p.Anchor.Set(0.5, 0.5);
+		p.Rotation = Math.PI / 4;
 		this.Childs.push(p);
 		this.World.AddShape(p);
+		this.Shape0 = p;
 		
 		this.Mouse = new core.MouseInputManager(myGame);
 		this.Mouse.SetOnMoveCb(this.OnMouseMove, this);
 		this.Mouse.SetOnDownCb(this.OnMousDown, this);
 		this.Mouse.SetOnUpCb(this.OnMouseUp, this);
+		
+		this.ResizeStrategy = new FillWindowResizeStrategy(myGame, this.OnResize.bind(this));
+		this.ResizeStrategy.OnResize();
 	}
 	
 	OnMouseMove(x: number, y: number): void
 	{
 		this.Cursor.Position.Set(x, y);
+
 	}
 	
 	OnMousDown(x: number, y: number): void
@@ -55,6 +84,11 @@ class DemoState implements core.IState {
 	Update(timeDelta: number): void
 	{
 		this.timeDelta = timeDelta;
+		if (this.Shape0.IsPointInside(this.Cursor.Position)) {
+			this.Shape0.Sprite.Style.fillStyle = 'green';
+		} else {
+			this.Shape0.Sprite.Style.fillStyle = 'red';
+		}
 		this.World.Update(timeDelta);
 		
 		if (this.SelectedShape) {
@@ -77,6 +111,11 @@ class DemoState implements core.IState {
 		}
 		
 		this.World.DrawTrajectories(ctx);
+	}
+	
+	OnResize(width: number, height: number): void
+	{
+		console.log('new size ', width, height);
 	}
 }
 

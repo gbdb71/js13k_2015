@@ -25,7 +25,8 @@ namespace core {
 	
 namespace core.vector {
 	
-	export var Zero = {x: 0, y: 0};
+	export var Zero = new Vector();
+	export var Tmp = new Vector();
 	
 	export function New(x: number = 0, y: number = 0): Vector
 	{

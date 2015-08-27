@@ -19,7 +19,7 @@ namespace core {
 			
 			this.RequestAnimationFrame = window.requestAnimationFrame.bind(
 				window, this.OnUpdate.bind(this)
-			);	
+			);
 		}
 		
 		AddState(name: string, state: IState): void
