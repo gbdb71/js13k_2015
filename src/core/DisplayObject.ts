@@ -41,23 +41,30 @@ namespace core {
 		ToLocal(point: IVector, out: IVector): void;
 		ToLocal(point: IVector, out?: IVector)
 		{
-			let p = out ? out : vector.Clone(point),
-				tmp = vector.Tmp;
+			let local: IVector, tmp = vector.Tmp;
+			
+			if (out) {
+				vector.Clone(point, out);
+				local = out;
+			}
+			else {
+				local = vector.Clone(point);
+			}
 			
 			// Translation
-			vector.Subtract(p, this.Position, p);
+			vector.Subtract(local, this.Position, local);
 			// Scale
 			vector.Clone(this.Scale, tmp);
 			vector.Invert(tmp, tmp);
-			vector.Multiply(p, tmp, p);
+			vector.Multiply(local, tmp, local);
 			// Rotation
-			vector.Rotate(p, this.Rotation, p);
+			vector.Rotate(local, this.Rotation, local);
 			// Anchor Translation
 			vector.Clone(this.Anchor, tmp);
 			vector.Multiply(tmp, this.Size, tmp);
-			vector.Add(p, tmp, p);
+			vector.Add(local, tmp, local);
 			
-			if (!out) return <Vector>p;
+			if (!out) return <Vector>local;
 		}
 		
 		IsPointInside(point: IVector): boolean
