@@ -2,13 +2,15 @@
 
 namespace core {
 	
-	export class DisplayObject {
+	export class DisplayObject
+	{
 		
 		Position: Vector;
 		Anchor: Vector;
 		Size: Vector;
 		Scale: Vector;
 		Rotation: number;
+		Parent: Layer;
 		
 		constructor(x: number, y: number, width: number, height: number)
 		{
@@ -51,6 +53,10 @@ namespace core {
 				local = vector.Clone(point);
 			}
 			
+			if (this.Parent) {
+				this.Parent.ToLocal(point, local);
+			}
+			
 			// Translation
 			vector.Subtract(local, this.Position, local);
 			// Scale
@@ -58,13 +64,37 @@ namespace core {
 			vector.Invert(tmp, tmp);
 			vector.Multiply(local, tmp, local);
 			// Rotation
-			vector.Rotate(local, this.Rotation, local);
+			vector.Rotate(local, -this.Rotation, local);
 			// Anchor Translation
 			vector.Clone(this.Anchor, tmp);
 			vector.Multiply(tmp, this.Size, tmp);
 			vector.Add(local, tmp, local);
 			
 			if (!out) return <Vector>local;
+		}
+		
+		ToGlobal(point: IVector): Vector;
+		ToGlobal(point: IVector, out: IVector): void;
+		ToGlobal(point: IVector, out?: IVector)
+		{
+			let global = out ? out : vector.New(), tmp = vector.Tmp;
+			
+			// Anchor
+			vector.Clone(this.Anchor, tmp);
+			vector.Multiply(tmp, this.Size, tmp)
+			vector.Add(point, tmp, global);
+			// Rotation
+			vector.Rotate(global, this.Rotation);
+			// Scale
+			vector.Multiply(global, this.Scale, global);
+			// Translate
+			vector.Add(global, this.Position, global);
+			
+			if (this.Parent) {
+				this.Parent.ToGlobal(global, global);
+			}
+			
+			if (!out) return <Vector>global;
 		}
 		
 		IsPointInside(point: IVector): boolean
@@ -76,6 +106,40 @@ namespace core {
 			return xAxis && yAxis;
 		}
 		
+	}
+	
+	export class Layer extends DisplayObject
+	{
+		Children: DisplayObject[] = [];
+		
+		AddChild(child: DisplayObject): void
+		{
+			if (child.Parent) {
+				throw Error("Child has parent");
+			}
+			else {
+				child.Parent = this;
+				this.Children.push(child);
+			}
+		}
+		
+		RemoveChild(child: DisplayObject): void
+		{
+			let index = this.Children.indexOf(child);
+			if (index >= 0) {
+				this.Children.splice(index, 1);
+			}
+			else {
+				throw Error("Child doesn't exist in this layer");
+			}
+		}
+		
+		DrawSelf(ctx: CanvasRenderingContext2D): void
+		{
+			for (let child of this.Children) {
+				child.Draw(ctx);
+			}
+		}	
 	}
 	
 }
