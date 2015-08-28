@@ -25,29 +25,36 @@ class FillWindowResizeStrategy
 	}
 }
 
-class DemoState implements core.IState {
+class DemoState implements core.IState{
 	
 	timeDelta: number;
 	Mouse: core.MouseInputManager;
 	Cursor = new gfx.Rectangle(0, 0, 10, 10, {fillStyle: 'red'});
-	Point: core.IVector;
-	Childs: core.DisplayObject[] = [];
 	World = new game.World();
 	SelectedShape: game.shapes.AbstractShape;
 	ResizeStrategy: FillWindowResizeStrategy;
 	
 	Shape0: game.shapes.RectangleShape;
+	Stage: core.Layer;
+	
 	
 	Start(myGame: core.IGame): void
 	{
 		console.log('start');
 		this.Cursor.Anchor.Set(0.5, 0.5);
 		
-		let p = new game.shapes.RectangleShape(10, 10, 50, 50);
+		this.Stage = new core.Layer(300, 400, myGame.Canvas.width, myGame.Canvas.height);
+		this.Stage.Scale.Set(0.5, 0.5);
+		
+		this.Stage.AddChild(
+			new gfx.Rectangle(0, 0, this.Stage.Size.x, this.Stage.Size.y, {strokeStyle: 'green'})
+		)
+		
+		let p = new game.shapes.RectangleShape(100, 0, 50, 50);
 		p.Velocity.Set(30, 30);
 		p.Anchor.Set(0.5, 0.5);
 		p.Rotation = Math.PI / 4;
-		this.Childs.push(p);
+		this.Stage.AddChild(p);
 		this.World.AddShape(p);
 		this.Shape0 = p;
 		
@@ -63,7 +70,6 @@ class DemoState implements core.IState {
 	OnMouseMove(x: number, y: number): void
 	{
 		this.Cursor.Position.Set(x, y);
-
 	}
 	
 	OnMousDown(x: number, y: number): void
@@ -71,7 +77,7 @@ class DemoState implements core.IState {
 		let shape = this.World.GetShapeUnder(this.Cursor.Position);
 			
 		if (shape) {
-			shape.AddTrajectoryPoint(this.Cursor.Position);
+			shape.AddTrajectoryPoint(this.Stage.ToLocal(this.Cursor.Position));
 			this.SelectedShape = shape;
 		}
 	}
@@ -84,15 +90,17 @@ class DemoState implements core.IState {
 	Update(timeDelta: number): void
 	{
 		this.timeDelta = timeDelta;
+		
 		if (this.Shape0.IsPointInside(this.Cursor.Position)) {
 			this.Shape0.Sprite.Style.fillStyle = 'green';
 		} else {
 			this.Shape0.Sprite.Style.fillStyle = 'red';
 		}
+		
 		this.World.Update(timeDelta);
 		
 		if (this.SelectedShape) {
-			this.SelectedShape.AddTrajectoryPoint(this.Cursor.Position);
+			this.SelectedShape.AddTrajectoryPoint(this.Stage.ToLocal(this.Cursor.Position));
 		}
 	}
 	
@@ -101,12 +109,13 @@ class DemoState implements core.IState {
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		ctx.fillText((this.timeDelta * 1000).toFixed(2), 10, 10);
 		
-		for(let o of this.Childs) o.Draw(ctx);
+		this.Stage.Draw(ctx);
 		
 		for (let s of this.World.Shapes) {
 			ctx.beginPath();
-			ctx.moveTo(s.Position.x, s.Position.y);
-			ctx.lineTo(s.Velocity.x + s.Position.x, s.Velocity.y + s.Position.y);
+			let pos = s.Parent.ToGlobal(s.Position);
+			ctx.moveTo(pos.x, pos.y);
+			ctx.lineTo(s.Velocity.x + pos.x, s.Velocity.y + pos.y);
 			ctx.stroke();
 		}
 		

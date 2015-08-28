@@ -20,10 +20,14 @@ namespace gfx {
 		
 		protected DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
-			ctx.fillStyle = this.Style.fillStyle;
-			ctx.fillRect(
-				0, 0, this.Size.x, this.Size.y
-			);
+			if (this.Style.fillStyle) {
+				ctx.fillStyle = this.Style.fillStyle;
+				ctx.fillRect(0, 0, this.Size.x, this.Size.y);
+			}
+			if (this.Style.strokeStyle) {
+				ctx.strokeStyle = this.Style.strokeStyle;
+				ctx.strokeRect(0, 0, this.Size.x, this.Size.y);
+			}
 		}
 		
 	}

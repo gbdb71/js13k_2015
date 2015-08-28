@@ -12,6 +12,9 @@ namespace game.shapes {
 		Velocity: core.Vector = vec.New(0, 0);
 		Trajectory: core.Vector[] = [];
 		
+		private AngleAcc: number = 0;
+		private RotationSpeed: number = 0.1;
+		
 		Update(timeDelta: number): void
 		{
 			if (this.Trajectory.length > 0) {
@@ -20,13 +23,24 @@ namespace game.shapes {
 
 				if (vec.Length(tvec) < 5) {
 					this.Trajectory.shift();
+					this.AngleAcc = 0;
+					this.RotationSpeed = 0.1;
 				}
 
 				let target = vec.Angle(tvec),
 					source = vec.Angle(this.Velocity);
 
 				let angle = Math.atan2(Math.sin(target - source), Math.cos(target - source));
-				vec.Rotate(this.Velocity, angle / 10);
+				angle *= this.RotationSpeed;
+				
+				this.AngleAcc += angle;
+				vec.Rotate(this.Velocity, angle);
+				
+				if (Math.abs(this.AngleAcc) > Math.PI * 2) {
+					console.log('slow down');
+					this.RotationSpeed *= 2;
+					this.AngleAcc = 0;
+				}
 			}
 
 			vec.Clone(this.Velocity, tvec);

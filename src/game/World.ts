@@ -31,10 +31,13 @@ namespace game {
 		
 		DrawTrajectories(ctx: CanvasRenderingContext2D): void
 		{
+			let tmp = core.vector.Tmp;
+			
 			for(let shape of this.Shapes)
 			{
 				for (let point of shape.Trajectory) {
-					ctx.fillRect(point.x, point.y, 10, 10);
+					shape.Parent.ToGlobal(point, tmp)
+					ctx.fillRect(tmp.x - 2, tmp.y - 2, 4, 4);
 				}
 			}
 		}
