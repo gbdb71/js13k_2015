@@ -3,7 +3,7 @@
 namespace game.shapes {
 	
 	let vec = core.vector;
-	let tvec = vec.New();
+	let tvec = core.vector.Tmp;
 	
 	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 30;
 	const DEFAULT_ROTATION_SPEED = 0.2;
@@ -12,6 +12,10 @@ namespace game.shapes {
 	{
 		Velocity: core.Vector = vec.New(0, 0);
 		Trajectory: core.Vector[] = [];
+		Color: string = 'red';
+		
+		Next: AbstractShape;
+		Prev: AbstractShape;
 		
 		private AngleAcc: number = 0;
 		private RotationSpeed: number = DEFAULT_ROTATION_SPEED;
@@ -54,6 +58,11 @@ namespace game.shapes {
 			throw new Error('Unimplemented');
 		}
 		
+		HasTrajectory(): boolean
+		{
+			return this.Trajectory.length > 0;
+		}
+		
 		AddTrajectoryPoint(point: core.IVector): void
 		{
 			let last = this.Trajectory[this.Trajectory.length - 1];
@@ -63,8 +72,8 @@ namespace game.shapes {
 				if (vec.Length(tvec) < MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS) return;
 			}
 			
-			this.Trajectory.push(vec.Clone(point));	
-			
+			this.Trajectory.push(vec.Clone(point));
+			this.Color = 'white';	
 		}
 	}
 	

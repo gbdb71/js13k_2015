@@ -132,6 +132,7 @@ namespace core {
 		{
 			let index = this.Children.indexOf(child);
 			if (index >= 0) {
+				child.Parent = undefined;
 				this.Children.splice(index, 1);
 			}
 			else {

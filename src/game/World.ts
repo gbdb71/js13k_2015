@@ -5,9 +5,12 @@
 
 namespace game {
 	
+	const vec = core.vector;
+	
 	export class World extends core.DisplayObject
 	{
-		Shapes: shapes.AbstractShape[] = [];
+		ShapesHead: shapes.AbstractShape;
+		ShapesTail: shapes.AbstractShape;
 		
 		constructor(width: number, height: number)
 		{
@@ -16,42 +19,75 @@ namespace game {
 		
 		Update(timeDelta: number): void
 		{
-			for (let i = this.Shapes.length - 1; i >= 0; --i) {
-				let shape = this.Shapes[i];
-				
+			for (let shape = this.ShapesHead; shape; shape = shape.Next)
+			{
 				shape.Update(timeDelta);
 				
-				if (shape.Position.y < 0) {
-					this.Shapes.splice(i, 1);
-					shape.RemoveFromParent();
+				if (shape.HasTrajectory())
+				{
+					for (let other = shape.Next; other; other = other.Next)
+					{
+						if (other.HasTrajectory() && this.IsColliding(shape, other)) {
+							this.RemoveShape(shape);
+							this.RemoveShape(other);
+						}
+					}
+				}
+				
+				if (shape.Position.y < -shape.Size.y / 2) {
+					this.RemoveShape(shape);
 					this.SpawnShape();
 				}
 				else if (shape.Position.y > this.Size.y) {
-					this.Shapes.splice(i, 1);
-					shape.RemoveFromParent();
+					this.RemoveShape(shape);
 				}
 			}
 		}
 		
 		AddShape(shape: shapes.AbstractShape): void
 		{
-			this.Shapes.push(shape);
+			if (this.ShapesTail) {
+				this.ShapesTail.Next = shape;
+				shape.Prev = this.ShapesTail;
+				this.ShapesTail = shape;
+			}
+			else {
+				this.ShapesHead = this.ShapesTail = shape;
+			}
 		}
 		
 		RemoveShape(shape: shapes.AbstractShape): void
 		{
-			let index = this.Shapes.indexOf(shape);
-			if (index >= 0) {
-				this.Shapes.splice(index, 1);
+			if (shape.Next) {
+				
+				if (shape.Prev) {
+					shape.Prev.Next = shape.Next;
+					shape.Next.Prev = shape.Prev
+				}
+				else {
+					shape.Next.Prev = null;
+					this.ShapesHead = shape.Next;	
+				}
+				
 			}
 			else {
-				throw Error();
+				
+				if (shape.Prev) {
+					shape.Prev.Next = null;
+					this.ShapesTail = shape.Prev;	
+				}
+				else {
+					this.ShapesHead = this.ShapesTail = null;
+				}
+				
 			}
+			shape.RemoveFromParent();
 		}
+
 		
 		GetShapeUnder(point: core.IVector): shapes.AbstractShape
 		{
-			for(let shape of this.Shapes)
+			for (let shape = this.ShapesHead; shape; shape = shape.Next)
 			{
 				if (shape.IsPointInside(point)) {
 					return shape;
@@ -62,23 +98,58 @@ namespace game {
 		
 		DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
-			ctx.strokeStyle = 'green';
+			ctx.strokeStyle = 'white';
 			ctx.strokeRect(0, 0, this.Size.x, this.Size.y);
 			
 			ctx.fillStyle = 'white';
-			for(let shape of this.Shapes)
+			ctx.setLineDash([3, 5]);
+			for (let shape = this.ShapesHead; shape; shape = shape.Next)
 			{
-				for (let point of shape.Trajectory) {
-					ctx.fillRect(point.x - 2, point.y - 2, 4, 4);
+				if (shape.HasTrajectory()) {
+					ctx.beginPath();
+					
+					ctx.moveTo(shape.Position.x, shape.Position.y);
+					for (let point of shape.Trajectory) {
+						ctx.lineTo(point.x, point.y)
+					}
+					
+					// let a: core.IVector, b: core.IVector, tmp = vec.Tmp;
+
+					// if (shape.Trajectory.length > 1) {
+					// 	a = shape.Trajectory[shape.Trajectory.length - 2];
+					// 	b = shape.Trajectory[shape.Trajectory.length - 1];
+					// }
+					// else {
+					// 	a = shape.Position;
+					// 	b = shape.Trajectory[0];
+					// }
+					
+					// vec.Subtract(b, a, tmp);
+					// if (tmp.y >= 0) {
+					// 	vec.Scale(tmp, 10);
+					// 	vec.Add(tmp, a, tmp);
+					// 	ctx.lineTo(tmp.x, tmp.y);
+					// }
+					
+					ctx.stroke();
 				}
+				
 			}
+		}
+		
+		IsColliding(a: shapes.AbstractShape, b: shapes.AbstractShape): boolean
+		{
+			let dist = vec.Tmp;
+			vec.Subtract(a.Position, b.Position, dist);
+
+			return vec.Length(dist) < (a.Size.x + b.Size.x) / 2;
 		}
 		
 		SpawnShape(): void
 		{
-			let shape = new shapes.RectangleShape(Math.random() * this.Size.x, this.Size.y - 10, 40, 40);
+			let shape = new shapes.RectangleShape(Math.random() * this.Size.x, this.Size.y - 10, 30, 30);
 			shape.Anchor.Set(0.5, 0.5);
-			shape.Velocity.Set(core.Random(-10, 10), core.Random(-120, -60));
+			shape.Velocity.Set(core.Random(-10, 10), -60);
 			
 			this.Parent.AddChild(shape);
 			this.AddShape(shape);

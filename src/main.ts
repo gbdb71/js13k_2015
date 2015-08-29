@@ -43,7 +43,7 @@ class DemoState implements core.IState{
 	{
 		this.Game = mgame;
 		console.log('start');
-		this.Cursor.Anchor.Set(0.5, 0.5);
+		// this.Cursor.Anchor.Set(0.5, 0.5);
 		
 		this.Stage = new core.Layer(0, 0, mgame.Canvas.width, mgame.Canvas.height);
 		// this.Stage.Scale.Set(0.5, 0.5);
@@ -87,7 +87,11 @@ class DemoState implements core.IState{
 		if (!this.SelectedShape) {
 			this.OnMousDown(x, y);
 		}
-		if (y > this.World.Size.y) {
+		
+		if (y < 0 || y > this.World.Size.y) {
+			this.SelectedShape = undefined
+		}
+		else if (x < 0 || x > this.World.Size.y) {
 			this.SelectedShape = undefined
 		}
 	}
