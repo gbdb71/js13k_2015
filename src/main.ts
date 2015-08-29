@@ -34,32 +34,25 @@ class DemoState implements core.IState{
 	SelectedShape: game.shapes.AbstractShape;
 	ResizeStrategy: FillWindowResizeStrategy;
 	
-	Shape0: game.shapes.RectangleShape;
 	Stage: core.Layer;
 	
 	Game: core.Game;
+	ScoreText: gfx.Text;
+	FPSText: gfx.Text;
 	
 	Start(mgame: core.Game): void
 	{
 		this.Game = mgame;
-		console.log('start');
 		// this.Cursor.Anchor.Set(0.5, 0.5);
 		
 		this.Stage = new core.Layer(0, 0, mgame.Canvas.width, mgame.Canvas.height);
 		// this.Stage.Scale.Set(0.5, 0.5);
+		this.Stage.Position.Set(0.5, 0.5);
 		
-		this.World = new game.World(mgame.Canvas.width, mgame.Canvas.height);
+		this.World = new game.World(320, 350);
 		// this.World.Position.Set(0, 30);
 		
 		this.Stage.AddChild(this.World);
-		this.Stage.Position.Set(0.5, 0.5);
-		let p = new game.shapes.RectangleShape(100, 10, 20, 20);
-		p.Velocity.Set(20, 20);
-		p.Anchor.Set(0.5, 0.5);
-		p.Rotation = Math.PI / 4;
-		this.Stage.AddChild(p);
-		this.World.AddShape(p);
-		this.Shape0 = p;
 		
 		this.Mouse = new core.MouseInputManager(mgame);
 		this.Mouse.SetOnMoveCb(this.OnMouseMove, this);
@@ -72,12 +65,24 @@ class DemoState implements core.IState{
 		touch.SetOnUpCb(this.OnMouseUp, this);
 		
 		
-		this.ResizeStrategy = new FillWindowResizeStrategy(mgame, this.OnResize.bind(this));
-		this.ResizeStrategy.OnResize();
 		
+		this.World.SpawnShape();
 		setInterval(() => {
 			this.World.SpawnShape();
 		}, 2000);
+		
+		this.ScoreText = new gfx.Text(5.5, this.World.Size.y + 5.5, "SCORE: 1234567890+");
+		this.ScoreText.SetSize(10);
+		this.Stage.AddChild(this.ScoreText);
+		
+		this.FPSText = new gfx.Text(this.World.Size.x - 5.5, this.World.Size.y + 5.5, "FPS 60");
+		this.FPSText.Anchor.Set(1, 0);
+		this.FPSText.SetSize(10);
+		this.Stage.AddChild(this.FPSText);
+		
+		
+		this.ResizeStrategy = new FillWindowResizeStrategy(mgame, this.OnResize.bind(this));
+		this.ResizeStrategy.OnResize();
 	}
 	
 	OnMouseMove(x: number, y: number): void
@@ -88,10 +93,11 @@ class DemoState implements core.IState{
 			this.OnMousDown(x, y);
 		}
 		
-		if (y < 0 || y > this.World.Size.y) {
+		let local = this.World.ToLocal(this.Cursor.Position);
+		if (local.y < 0 || local.y > this.World.Size.y) {
 			this.SelectedShape = undefined
 		}
-		else if (x < 0 || x > this.World.Size.y) {
+		else if (local.x < 0 || local.x > this.World.Size.y) {
 			this.SelectedShape = undefined
 		}
 	}
@@ -126,17 +132,22 @@ class DemoState implements core.IState{
 			
 			this.SelectedShape.AddTrajectoryPoint(this.World.ToLocal(this.Cursor.Position));
 		}
+		
+		this.FPSText.SetText("FPS " + (timeDelta*1000).toFixed(1));
+		this.ScoreText.SetText("SCORE: " + this.World.Score);
 	}
 	
 	Draw(ctx: CanvasRenderingContext2D): void
 	{
-		ctx.fillStyle = 'white';
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		ctx.fillText((this.Game.TimeDelta * 1000).toFixed(2), 10, 10);
+		// ctx.fillStyle = 'white';
+		// ctx.fillText((this.Game.TimeDelta * 1000).toFixed(2), 10, 10);
 		
 		this.Stage.Draw(ctx);
-		this.Cursor.Draw(ctx);
-		
+		// this.Cursor.Draw(ctx);
+		// this.Text.Draw(ctx);
+		// gfx.PixelFontCache.DrawLetter(ctx, '2');
+		// ctx.drawImage(gfx.PixelFontCache.Cache, 0, 0);
 		// for (let s of this.World.Shapes) {
 		// 	ctx.beginPath();
 		// 	let pos = s.Parent.ToGlobal(s.Position);
@@ -150,6 +161,10 @@ class DemoState implements core.IState{
 	
 	OnResize(width: number, height: number): void
 	{
+		this.Stage.Size.Set(width, height);
+		let scale = Math.min(width / this.World.Size.x, height / (this.World.Size.y + 20));
+		this.Stage.Scale.Set(scale, scale);
+		
 		console.log('new size ', width, height);
 	}
 }

@@ -12,6 +12,8 @@ namespace game {
 		ShapesHead: shapes.AbstractShape;
 		ShapesTail: shapes.AbstractShape;
 		
+		Score: number = 0;
+		
 		constructor(width: number, height: number)
 		{
 			super(0, 0, width, height);
@@ -35,11 +37,13 @@ namespace game {
 				}
 				
 				if (shape.Position.y < -shape.Size.y / 2) {
+					this.Score -= shape.Score * 10;
 					this.RemoveShape(shape);
 					this.SpawnShape();
 				}
 				else if (shape.Position.y > this.Size.y) {
 					this.RemoveShape(shape);
+					this.Score += shape.Score;
 				}
 			}
 		}
@@ -102,7 +106,8 @@ namespace game {
 			ctx.strokeRect(0, 0, this.Size.x, this.Size.y);
 			
 			ctx.fillStyle = 'white';
-			ctx.setLineDash([3, 5]);
+			ctx.setLineDash([3, 6]);
+			ctx.lineWidth = 2;
 			for (let shape = this.ShapesHead; shape; shape = shape.Next)
 			{
 				if (shape.HasTrajectory()) {
@@ -112,6 +117,10 @@ namespace game {
 					for (let point of shape.Trajectory) {
 						ctx.lineTo(point.x, point.y)
 					}
+					ctx.stroke();
+					// for (let point of shape.Trajectory) {
+					// 	ctx.fillRect(point.x - 2, point.y - 2, 4, 4);
+					// }
 					
 					// let a: core.IVector, b: core.IVector, tmp = vec.Tmp;
 
@@ -131,7 +140,7 @@ namespace game {
 					// 	ctx.lineTo(tmp.x, tmp.y);
 					// }
 					
-					ctx.stroke();
+					// ctx.stroke();
 				}
 				
 			}

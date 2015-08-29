@@ -5,7 +5,7 @@ namespace game.shapes {
 	let vec = core.vector;
 	let tvec = core.vector.Tmp;
 	
-	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 30;
+	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 20;
 	const DEFAULT_ROTATION_SPEED = 0.2;
 	
 	export class AbstractShape extends core.DisplayObject
@@ -13,6 +13,7 @@ namespace game.shapes {
 		Velocity: core.Vector = vec.New(0, 0);
 		Trajectory: core.Vector[] = [];
 		Color: string = 'red';
+		Score: number = 1;
 		
 		Next: AbstractShape;
 		Prev: AbstractShape;
@@ -30,6 +31,7 @@ namespace game.shapes {
 					this.Trajectory.shift();
 					this.AngleAcc = 0;
 					this.RotationSpeed = DEFAULT_ROTATION_SPEED;
+					this.Score += 1;
 				}
 
 				let target = vec.Angle(tvec),
@@ -66,13 +68,31 @@ namespace game.shapes {
 		AddTrajectoryPoint(point: core.IVector): void
 		{
 			let last = this.Trajectory[this.Trajectory.length - 1];
+			let min = MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS;
 			
-			if (last) {
+			if (last)
+			{
 				vec.Subtract(point, last, tvec);
-				if (vec.Length(tvec) < MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS) return;
+				let len = vec.Length(tvec);
+				if (len > min)
+				{
+					vec.Unit(tvec);
+					vec.Scale(tvec, min);
+					let minVec = vec.Clone(tvec);
+					
+					while (len > min)
+					{
+						vec.Add(last, minVec, tvec);
+						this.Trajectory.push(last = vec.Clone(tvec))
+						len -= min;
+					}
+				}
+			}
+			else
+			{
+				this.Trajectory.push(vec.Clone(point));
 			}
 			
-			this.Trajectory.push(vec.Clone(point));
 			this.Color = 'white';	
 		}
 	}
