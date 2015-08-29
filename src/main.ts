@@ -1,5 +1,6 @@
 /// <reference path="core/Game" />
 /// <reference path="core/MouseInputManger" />
+/// <reference path="core/TouchInputController" />
 /// <reference path="gfx/Rectangle" />
 /// <reference path="gfx/Text" />
 /// <reference path="game/World" />
@@ -30,7 +31,7 @@ class DemoState implements core.IState{
 	timeDelta: number;
 	Mouse: core.MouseInputManager;
 	Cursor = new gfx.Rectangle(0, 0, 10, 10, {fillStyle: 'red'});
-	World = new game.World();
+	World: game.World;
 	SelectedShape: game.shapes.AbstractShape;
 	ResizeStrategy: FillWindowResizeStrategy;
 	
@@ -38,20 +39,21 @@ class DemoState implements core.IState{
 	Stage: core.Layer;
 	
 	
-	Start(myGame: core.IGame): void
+	Start(myGame: core.Game): void
 	{
 		console.log('start');
 		this.Cursor.Anchor.Set(0.5, 0.5);
 		
-		this.Stage = new core.Layer(300, 400, myGame.Canvas.width, myGame.Canvas.height);
-		this.Stage.Scale.Set(0.5, 0.5);
+		this.Stage = new core.Layer(0, 0, myGame.Canvas.width, myGame.Canvas.height);
+		// this.Stage.Scale.Set(0.5, 0.5);
 		
-		this.Stage.AddChild(
-			new gfx.Rectangle(0, 0, this.Stage.Size.x, this.Stage.Size.y, {strokeStyle: 'green'})
-		)
+		this.World = new game.World(myGame.Canvas.width, myGame.Canvas.height);
+		// this.World.Position.Set(0, 30);
 		
-		let p = new game.shapes.RectangleShape(100, 0, 50, 50);
-		p.Velocity.Set(30, 30);
+		this.Stage.AddChild(this.World);
+		
+		let p = new game.shapes.RectangleShape(100, 10, 20, 20);
+		p.Velocity.Set(20, 20);
 		p.Anchor.Set(0.5, 0.5);
 		p.Rotation = Math.PI / 4;
 		this.Stage.AddChild(p);
@@ -62,6 +64,12 @@ class DemoState implements core.IState{
 		this.Mouse.SetOnMoveCb(this.OnMouseMove, this);
 		this.Mouse.SetOnDownCb(this.OnMousDown, this);
 		this.Mouse.SetOnUpCb(this.OnMouseUp, this);
+		
+		let touch = new core.TouchInputController(myGame);
+		touch.SetOnMoveCb(this.OnMouseMove, this);
+		touch.SetOnDownCb(this.OnMousDown, this);
+		touch.SetOnUpCb(this.OnMouseUp, this);
+		
 		
 		this.ResizeStrategy = new FillWindowResizeStrategy(myGame, this.OnResize.bind(this));
 		this.ResizeStrategy.OnResize();
@@ -74,10 +82,11 @@ class DemoState implements core.IState{
 	
 	OnMousDown(x: number, y: number): void
 	{
+		this.Cursor.Position.Set(x, y);
 		let shape = this.World.GetShapeUnder(this.Cursor.Position);
-			
+		
 		if (shape) {
-			shape.AddTrajectoryPoint(this.Stage.ToLocal(this.Cursor.Position));
+			shape.AddTrajectoryPoint(this.World.ToLocal(this.Cursor.Position));
 			this.SelectedShape = shape;
 		}
 	}
@@ -100,7 +109,7 @@ class DemoState implements core.IState{
 		this.World.Update(timeDelta);
 		
 		if (this.SelectedShape) {
-			this.SelectedShape.AddTrajectoryPoint(this.Stage.ToLocal(this.Cursor.Position));
+			this.SelectedShape.AddTrajectoryPoint(this.World.ToLocal(this.Cursor.Position));
 		}
 	}
 	
@@ -110,6 +119,7 @@ class DemoState implements core.IState{
 		ctx.fillText((this.timeDelta * 1000).toFixed(2), 10, 10);
 		
 		this.Stage.Draw(ctx);
+		this.Cursor.Draw(ctx);
 		
 		for (let s of this.World.Shapes) {
 			ctx.beginPath();
@@ -119,7 +129,7 @@ class DemoState implements core.IState{
 			ctx.stroke();
 		}
 		
-		this.World.DrawTrajectories(ctx);
+		// this.World.DrawTrajectories(ctx);
 	}
 	
 	OnResize(width: number, height: number): void
