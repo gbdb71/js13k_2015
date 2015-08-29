@@ -7,6 +7,8 @@ namespace core {
 		States: { [name:string]: IState } = { };
 		Context: CanvasRenderingContext2D;
 		Canvas: HTMLCanvasElement;
+		/** Seconds since last frame. */
+		TimeDelta: number = 0;
 		
 		private ActiveState: IState;
 		private RequestAnimationFrame: Function;
@@ -42,8 +44,9 @@ namespace core {
 		{
 			let timeDelta = now - this.LastFrameTime;
 			if (timeDelta > 50) timeDelta = 50;
+			this.TimeDelta = timeDelta / 1000;
 			
-			this.ActiveState.Update(timeDelta/1000);
+			this.ActiveState.Update(this.TimeDelta);
 			this.ActiveState.Draw(this.Context);
 			
 			this.LastFrameTime = now;

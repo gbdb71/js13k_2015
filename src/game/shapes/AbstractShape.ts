@@ -5,7 +5,8 @@ namespace game.shapes {
 	let vec = core.vector;
 	let tvec = vec.New();
 	
-	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 40;
+	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 30;
+	const DEFAULT_ROTATION_SPEED = 0.2;
 	
 	export class AbstractShape extends core.DisplayObject
 	{
@@ -13,7 +14,7 @@ namespace game.shapes {
 		Trajectory: core.Vector[] = [];
 		
 		private AngleAcc: number = 0;
-		private RotationSpeed: number = 0.1;
+		private RotationSpeed: number = DEFAULT_ROTATION_SPEED;
 		
 		Update(timeDelta: number): void
 		{
@@ -24,7 +25,7 @@ namespace game.shapes {
 				if (vec.Length(tvec) < 5) {
 					this.Trajectory.shift();
 					this.AngleAcc = 0;
-					this.RotationSpeed = 0.1;
+					this.RotationSpeed = DEFAULT_ROTATION_SPEED;
 				}
 
 				let target = vec.Angle(tvec),

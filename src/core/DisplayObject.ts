@@ -106,6 +106,11 @@ namespace core {
 			return xAxis && yAxis;
 		}
 		
+		RemoveFromParent(): void
+		{
+			this.Parent.RemoveChild(this);
+		}
+		
 	}
 	
 	export class Layer extends DisplayObject
