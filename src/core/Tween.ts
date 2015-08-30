@@ -16,7 +16,7 @@ namespace core {
 		key: string;
 		start: number;
 		change: number;
-		final: number;
+		end: number;
 	}
 	
 	export class Tween
@@ -71,7 +71,7 @@ namespace core {
 					key: key,
 					start: 0,
 					change: 0,
-					final: properites[key]
+					end: properites[key]
 				});
 			}
 			this.Duration = duration;
@@ -151,7 +151,7 @@ namespace core {
 			for (let property of this.TweenedProperties)
 			{
 				property.start = this.Target[property.key];
-				property.change = property.final - property.start;
+				property.change = property.end - property.start;
 			}
 		}
 	}

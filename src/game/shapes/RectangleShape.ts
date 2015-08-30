@@ -35,6 +35,7 @@ namespace game.shapes {
 			
 			this.ScoreText.SetText(this.Score.toString());
 			this.ScoreText.Rotation = -this.Rotation;
+			
 			this.ScoreText.Draw(ctx);
 		}
 	}

@@ -69,11 +69,11 @@ class DemoState implements core.IState{
 		
 		this.World.SpawnShape();
 		
-		this.ScoreText = new gfx.Text(5.5, this.World.Size.y + 5.5);
+		this.ScoreText = new gfx.AAText(5.5, this.World.Size.y + 5.5);
 		this.ScoreText.SetSize(10);
 		this.Stage.AddChild(this.ScoreText);
 		
-		this.FPSText = new gfx.Text(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
+		this.FPSText = new gfx.AAText(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
 		this.FPSText.Anchor.Set(1, 0);
 		this.FPSText.SetSize(10);
 		this.Stage.AddChild(this.FPSText);

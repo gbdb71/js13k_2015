@@ -185,15 +185,16 @@ namespace game {
 		
 		DisplayScore(position: core.IVector, score: number): void
 		{
-			let text = new gfx.Text(position.x, position.y, (score > 0 ? '+' : '') + score);
+			let text = new gfx.AAText(position.x, position.y, (score > 0 ? '+' : '') + score);
 			text.Anchor.Set(0.5, 0.5);
-			
+			text.SetColor(score > 0 ? 'white' : 'red');
+
 			this.Overlay.AddChild(text);
-			
-			let scaleTo = score > 0 ? 2 : 1;
+
+			let scale = score > 0 ? 2 : 1;
 			
 			this.Tweens.New(text.Scale)
-				.To({x: scaleTo, y: scaleTo}, 0.5, core.easing.OutCubic)
+				.To({x: scale, y: scale}, 0.5, core.easing.OutCubic)
 				.Delay(0.3)
 				.Then(text)
 				.To({Alpha: 0}, 0.3)
@@ -204,7 +205,7 @@ namespace game {
 				
 			let sign = score > 0 ? 1 : -1;
 			this.Tweens.New(text.Position)
-				.To({y: position.y - sign * (text.Size.y + 5)}, 0.2)
+				.To({y: position.y - sign * (text.Size.y * scale)}, 0.2)
 				.Start();
 		}
 		

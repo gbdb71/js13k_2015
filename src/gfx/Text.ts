@@ -7,16 +7,29 @@ namespace gfx {
 	{
 		DotSizePx: number;
 		CharWidthPx: number;
+		FontRenderer: FontChache;
 		
 		constructor(
 			x: number, y: number,
 			
-			private Text: string = "",
-			private Style = {fillStyle: 'white', size: 20, font: PixelFont}
+			protected Text: string = "",
+			protected Style = {Size: 20, Color: 'white', Font: PixelFont}
 		) {
 			super(x, y, 0, 0);
 			
-			this.SetSize(Style.size);
+			this.SetColor(Style.Color);
+			this.SetSize(Style.Size);
+		}
+		
+		SetColor(color: string): void
+		{
+			if (this.Style.Font.Cache[color])
+			{
+				this.FontRenderer = this.Style.Font.Cache[color];
+			}
+			else {
+				this.FontRenderer = this.Style.Font.Cache[color] = new FontChache(this.Style.Font, this.Style.Size, color);
+			}
 		}
 		
 		SetText(text: string): void
@@ -27,23 +40,22 @@ namespace gfx {
 		
 		SetSize(size: number): void
 		{
-			this.Style.size = size;
-			this.DotSizePx = size / this.Style.font.Char.Height;
-			this.CharWidthPx = this.Style.font.Char.Width * this.DotSizePx;
+			this.Style.Size = size;
+			this.DotSizePx = size / this.Style.Font.Char.Height;
+			this.CharWidthPx = this.Style.Font.Char.Width * this.DotSizePx;
 			this.UpdateSize();
 		}
 		
 		
 		DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
-			let scale = this.Style.size / PixelFontCache.Size;
+			let scale = this.Style.Size / this.FontRenderer.Size;
 			
-			ctx.fillStyle = this.Style.fillStyle;
 			for(let i = 0; i < this.Text.length; ++i) {
 				let letter = this.Text[i];
 				
 				if (letter !== ' ') {
-					PixelFontCache.DrawLetter(ctx, letter, 0, 0, scale);
+					this.FontRenderer.DrawLetter(ctx, letter, 0, 0, scale);
 				}
 				
 				ctx.translate(this.CharWidthPx + this.DotSizePx, 0);
@@ -53,72 +65,40 @@ namespace gfx {
 		private UpdateSize(): void
 		{
 			this.Size.x = (this.CharWidthPx + this.DotSizePx) * this.Text.length - this.DotSizePx;
-			this.Size.y = this.Style.size; 
+			this.Size.y = this.Style.Size; 
 		}
 	}
 	
-	class FontChache {
-		
-		Cache: HTMLCanvasElement;
-		CacheMap: { [letter: string]: number } = { };
-		
-		DotSizePx: number;
-		CharWidthPx: number;
-		
-		constructor(
-			public Font: IFont,
-			public Size: number,
-			public Color = 'white'
-		) {
-			this.DotSizePx = Size / Font.Char.Height;
-			this.CharWidthPx = Font.Char.Width * this.DotSizePx;
-			
-			this.Cache = document.createElement('canvas');
-			this.Cache.width = Object.keys(Font.Letter).length * Math.ceil(this.CharWidthPx + this.DotSizePx);
-			this.Cache.height = Size;
-			
-			console.log('FontCache Size', this.Size, 'DotPx', this.DotSizePx, 'Color', this.Color);
-			this.Render();
-		}
-		
-		DrawLetter(ctx: CanvasRenderingContext2D, letter: string, x = 0, y = 0, scale = 1): void
+	/**
+	 * Axis aligned text.
+	 * 
+	 * Text which is optimized for drawing without rotation.
+	 */
+	export class AAText extends Text
+	{
+		Draw(ctx: CanvasRenderingContext2D): void
 		{
-			ctx.drawImage(
-				this.Cache, this.CacheMap[letter], 0, this.CharWidthPx, this.Size, 
-				x, y, this.CharWidthPx * scale, this.Size * scale
-			);	
-		}
+			let scale = this.Style.Size / this.FontRenderer.Size,
+				{x, y} = this.Position;
 		
-		private Render(): void
-		{
-			let ctx = this.Cache.getContext('2d');
-			let offsetX = 0;
+			x -= this.Size.x * this.Anchor.x * this.Scale.x;
+			y -= this.Size.y * this.Anchor.y * this.Scale.y;
 			
-			ctx.fillStyle = this.Color;
-			for(let letter in this.Font.Letter)
-			{
-				this.RenderLetter(ctx, letter);
-				this.CacheMap[letter] = offsetX;
+			let alphaSave = ctx.globalAlpha;	
+			ctx.globalAlpha *= this.Alpha;
+			
+			for(let i = 0; i < this.Text.length; ++i) {
+				let letter = this.Text[i];
 				
-				let dx = Math.ceil(this.CharWidthPx + this.DotSizePx);
-				// let dx = this.CharWidthPx;
-				offsetX += dx;
-				ctx.translate(dx, 0);
-			}
-		}
-		
-		private RenderLetter(ctx: CanvasRenderingContext2D, letter: string): void
-		{
-			let font = this.Font, dpx = this.DotSizePx;
-			
-			for (let x = 0; x < font.Char.Width; ++x) {
-				for (let y = 0; y < font.Char.Height; ++y) {
-					let dot = font.Letter[letter][y * font.Char.Width + x];
-					if (dot) ctx.fillRect(x * dpx, y * dpx, dpx, dpx);
+				if (letter !== ' ') {
+					this.FontRenderer.DrawLetter(ctx, letter, x, y, scale * this.Scale.x, scale * this.Scale.y);
 				}
+				
+				x += (this.CharWidthPx + this.DotSizePx) * this.Scale.x;
 			}
+			
+			ctx.globalAlpha = alphaSave;
 		}
 	}
 	
-	export var PixelFontCache = new FontChache(PixelFont, 20);
 }

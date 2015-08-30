@@ -1,9 +1,7 @@
+/// <reference path="IFont" />
+/// <reference path="FontCache" />
+
 namespace gfx {
-	
-	export interface IFont {
-		Char: { Width: number, Height: number };
-		Letter: { [letter:string]: number[] };
-	}
 	
 	export var PixelFont: IFont = {
 		
@@ -189,7 +187,9 @@ namespace gfx {
 				0, 0, 1,
 				1, 1, 1
 			]
-		}
+		},
+		
+		Cache: { }
+		
 	};
-	
 }
