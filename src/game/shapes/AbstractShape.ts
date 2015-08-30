@@ -23,7 +23,7 @@ namespace game.shapes {
 		
 		Update(timeDelta: number): void
 		{
-			if (this.Trajectory.length > 0) {
+			if (this.Trajectory.length > 1) {
 				let [moveTo] = this.Trajectory;
 				vec.Subtract(moveTo, this.Position, tvec);
 

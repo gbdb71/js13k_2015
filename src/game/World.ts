@@ -7,7 +7,7 @@ namespace game {
 	
 	const vec = core.vector;
 	
-	export class World extends core.DisplayObject
+	export class World extends core.Layer
 	{
 		ShapesHead: shapes.AbstractShape;
 		ShapesTail: shapes.AbstractShape;
@@ -70,6 +70,8 @@ namespace game {
 			else {
 				this.ShapesHead = this.ShapesTail = shape;
 			}
+			
+			this.AddChild(shape);
 		}
 		
 		RemoveShape(shape: shapes.AbstractShape): void
@@ -97,9 +99,9 @@ namespace game {
 				}
 				
 			}
-			shape.RemoveFromParent();
+			
+			this.RemoveChild(shape);
 		}
-
 		
 		GetShapeUnder(point: core.IVector): shapes.AbstractShape
 		{
@@ -110,6 +112,21 @@ namespace game {
 				}
 			}
 			return null;
+		}
+		
+		FinishTrajectory(shape: shapes.AbstractShape): void
+		{
+			if (shape.Trajectory.length < 2) return;
+			
+			let a = shape.Trajectory[shape.Trajectory.length - 2],
+				b = shape.Trajectory[shape.Trajectory.length - 1],
+				tmp = vec.Tmp;	
+			
+			vec.Subtract(b, a, tmp);
+			vec.Scale(tmp, 10);
+			vec.Add(b, tmp, tmp);
+			
+			shape.AddTrajectoryPoint(tmp);
 		}
 		
 		DrawSelf(ctx: CanvasRenderingContext2D): void
@@ -156,6 +173,8 @@ namespace game {
 				}
 				
 			}
+			
+			super.DrawSelf(ctx);
 		}
 		
 		IsColliding(a: shapes.AbstractShape, b: shapes.AbstractShape): boolean
@@ -205,7 +224,6 @@ namespace game {
 				.To({x: 1, y: 1}, 0.2)
 				.Start();
 				
-			this.Parent.AddChild(shape);
 			this.AddShape(shape);
 		}
 		
@@ -215,7 +233,7 @@ namespace game {
 			text.Anchor.Set(0.5, 0.5);
 			text.SetColor(score > 0 ? 'white' : 'red');
 
-			this.Parent.AddChild(text);
+			this.AddChild(text);
 
 			let scale = score > 0 ? 2 : 1;
 			

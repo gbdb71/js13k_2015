@@ -29,17 +29,17 @@ class FillWindowResizeStrategy
 
 class DemoState implements core.IState{
 	
-	Mouse: core.MouseInputManager;
 	Cursor = new gfx.Rectangle(0, 0, 10, 10, {fillStyle: 'red'});
 	World: game.World;
 	SelectedShape: game.shapes.AbstractShape;
-	ResizeStrategy: FillWindowResizeStrategy;
 	
 	Stage: core.Layer;
-	
 	Game: core.Game;
+	ResizeStrategy: FillWindowResizeStrategy;
+	
 	ScoreText: gfx.Text;
 	FPSText: gfx.Text;
+	BarHeight: number = 50;
 	
 	Start(mgame: core.Game): void
 	{
@@ -55,19 +55,21 @@ class DemoState implements core.IState{
 		
 		this.Stage.AddChild(this.World);
 		
-		this.Mouse = new core.MouseInputManager(mgame);
-		this.Mouse.SetOnMoveCb(this.OnMouseMove, this);
-		this.Mouse.SetOnDownCb(this.OnMousDown, this);
-		this.Mouse.SetOnUpCb(this.OnMouseUp, this);
+		let mouse = new core.MouseInputManager(mgame);
+		mouse.SetOnMoveCb(this.OnMouseMove, this);
+		mouse.SetOnDownCb(this.OnMousDown, this);
+		mouse.SetOnUpCb(this.OnMouseUp, this);
 		
 		let touch = new core.TouchInputController(mgame);
 		touch.SetOnMoveCb(this.OnMouseMove, this);
 		touch.SetOnDownCb(this.OnMousDown, this);
 		touch.SetOnUpCb(this.OnMouseUp, this);
 		
-		
-		
 		this.World.SpawnShape();
+		
+		this.Stage.AddChild(
+			new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, this.BarHeight, {fillStyle: 'black'})
+		);
 		
 		this.ScoreText = new gfx.AAText(5.5, this.World.Size.y + 5.5);
 		this.ScoreText.SetSize(10);
@@ -91,10 +93,13 @@ class DemoState implements core.IState{
 		}
 		
 		let local = this.World.ToLocal(this.Cursor.Position);
-		if (local.y < 0 || local.y > this.World.Size.y) {
-			this.SelectedShape = undefined
-		}
-		else if (local.x < 0 || local.x > this.World.Size.y) {
+		if (this.SelectedShape &&
+			(
+				(local.y < 0 || local.y > this.World.Size.y) ||
+				(local.x < 0 || local.x > this.World.Size.y)
+			))
+		{
+			this.World.FinishTrajectory(this.SelectedShape)
 			this.SelectedShape = undefined
 		}
 	}
@@ -106,14 +111,17 @@ class DemoState implements core.IState{
 		
 		if (shape) {
 			shape.Trajectory = [];
-			shape.AddTrajectoryPoint(this.World.ToLocal(this.Cursor.Position));
 			this.SelectedShape = shape;
 		}
 	}
 	
 	OnMouseUp(x: number, y: number): void
 	{
-		this.SelectedShape = null;
+		if (this.SelectedShape)
+		{
+			this.World.FinishTrajectory(this.SelectedShape);
+			this.SelectedShape = undefined;
+		}
 	}
 	
 	Update(timeDelta: number): void
