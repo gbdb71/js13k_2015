@@ -1,4 +1,5 @@
 /// <reference path="../../core/DisplayObject"/>
+/// <reference path="../Config" />
 
 namespace game.shapes {
 	
@@ -93,7 +94,7 @@ namespace game.shapes {
 				this.Trajectory.push(vec.Clone(point));
 			}
 			
-			this.Color = 'white';	
+			this.Color = game.config.color.active;	
 		}
 	}
 	

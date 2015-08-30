@@ -43,6 +43,8 @@ class DemoState implements core.IState{
 	
 	Start(mgame: core.Game): void
 	{
+		document.body.style.background = game.config.color.background;
+		
 		this.Game = mgame;
 		// this.Cursor.Anchor.Set(0.5, 0.5);
 		
@@ -65,17 +67,15 @@ class DemoState implements core.IState{
 		touch.SetOnDownCb(this.OnMousDown, this);
 		touch.SetOnUpCb(this.OnMouseUp, this);
 		
-		this.World.SpawnShape();
-		
 		this.Stage.AddChild(
-			new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, this.BarHeight, {fillStyle: 'black'})
+			new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, this.BarHeight, {fillStyle: game.config.color.background})
 		);
 		
-		this.ScoreText = new gfx.AAText(5.5, this.World.Size.y + 5.5);
+		this.ScoreText = new gfx.Text(5.5, this.World.Size.y + 5.5);
 		this.ScoreText.SetSize(10);
 		this.Stage.AddChild(this.ScoreText);
 		
-		this.FPSText = new gfx.AAText(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
+		this.FPSText = new gfx.Text(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
 		this.FPSText.Anchor.Set(1, 0);
 		this.FPSText.SetSize(10);
 		this.Stage.AddChild(this.FPSText);
