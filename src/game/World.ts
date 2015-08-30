@@ -15,16 +15,21 @@ namespace game {
 		Score: number = 0;
 		TimeElapsed: number = 0;
 		
+		Overlay: core.Layer;
+		Tweens: core.TweenManager;
+		
 		constructor(width: number, height: number)
 		{
 			super(0, 0, width, height);
+			this.Overlay = new core.Layer(0, 0, width, height);
+			this.Tweens = new core.TweenManager();
 		}
 		
 		Update(timeDelta: number): void
 		{
 			this.TimeElapsed += timeDelta;
 			
-			if (this.TimeElapsed > 2) {
+			if (this.TimeElapsed > 3) {
 				this.SpawnShape(); this.TimeElapsed = 0;
 			}
 			
@@ -46,13 +51,18 @@ namespace game {
 				if (shape.Position.y < -shape.Size.y / 2) {
 					this.Score -= shape.Score * 10;
 					this.RemoveShape(shape);
+					shape.Position.y += shape.Size.y/2;
+					this.DisplayScore(shape.Position, -shape.Score * 10);
 					this.SpawnShape();
 				}
 				else if (shape.Position.y > this.Size.y) {
 					this.RemoveShape(shape);
 					this.Score += shape.Score;
+					this.DisplayScore(shape.Position, shape.Score);
 				}
 			}
+			
+			this.Tweens.Update(timeDelta);
 		}
 		
 		AddShape(shape: shapes.AbstractShape): void
@@ -151,6 +161,8 @@ namespace game {
 				}
 				
 			}
+			
+			this.Overlay.Draw(ctx);
 		}
 		
 		IsColliding(a: shapes.AbstractShape, b: shapes.AbstractShape): boolean
@@ -169,6 +181,31 @@ namespace game {
 			
 			this.Parent.AddChild(shape);
 			this.AddShape(shape);
+		}
+		
+		DisplayScore(position: core.IVector, score: number): void
+		{
+			let text = new gfx.Text(position.x, position.y, (score > 0 ? '+' : '') + score);
+			text.Anchor.Set(0.5, 0.5);
+			
+			this.Overlay.AddChild(text);
+			
+			let scaleTo = score > 0 ? 2 : 1;
+			
+			this.Tweens.New(text.Scale)
+				.To({x: scaleTo, y: scaleTo}, 0.5, core.easing.OutCubic)
+				.Delay(0.3)
+				.Then(text)
+				.To({Alpha: 0}, 0.3)
+				.WhenDone(() => {
+					text.RemoveFromParent();
+				})
+				.Start();
+				
+			let sign = score > 0 ? 1 : -1;
+			this.Tweens.New(text.Position)
+				.To({y: position.y - sign * (text.Size.y + 5)}, 0.2)
+				.Start();
 		}
 		
 	}

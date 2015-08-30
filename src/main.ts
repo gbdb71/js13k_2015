@@ -41,8 +41,6 @@ class DemoState implements core.IState{
 	ScoreText: gfx.Text;
 	FPSText: gfx.Text;
 	
-	Tween: core.Tween;
-	
 	Start(mgame: core.Game): void
 	{
 		this.Game = mgame;
@@ -79,16 +77,6 @@ class DemoState implements core.IState{
 		this.FPSText.Anchor.Set(1, 0);
 		this.FPSText.SetSize(10);
 		this.Stage.AddChild(this.FPSText);
-		
-		let tmp = new gfx.Text(100.5, 100.5, "CORE");
-		this.Stage.AddChild(tmp);
-		this.Tween = new core.Tween(tmp.Scale);
-		this.Tween
-			.To({x: 3, y: 3})
-			.Then()
-			.To({x: 1, y: 1})
-			.Then(tmp)
-			.To({Rotation: Math.PI});
 		
 		this.ResizeStrategy = new FillWindowResizeStrategy(mgame, this.OnResize.bind(this));
 		this.ResizeStrategy.OnResize();
@@ -130,7 +118,6 @@ class DemoState implements core.IState{
 	
 	Update(timeDelta: number): void
 	{
-		if (this.Tween) this.Tween.Update(timeDelta);
 		this.World.Update(timeDelta);
 		
 		if (this.SelectedShape) {
