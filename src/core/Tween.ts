@@ -23,7 +23,9 @@ namespace core {
 	{
 		ElapsedTime: number = 0;
 		
+		/** Next tween in this chain */
 		Next: Tween;
+		/** Previous tween in this chain */
 		Prev: Tween;
 		
 		TweenedProperties: IPropertyTween[]; 
@@ -117,18 +119,17 @@ namespace core {
 				
 				self.ElapsedTime += timeDelta;
 				
-				if (self.ElapsedTime < self.Duration)
+				if (self.ElapsedTime <= self.Duration)
 				{
-					for (let property of self.TweenedProperties)
-					{
-						self.Target[property.key] = self.Easeing(self.ElapsedTime, property.start, property.change, self.Duration);
-					}
+					self.UpdateProperties(self.ElapsedTime)
 					return;
 				}
 				else 
 				{
 					if (!self.IsDone)
 					{
+						self.UpdateProperties(self.Duration);
+						
 						if (self.OnDoneCallback) self.OnDoneCallback();
 						if (self.Manager && !self.Next) self.Manager.StopTween(self.GetRoot());
 						self.IsDone = true;
@@ -144,6 +145,13 @@ namespace core {
 			let root = this;
 			while(root.Prev) { root = root.Prev; }
 			return root;
+		}
+		
+		private UpdateProperties(elapsedTime: number): void
+		{
+			for (let property of this.TweenedProperties) {
+				this.Target[property.key] = this.Easeing(this.ElapsedTime, property.start, property.change, this.Duration);
+			}
 		}
 		
 		private InitProperties(): void

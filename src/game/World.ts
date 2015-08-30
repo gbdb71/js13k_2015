@@ -15,13 +15,11 @@ namespace game {
 		Score: number = 0;
 		TimeElapsed: number = 0;
 		
-		Overlay: core.Layer;
 		Tweens: core.TweenManager;
 		
 		constructor(width: number, height: number)
 		{
 			super(0, 0, width, height);
-			this.Overlay = new core.Layer(0, 0, width, height);
 			this.Tweens = new core.TweenManager();
 		}
 		
@@ -49,16 +47,13 @@ namespace game {
 				}
 				
 				if (shape.Position.y < -shape.Size.y / 2) {
-					this.Score -= shape.Score * 10;
-					this.RemoveShape(shape);
-					shape.Position.y += shape.Size.y/2;
-					this.DisplayScore(shape.Position, -shape.Score * 10);
-					this.SpawnShape();
+					this.OnShapeHitBorder(shape);
+				}
+				else if (shape.Position.x > this.Size.x || shape.Position.x < 0) {
+					this.OnShapeHitBorder(shape);
 				}
 				else if (shape.Position.y > this.Size.y) {
-					this.RemoveShape(shape);
-					this.Score += shape.Score;
-					this.DisplayScore(shape.Position, shape.Score);
+					this.OnShapeHitBottom(shape);
 				}
 			}
 			
@@ -161,8 +156,6 @@ namespace game {
 				}
 				
 			}
-			
-			this.Overlay.Draw(ctx);
 		}
 		
 		IsColliding(a: shapes.AbstractShape, b: shapes.AbstractShape): boolean
@@ -173,12 +166,45 @@ namespace game {
 			return vec.Length(dist) < (a.Size.x + b.Size.x) / 2;
 		}
 		
+		OnShapeHitBorder(shape: shapes.AbstractShape): void
+		{
+			this.Score -= shape.Score * 10;
+			this.RemoveShape(shape);
+			shape.Position.y += shape.Size.y/2;
+			this.DisplayScore(shape.Position, -shape.Score * 10);
+			this.SpawnShape();
+		}
+		
+		OnShapeHitBottom(shape: shapes.AbstractShape): void
+		{
+			this.RemoveShape(shape);
+			this.Score += shape.Score;
+			this.DisplayScore(shape.Position, shape.Score);
+		}
+		
 		SpawnShape(): void
 		{
-			let shape = new shapes.RectangleShape(Math.random() * this.Size.x, this.Size.y - 10, 30, 30);
+			let shape = new shapes.RectangleShape(core.Random(15, this.Size.x - 15), this.Size.y - 5, 30, 30);
 			shape.Anchor.Set(0.5, 0.5);
-			shape.Velocity.Set(core.Random(-10, 10), -60);
+			shape.Alpha = 0;
+			shape.Scale.Set(0.1, 0.1);
 			
+			let tmp = vec.Tmp;
+			tmp.y = 0;
+			tmp.x = core.Random(15, this.Size.x - 15);
+			vec.Subtract(shape.Position, tmp, tmp);
+			vec.Unit(tmp);
+			vec.Scale(tmp, core.Random(-80, -60));
+			vec.Clone(tmp, shape.Velocity); 
+			
+			this.Tweens.New(shape)
+				.To({Alpha: 1}, 0.2)
+				.Start();
+				
+			this.Tweens.New(shape.Scale)
+				.To({x: 1, y: 1}, 0.2)
+				.Start();
+				
 			this.Parent.AddChild(shape);
 			this.AddShape(shape);
 		}
@@ -189,7 +215,7 @@ namespace game {
 			text.Anchor.Set(0.5, 0.5);
 			text.SetColor(score > 0 ? 'white' : 'red');
 
-			this.Overlay.AddChild(text);
+			this.Parent.AddChild(text);
 
 			let scale = score > 0 ? 2 : 1;
 			
@@ -203,10 +229,20 @@ namespace game {
 				})
 				.Start();
 				
-			let sign = score > 0 ? 1 : -1;
-			this.Tweens.New(text.Position)
-				.To({y: position.y - sign * (text.Size.y * scale)}, 0.2)
-				.Start();
+			if (position.x < 0 || position.x > this.Size.x) 
+			{
+				let sign = position.x > 0 ? 1 : -1;
+				this.Tweens.New(text.Position)
+					.To({x: position.x - sign * (text.Size.x * scale)}, 0.2)
+					.Start();
+			}
+			else
+			{
+				let sign = position.y > 0 ? 1 : -1;
+				this.Tweens.New(text.Position)
+					.To({y: position.y - sign * (text.Size.y * scale)}, 0.2)
+					.Start();
+			}
 		}
 		
 	}
