@@ -10,6 +10,7 @@ namespace core {
 		Size: Vector;
 		Scale: Vector;
 		Rotation: number;
+		Alpha: number;
 		Parent: Layer;
 		
 		constructor(x: number, y: number, width: number, height: number)
@@ -19,18 +20,24 @@ namespace core {
 			this.Anchor = vector.New(0, 0);
 			this.Scale = vector.New(1, 1);
 			this.Rotation = 0;
+			this.Alpha = 1;
 		}
 		
 		Draw(ctx: CanvasRenderingContext2D): void
 		{
 			ctx.save();
+			ctx.globalAlpha *= this.Alpha;
+			
 			ctx.translate(this.Position.x, this.Position.y);
 			ctx.scale(this.Scale.x, this.Scale.y);
 			ctx.rotate(this.Rotation);
+			
 			if (!vector.IsZero(this.Anchor)) {
 				ctx.translate(-this.Anchor.x * this.Size.x, - this.Anchor.y * this.Size.y);
 			}
+			
 			this.DrawSelf(ctx);
+			
 			ctx.restore();
 		}
 		
