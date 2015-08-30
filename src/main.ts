@@ -5,6 +5,7 @@
 /// <reference path="gfx/Text" />
 /// <reference path="game/World" />
 /// <reference path="game/shapes/RectangleShape" />
+/// <reference path="core/Tween" />
 
 class FillWindowResizeStrategy 
 {
@@ -40,6 +41,8 @@ class DemoState implements core.IState{
 	ScoreText: gfx.Text;
 	FPSText: gfx.Text;
 	
+	Tween: core.Tween;
+	
 	Start(mgame: core.Game): void
 	{
 		this.Game = mgame;
@@ -67,19 +70,25 @@ class DemoState implements core.IState{
 		
 		
 		this.World.SpawnShape();
-		setInterval(() => {
-			this.World.SpawnShape();
-		}, 2000);
 		
-		this.ScoreText = new gfx.Text(5.5, this.World.Size.y + 5.5, "SCORE: 1234567890+");
+		this.ScoreText = new gfx.Text(5.5, this.World.Size.y + 5.5);
 		this.ScoreText.SetSize(10);
 		this.Stage.AddChild(this.ScoreText);
 		
-		this.FPSText = new gfx.Text(this.World.Size.x - 5.5, this.World.Size.y + 5.5, "FPS 60");
+		this.FPSText = new gfx.Text(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
 		this.FPSText.Anchor.Set(1, 0);
 		this.FPSText.SetSize(10);
 		this.Stage.AddChild(this.FPSText);
 		
+		let tmp = new gfx.Text(100.5, 100.5, "CORE");
+		this.Stage.AddChild(tmp);
+		this.Tween = new core.Tween(tmp.Scale);
+		this.Tween
+			.To({x: 3, y: 3})
+			.Then()
+			.To({x: 1, y: 1})
+			.Then(tmp)
+			.To({Rotation: Math.PI});
 		
 		this.ResizeStrategy = new FillWindowResizeStrategy(mgame, this.OnResize.bind(this));
 		this.ResizeStrategy.OnResize();
@@ -121,6 +130,7 @@ class DemoState implements core.IState{
 	
 	Update(timeDelta: number): void
 	{
+		if (this.Tween) this.Tween.Update(timeDelta);
 		this.World.Update(timeDelta);
 		
 		if (this.SelectedShape) {

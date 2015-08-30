@@ -13,6 +13,7 @@ namespace game {
 		ShapesTail: shapes.AbstractShape;
 		
 		Score: number = 0;
+		TimeElapsed: number = 0;
 		
 		constructor(width: number, height: number)
 		{
@@ -21,6 +22,12 @@ namespace game {
 		
 		Update(timeDelta: number): void
 		{
+			this.TimeElapsed += timeDelta;
+			
+			if (this.TimeElapsed > 2) {
+				this.SpawnShape(); this.TimeElapsed = 0;
+			}
+			
 			for (let shape = this.ShapesHead; shape; shape = shape.Next)
 			{
 				shape.Update(timeDelta);
