@@ -45,14 +45,15 @@ namespace game {
 		Tweens: core.TweenManager;
 		
 		Config = {
-			SpawnTime: 0.5,
-			LevelTime: 5
+			SpawnTime: 1,
+			LevelTime: 30
 		}
 		
 		Score: number = 0;
 		MoveScore: number = 1;
 		TimeLeft: number = this.Config.LevelTime;
 		TimeLeftText: TimeLeftText;
+		IsOver: boolean = false;
 		
 		constructor(width: number, height: number)
 		{
@@ -62,10 +63,11 @@ namespace game {
 			
 			this.Timers.Repeat(this.Config.SpawnTime, this.SpawnShape, this);
 			this.Timers.Delay(this.Config.LevelTime, this.OnTimesUp, this);
+			this.Timers.Repeat(1, this.WarnAboutTime, this, this.Config.LevelTime - 5.5);
 			
 			this.TimeLeftText = new TimeLeftText(width/2, width/3);
 			this.TimeLeftText.Anchor.Set(0.5, 0.5);
-			this.TimeLeftText.SetColor('#32465a');
+			this.TimeLeftText.SetColor('#42566a');
 			this.TimeLeftText.SetSize(120);
 		}
 		
@@ -340,6 +342,8 @@ namespace game {
 							.Start();
 					}
 				}
+				
+				this.IsOver = true;
 			});
 		}
 		
@@ -405,6 +409,16 @@ namespace game {
 					.To({y: position.y - sign * (text.Size.y * scale)}, 0.2)
 					.Start();
 			}
+		}
+		
+		WarnAboutTime(): void
+		{
+			console.log('time');
+			this.Tweens.New(this.TimeLeftText.Scale)
+				.To({x: 2, y: 2}, 0.01)
+				.Then()
+				.To({x: 1, y: 1}, 0.4)
+				.Start();
 		}
 		
 	}

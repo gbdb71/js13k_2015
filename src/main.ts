@@ -112,6 +112,8 @@ class DemoState implements core.IState{
 	OnMousDown(x: number, y: number): void
 	{
 		this.Cursor.Position.Set(x, y);
+		if (this.World.IsOver) return;
+		
 		let shape = this.World.GetShapeUnder(this.Cursor.Position);
 		
 		if (shape) {

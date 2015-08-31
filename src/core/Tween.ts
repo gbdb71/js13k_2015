@@ -68,8 +68,6 @@ namespace core {
 		
 		To(properites: {[name:string]: number}, duration: number = 1, ease: IEasingFunction = easing.Linear): Tween
 		{
-			this.TweenedProperties = [];
-			
 			for (let key in properites) {
 				this.TweenedProperties.push({
 					key: key,
