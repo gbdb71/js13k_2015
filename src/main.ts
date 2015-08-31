@@ -1,6 +1,8 @@
 /// <reference path="core/Game" />
 /// <reference path="core/MouseInputManger" />
 /// <reference path="core/TouchInputController" />
+/// <reference path="core/Math" />
+
 /// <reference path="gfx/Rectangle" />
 /// <reference path="gfx/Text" />
 /// <reference path="game/World" />
@@ -31,6 +33,8 @@ class FillWindowResizeStrategy
 class DemoState implements core.IState{
 	
 	Cursor = new gfx.Rectangle(0, 0, 10, 10, {fillStyle: 'red'});
+	DefaultWorldSize = new core.Vector(320, 350);
+	
 	World: game.World;
 	SelectedShape: game.shapes.AbstractShape;
 	
@@ -40,7 +44,7 @@ class DemoState implements core.IState{
 	
 	ScoreText: gfx.Text;
 	FPSText: gfx.Text;
-	BarHeight: number = 50;
+	Bar: gfx.Rectangle;
 	
 	Start(mgame: core.Game): void
 	{
@@ -53,7 +57,7 @@ class DemoState implements core.IState{
 		// this.Stage.Scale.Set(0.5, 0.5);
 		this.Stage.Position.Set(0.5, 0.5);
 		
-		this.World = new game.World(320, 350);
+		this.World = new game.World(this.DefaultWorldSize.x, this.DefaultWorldSize.y);
 		// this.World.Position.Set(30, 30);
 		
 		this.Stage.AddChild(this.World);
@@ -69,7 +73,7 @@ class DemoState implements core.IState{
 		touch.SetOnUpCb(this.OnMouseUp, this);
 		
 		this.Stage.AddChild(
-			new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, this.BarHeight, {fillStyle: 'rgba(0, 0, 0, 0.5)'})
+			this.Bar = new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, 20, {fillStyle: 'rgba(0, 0, 0, 0.5)'})
 		);
 		
 		this.ScoreText = new gfx.AAText(5.5, this.World.Size.y + 5.5);
@@ -174,13 +178,21 @@ class DemoState implements core.IState{
 	OnResize(width: number, height: number): void
 	{
 		this.Stage.Size.Set(width, height);
-		let scale = Math.min(width / this.World.Size.x, height / (this.World.Size.y + 20));
+		
+		let scale = Math.min(width / this.DefaultWorldSize.x, height / (this.DefaultWorldSize.y + 20));
 		this.Stage.Scale.Set(scale, scale);
 		
+		this.Bar.Size.y = core.math.Clamp(height - this.DefaultWorldSize.y * scale, 20, 50);
+		
+		this.World.Size.y =	(height / scale) - this.Bar.Size.y;
+		
+		this.Bar.Position.Set(0, this.World.Size.y);
+		this.ScoreText.Position.Set(5.5, this.World.Size.y + 5.5);
+		this.FPSText.Position.Set(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
+		
+		// console.log('h', height, 's', scale, 'wh', this.DefaultWorldSize.y * scale, 'bar size', this.Bar.Size.y);
 		// this.Game.Context.imageSmoothingEnabled = false;
 		// this.Game.Context.webkitImageSmoothingEnabled = false;
-
-		console.log('new size ', width, height);
 	}
 }
 

@@ -80,14 +80,18 @@ namespace game {
 			
 			this.SpawnTimer.Update(timeDelta);
 			
-			let activeShapes = 0;
+			this.UpdateShapes(timeDelta);
+			this.UpdateBonuses();
+		}
+		
+		UpdateShapes(timeDelta: number): void
+		{
 			for (let shape = this.ShapesHead; shape && shape.World; shape = shape.Next)
 			{
 				shape.Update(timeDelta);
 				
 				if (shape.HasTrajectory())
 				{
-					activeShapes += 1;
 					for (let other = shape.Next; other; other = other.Next)
 					{
 						if (other.HasTrajectory())
@@ -115,11 +119,20 @@ namespace game {
 					this.OnShapeHitBottom(shape);
 				}
 			}
-			
-			let newMoveScore = activeShapes < 4 ? 1 : (activeShapes / 2) | 0;
-			if (this.MoveScore - newMoveScore !== 0)
+		}
+		
+		UpdateBonuses(): void
+		{
+			let activeShapes: shapes.AbstractShape[] = [];
+			for (let shape = this.ShapesHead; shape && shape.HasTrajectory(); shape = shape.Next)
 			{
-				for (let shape = this.ShapesHead; shape && shape.HasTrajectory(); shape = shape.Next)
+				activeShapes.push(shape);
+			}
+			
+			let newMoveScore = activeShapes.length < 4 ? 1 : (activeShapes.length / 2) | 0;
+			if (newMoveScore - this.MoveScore > 0)
+			{
+				for (let shape of activeShapes)
 				{
 					this.Tweens.New(shape.Scale)
 						.To({x: 1.5, y: 1.5}, 0.2, core.easing.OutCubic)
