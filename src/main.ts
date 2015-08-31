@@ -27,6 +27,7 @@ class FillWindowResizeStrategy
 	}
 }
 
+	
 class DemoState implements core.IState{
 	
 	Cursor = new gfx.Rectangle(0, 0, 10, 10, {fillStyle: 'red'});
@@ -53,7 +54,7 @@ class DemoState implements core.IState{
 		this.Stage.Position.Set(0.5, 0.5);
 		
 		this.World = new game.World(320, 350);
-		// this.World.Position.Set(0, 30);
+		// this.World.Position.Set(30, 30);
 		
 		this.Stage.AddChild(this.World);
 		
@@ -68,14 +69,14 @@ class DemoState implements core.IState{
 		touch.SetOnUpCb(this.OnMouseUp, this);
 		
 		this.Stage.AddChild(
-			new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, this.BarHeight, {fillStyle: game.config.color.background})
+			new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, this.BarHeight, {fillStyle: 'rgba(0, 0, 0, 0.5)'})
 		);
 		
-		this.ScoreText = new gfx.Text(5.5, this.World.Size.y + 5.5);
+		this.ScoreText = new gfx.AAText(5.5, this.World.Size.y + 5.5);
 		this.ScoreText.SetSize(10);
 		this.Stage.AddChild(this.ScoreText);
 		
-		this.FPSText = new gfx.Text(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
+		this.FPSText = new gfx.AAText(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
 		this.FPSText.Anchor.Set(1, 0);
 		this.FPSText.SetSize(10);
 		this.Stage.AddChild(this.FPSText);
@@ -121,6 +122,12 @@ class DemoState implements core.IState{
 		{
 			this.World.FinishTrajectory(this.SelectedShape);
 			this.SelectedShape = undefined;
+		}
+		else if (this.World.TimeLeft < 0)
+		{
+			this.Stage.RemoveChild(this.World);
+			this.World = new game.World(320, 350);
+			this.Stage.AddChild(this.World);
 		}
 	}
 	
@@ -170,6 +177,9 @@ class DemoState implements core.IState{
 		let scale = Math.min(width / this.World.Size.x, height / (this.World.Size.y + 20));
 		this.Stage.Scale.Set(scale, scale);
 		
+		// this.Game.Context.imageSmoothingEnabled = false;
+		// this.Game.Context.webkitImageSmoothingEnabled = false;
+
 		console.log('new size ', width, height);
 	}
 }

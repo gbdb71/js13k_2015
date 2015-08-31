@@ -10,6 +10,7 @@
 namespace game {
 	
 	const vec = core.vector;
+	const collisionData = { dist: 0, collide: false };
 	
 	class ScoreText extends gfx.AAText
 	{
@@ -22,42 +23,84 @@ namespace game {
 		}
 	}
 	
+	
+	class TimeLeftText extends gfx.AAText
+	{
+		Draw(ctx: CanvasRenderingContext2D): void
+		{
+			let op = ctx.globalCompositeOperation;
+			ctx.globalCompositeOperation = 'destination-over';
+			super.Draw(ctx);
+			ctx.globalCompositeOperation = op;
+		}
+	}
+	
 	export class World extends core.Layer
 	{
 		ShapesHead: shapes.AbstractShape;
 		ShapesTail: shapes.AbstractShape;
+		ShapesCount: number = 0;
 		
-		Score: number = 0;
 		SpawnTimer: core.Timer;
 		Tweens: core.TweenManager;
 		
 		Config = {
 			SpawnTime: 3,
-			LevelTime: 60
+			LevelTime: 10
 		}
+		
+		Score: number = 0;
+		MoveScore: number = 1;
+		TimeLeft: number = this.Config.LevelTime;
+		TimeLeftText: TimeLeftText;
 		
 		constructor(width: number, height: number)
 		{
 			super(0, 0, width, height);
 			this.Tweens = new core.TweenManager();
 			this.SpawnTimer = new core.Timer(this.SpawnShape, this, 0, this.Config.SpawnTime);
+			
+			this.TimeLeftText = new TimeLeftText(width/2, width/3);
+			this.TimeLeftText.Anchor.Set(0.5, 0.5);
+			this.TimeLeftText.SetColor('#32465a');
+			this.TimeLeftText.SetSize(120);
 		}
 		
 		Update(timeDelta: number): void
 		{
-			this.SpawnTimer.Update(timeDelta);
+			this.TimeLeft -= timeDelta;
 			this.Tweens.Update(timeDelta);
 			
-			for (let shape = this.ShapesHead; shape; shape = shape.Next)
+			if (this.TimeLeft < 0) {
+				timeDelta /= 20;
+			}
+			else {
+				this.TimeLeftText.SetText(this.TimeLeft.toFixed(0));
+			}
+			
+			this.SpawnTimer.Update(timeDelta);
+			
+			let activeShapes = 0;
+			for (let shape = this.ShapesHead; shape && shape.World; shape = shape.Next)
 			{
 				shape.Update(timeDelta);
 				
 				if (shape.HasTrajectory())
 				{
+					activeShapes += 1;
 					for (let other = shape.Next; other; other = other.Next)
 					{
-						if (other.HasTrajectory() && this.IsColliding(shape, other)) {
-							this.OnShapeCollide(shape, other);
+						if (other.HasTrajectory())
+						{
+							this.IsColliding(shape, other, collisionData)
+							if (collisionData.collide) 
+							{
+								this.OnShapeCollide(shape, other);
+							}
+							// else if (collisionData.dist < 30)
+							// {
+								
+							// }
 						}
 					}
 				}
@@ -72,6 +115,8 @@ namespace game {
 					this.OnShapeHitBottom(shape);
 				}
 			}
+			
+			this.MoveScore = activeShapes < 4 ? 1 : (activeShapes / 2) | 0;
 		}
 		
 		AddShape(shape: shapes.AbstractShape): void
@@ -84,12 +129,14 @@ namespace game {
 			else {
 				this.ShapesHead = this.ShapesTail = shape;
 			}
+			shape.World = this;
+			this.ShapesCount += 1;
 		}
 		
 		RemoveShape(shape: shapes.AbstractShape): void
 		{
-			if (shape.Next) {
-				
+			if (shape.Next) 
+			{
 				if (shape.Prev) {
 					shape.Prev.Next = shape.Next;
 					shape.Next.Prev = shape.Prev
@@ -98,10 +145,9 @@ namespace game {
 					shape.Next.Prev = null;
 					this.ShapesHead = shape.Next;	
 				}
-				
 			}
-			else {
-				
+			else 
+			{
 				if (shape.Prev) {
 					shape.Prev.Next = null;
 					this.ShapesTail = shape.Prev;	
@@ -109,8 +155,9 @@ namespace game {
 				else {
 					this.ShapesHead = this.ShapesTail = null;
 				}
-				
 			}
+			shape.World = undefined;
+			this.ShapesCount -= 1;
 		}
 		
 		GetShapeUnder(point: core.IVector): shapes.AbstractShape
@@ -142,7 +189,7 @@ namespace game {
 		DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
 			ctx.strokeStyle = game.config.color.active;
-			ctx.strokeRect(0, 0, this.Size.x, this.Size.y);
+			// ctx.strokeRect(0, 0, this.Size.x-1, this.Size.y-1);
 			
 			ctx.setLineDash([3, 9]);
 			ctx.lineWidth = 2;
@@ -160,21 +207,24 @@ namespace game {
 			}
 			
 			super.DrawSelf(ctx);
+			
+			this.TimeLeftText.Draw(ctx);
 		}
 		
-		IsColliding(a: shapes.AbstractShape, b: shapes.AbstractShape): boolean
+		IsColliding(a: shapes.AbstractShape, b: shapes.AbstractShape, result: {dist: number, collide: boolean}): void
 		{
 			let dist = vec.Tmp;
 			vec.Subtract(a.Position, b.Position, dist);
 
-			return vec.Length(dist) < (a.Size.x + b.Size.x) / 2;
+			result.collide = (result.dist = vec.Length(dist)) < (a.Size.x + b.Size.x) / 2;
 		}
 		
 		OnShapeHitBorder(shape: shapes.AbstractShape): void
 		{
-			this.Score -= shape.Score * 10;
+			let penatly = Math.min(-shape.Score, -10);
+			this.Score += penatly; 
 			shape.Position.y += shape.Size.y/2;
-			this.DisplayScore(shape.Position, -shape.Score * 10);
+			this.DisplayScore(shape.Position, penatly);
 			
 			this.RemoveShape(shape);
 			this.RemoveChild(shape);
@@ -183,10 +233,11 @@ namespace game {
 		
 		OnShapeHitBottom(shape: shapes.AbstractShape): void
 		{
-			this.RemoveShape(shape);
-			this.RemoveChild(shape);
 			this.Score += shape.Score;
 			this.DisplayScore(shape.Position, shape.Score);
+			
+			this.RemoveShape(shape);
+			this.RemoveChild(shape);
 		}
 		
 		OnShapeCollide(...shapes: shapes.AbstractShape[]): void

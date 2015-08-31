@@ -18,6 +18,7 @@ namespace game.shapes {
 		
 		Next: AbstractShape;
 		Prev: AbstractShape;
+		World: World;
 		
 		private AngleAcc: number = 0;
 		private RotationSpeed: number = DEFAULT_ROTATION_SPEED;
@@ -25,30 +26,8 @@ namespace game.shapes {
 		Update(timeDelta: number): void
 		{
 			if (this.Trajectory.length > 1) {
-				let [moveTo] = this.Trajectory;
-				vec.Subtract(moveTo, this.Position, tvec);
-
-				if (vec.Length(tvec) < 5) {
-					this.Trajectory.shift();
-					this.AngleAcc = 0;
-					this.RotationSpeed = DEFAULT_ROTATION_SPEED;
-					this.Score += 1;
-				}
-
-				let target = vec.Angle(tvec),
-					source = vec.Angle(this.Velocity);
-
-				let angle = Math.atan2(Math.sin(target - source), Math.cos(target - source));
-				angle *= this.RotationSpeed;
-				
-				this.AngleAcc += angle;
-				vec.Rotate(this.Velocity, angle);
-				
-				if (Math.abs(this.AngleAcc) > Math.PI * 2) {
-					console.log('slow down');
-					this.RotationSpeed *= 2;
-					this.AngleAcc = 0;
-				}
+				this.Color = this.World.MoveScore > 1 ? game.config.color.other : game.config.color.active;
+				this.CalcDirection();
 			}
 
 			vec.Clone(this.Velocity, tvec);
@@ -95,6 +74,34 @@ namespace game.shapes {
 			}
 			
 			this.Color = game.config.color.active;	
+		}
+		
+		private CalcDirection(): void
+		{
+			let [moveTo] = this.Trajectory;
+			vec.Subtract(moveTo, this.Position, tvec);
+
+			if (vec.Length(tvec) < 5) {
+				this.Trajectory.shift();
+				this.AngleAcc = 0;
+				this.RotationSpeed = DEFAULT_ROTATION_SPEED;
+				this.Score += this.World.MoveScore;
+			}
+
+			let target = vec.Angle(tvec),
+				source = vec.Angle(this.Velocity);
+
+			let angle = Math.atan2(Math.sin(target - source), Math.cos(target - source));
+			angle *= this.RotationSpeed;
+
+			this.AngleAcc += angle;
+			vec.Rotate(this.Velocity, angle);
+
+			if (Math.abs(this.AngleAcc) > Math.PI * 2)
+			{
+				this.RotationSpeed *= 2;
+				this.AngleAcc = 0;
+			}
 		}
 	}
 	

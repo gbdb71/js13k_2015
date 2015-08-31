@@ -28,7 +28,7 @@ namespace gfx {
 				this.FontRenderer = this.Style.Font.Cache[color];
 			}
 			else {
-				this.FontRenderer = this.Style.Font.Cache[color] = new FontChache(this.Style.Font, this.Style.Size, color);
+				this.FontRenderer = this.Style.Font.Cache[color] = new FontChache(this.Style.Font, 20, color);
 			}
 		}
 		
