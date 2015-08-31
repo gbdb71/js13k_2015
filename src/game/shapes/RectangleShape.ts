@@ -33,7 +33,7 @@ namespace game.shapes {
 			ctx.fillStyle = this.Color;
 			ctx.fillRect(0, 0, this.Size.x, this.Size.y);
 			
-			this.ScoreText.SetText(this.Score.toString());
+			this.ScoreText.SetText(this.Score.toFixed(0));
 			this.ScoreText.Rotation = -this.Rotation;
 			
 			this.ScoreText.Draw(ctx);

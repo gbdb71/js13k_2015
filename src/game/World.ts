@@ -41,12 +41,12 @@ namespace game {
 		ShapesTail: shapes.AbstractShape;
 		ShapesCount: number = 0;
 		
-		SpawnTimer: core.Timer;
+		Timers: core.TimersManager;
 		Tweens: core.TweenManager;
 		
 		Config = {
-			SpawnTime: 3,
-			LevelTime: 30
+			SpawnTime: 0.5,
+			LevelTime: 5
 		}
 		
 		Score: number = 0;
@@ -58,7 +58,10 @@ namespace game {
 		{
 			super(0, 0, width, height);
 			this.Tweens = new core.TweenManager();
-			this.SpawnTimer = new core.Timer(this.SpawnShape, this, 0, this.Config.SpawnTime);
+			this.Timers = new core.TimersManager();
+			
+			this.Timers.Repeat(this.Config.SpawnTime, this.SpawnShape, this);
+			this.Timers.Delay(this.Config.LevelTime, this.OnTimesUp, this);
 			
 			this.TimeLeftText = new TimeLeftText(width/2, width/3);
 			this.TimeLeftText.Anchor.Set(0.5, 0.5);
@@ -73,13 +76,13 @@ namespace game {
 			
 			if (this.TimeLeft < 0) {
 				timeDelta /= 30;
+				// return;
 			}
 			else {
 				this.TimeLeftText.SetText(this.TimeLeft.toFixed(0));
 			}
 			
-			this.SpawnTimer.Update(timeDelta);
-			
+			this.Timers.Update(timeDelta);
 			this.UpdateShapes(timeDelta);
 			this.UpdateBonuses();
 		}
@@ -275,6 +278,68 @@ namespace game {
 					.WhenDone(() => shape.RemoveFromParent())
 					.Start();
 					
+			});
+		}
+		
+		OnTimesUp(): void
+		{
+			let lastTween = this.Tweens.New(null);
+			lastTween.Start();
+			
+			for (let shape = this.ShapesHead; shape; shape = shape.Next)
+			{
+				if (shape.HasTrajectory() && shape.Score > 1)
+				{
+					let tween = this.Tweens.New(shape)
+						.To({Score: (shape.Score/2)|0}, 0.5)
+						.WhenDone((target) => {
+							let bonus = Math.round(target.Score);
+							this.Tweens.New(target).To({Alpha: 0}, 0.35).Start();
+							this.DisplayScore(target.Position, bonus);
+							this.Score += bonus;
+						})
+						.Then(shape.Scale)
+						.To({x: 5, y: 5}, 0.35)
+						.Then(shape)
+						.WhenDone((target) => {
+							this.RemoveChild(target);
+							this.RemoveShape(target);
+						});
+						
+					if (lastTween)
+					{
+						lastTween.Then(tween).WhenDone((t) => t.Start());
+						lastTween = tween;
+					}
+				}
+			}
+			
+			lastTween.Then().WhenDone(() => 
+			{
+				for (let shape = this.ShapesHead; shape; shape = shape.Next)
+				{
+					if (!shape.HasTrajectory())
+					{
+						let delay = core.Random(0, 0.6);
+						
+						this.Tweens.New(shape.Scale)
+							.Delay(delay)
+							.Then()
+							.To({x: 5, y: 5}, 0.35)
+							.Start();
+							
+						this.Tweens.New(shape)
+							.Delay(delay)
+							.Then()
+							.To({Alpha: 0}, 0.25)
+							.Then(shape)
+							.WhenDone((target) => {
+								this.RemoveChild(target);
+								this.RemoveShape(target);
+							})
+							.Start();
+					}
+				}
 			});
 		}
 		

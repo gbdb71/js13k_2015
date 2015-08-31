@@ -130,8 +130,9 @@ class DemoState implements core.IState{
 		else if (this.World.TimeLeft < 0)
 		{
 			this.Stage.RemoveChild(this.World);
-			this.World = new game.World(320, 350);
+			this.World = new game.World(this.DefaultWorldSize.x, this.DefaultWorldSize.y);
 			this.Stage.AddChild(this.World);
+			this.ResizeStrategy.OnResize();
 		}
 	}
 	

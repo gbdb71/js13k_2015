@@ -1,3 +1,5 @@
+/// <reference path="Utils" />
+
 namespace core {
 	
 	interface IEasingFunction 
@@ -28,11 +30,11 @@ namespace core {
 		/** Previous tween in this chain */
 		Prev: Tween;
 		
-		TweenedProperties: IPropertyTween[]; 
-		Duration: number;
+		TweenedProperties: IPropertyTween[] = []; 
+		Duration: number = 0;
 		Easeing: IEasingFunction;
 		
-		OnDoneCallback: Function;
+		OnDoneCallback: (target: any) => void;
 		IsDone: boolean = false;
 		
 		constructor(
@@ -82,13 +84,14 @@ namespace core {
 			return this;
 		}
 		
-		WhenDone(callback: Function): Tween
+		WhenDone(callback: (target) => void): Tween
 		{
 			this.OnDoneCallback = callback;
 			return this;
 		}
 		
 		/**
+		 * Returned tween will be executed in sequnce
 		 * @return new tween
 		 */
 		Then(target = this.Target): Tween
@@ -130,7 +133,7 @@ namespace core {
 					{
 						self.UpdateProperties(self.Duration);
 						
-						if (self.OnDoneCallback) self.OnDoneCallback();
+						if (self.OnDoneCallback) self.OnDoneCallback(self.Target);
 						if (self.Manager && !self.Next) self.Manager.StopTween(self.GetRoot());
 						self.IsDone = true;
 					}
@@ -197,12 +200,7 @@ namespace core {
 		
 		StopTween(tween: Tween): void
 		{
-			let i = this.Tweens.indexOf(tween);
-			if (i >= 0) {
-				this.Tweens.splice(i, 1);
-			} else {
-				throw Error();
-			}
+			RemoveElement(this.Tweens, tween);
 		}
 		
 		Update(timeDelta: number): void

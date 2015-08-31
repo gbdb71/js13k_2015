@@ -1,4 +1,11 @@
+/// <reference path="Utils" />
+
 namespace core {
+	
+	interface ITimerCallback
+	{
+		(timeDelta: number);
+	}
 	
 	export class Timer
 	{
@@ -6,7 +13,7 @@ namespace core {
 		CallCount: number = 0;
 		
 		constructor(
-			public Callback: (timeDelta: number) => void,
+			public Callback: ITimerCallback,
 			public Ctx: any,
 			public Delay: number,
 			public Interval: number = NaN
@@ -31,6 +38,38 @@ namespace core {
 				}
 			}
 		}
+	}
+	
+	export class TimersManager
+	{
+		Timers: Timer[] = [];
 		
+		Delay(delay: number, callback: ITimerCallback, ctx?: any): Timer
+		{
+			let timer;
+			
+			this.Timers.push(timer = new Timer((...args) =>
+			{
+				callback.apply(ctx, args);
+				RemoveElement(this.Timers, timer);
+				
+			}, ctx, delay));
+			
+			return timer;
+		}
+		
+		Repeat(interval: number, callback: ITimerCallback, ctx?: any, delay: number = 0): Timer
+		{
+			let timer;
+			
+			this.Timers.push(timer = new Timer(callback, ctx, delay, interval));
+			
+			return timer;
+		}
+		
+		Update(timeDelta: number): void
+		{
+			for(let timer of this.Timers) timer.Update(timeDelta);
+		}
 	}
 }
