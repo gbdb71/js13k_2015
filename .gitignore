@@ -1,0 +1,12 @@
+**/*.DS_STORE
+node_modules/
+bundle/
+bundle.zip
+.settings/
+compiler.jar
+src/
+bin/
+*.json
+gulpfile.js
+*.sh
+README.md
