@@ -46,7 +46,7 @@ namespace game {
 		
 		Config = {
 			SpawnTime: 3,
-			LevelTime: 10
+			LevelTime: 30
 		}
 		
 		Score: number = 0;
@@ -72,7 +72,7 @@ namespace game {
 			this.Tweens.Update(timeDelta);
 			
 			if (this.TimeLeft < 0) {
-				timeDelta /= 20;
+				timeDelta /= 30;
 			}
 			else {
 				this.TimeLeftText.SetText(this.TimeLeft.toFixed(0));
@@ -116,7 +116,19 @@ namespace game {
 				}
 			}
 			
-			this.MoveScore = activeShapes < 4 ? 1 : (activeShapes / 2) | 0;
+			let newMoveScore = activeShapes < 4 ? 1 : (activeShapes / 2) | 0;
+			if (this.MoveScore - newMoveScore !== 0)
+			{
+				for (let shape = this.ShapesHead; shape && shape.HasTrajectory(); shape = shape.Next)
+				{
+					this.Tweens.New(shape.Scale)
+						.To({x: 1.5, y: 1.5}, 0.2, core.easing.OutCubic)
+						.Then()
+						.To({x: 1, y: 1}, 0.2)
+						.Start();
+				}
+			}
+			this.MoveScore = newMoveScore;
 		}
 		
 		AddShape(shape: shapes.AbstractShape): void
