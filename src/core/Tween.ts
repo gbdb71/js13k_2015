@@ -33,9 +33,11 @@ namespace core {
 		TweenedProperties: IPropertyTween[] = []; 
 		Duration: number = 0;
 		Easeing: IEasingFunction;
+		ParallelTweens: Array<{target: any, callback: (tween: Tween) => void}> = [];
 		
 		OnDoneCallback: (target: any) => void;
 		IsDone: boolean = false;
+		
 		
 		constructor(
 			public Target: any,
@@ -46,7 +48,7 @@ namespace core {
 		 * Starts tween. Remeber that this will reset whole tween chain, and
 		 * start playing from beggining of this chain.
 		 */
-		Start(): void
+		Start(): Tween
 		{
 			let root = this.GetRoot();
 			
@@ -64,6 +66,8 @@ namespace core {
 					root = root.Next;
 				}
 			}
+			
+			return this;
 		}
 		
 		To(properites: {[name:string]: number}, duration: number = 1, ease: IEasingFunction = easing.Linear): Tween
@@ -102,6 +106,25 @@ namespace core {
 			tween.Prev = this;
 			
 			return tween;
+		}
+		
+		/**
+		 * Run new tween in parallel.
+		 * 
+		 * @return this tween
+		 */
+		Parallel(target: any, callback: (tween: Tween) => void): Tween
+		{
+			if (this.Manager)
+			{
+				this.ParallelTweens.push({target, callback});
+			}
+			else
+			{
+				throw Error();
+			}
+			
+			return this;
 		}
 		
 		/**
@@ -153,7 +176,7 @@ namespace core {
 		private UpdateProperties(elapsedTime: number): void
 		{
 			for (let property of this.TweenedProperties) {
-				this.Target[property.key] = this.Easeing(this.ElapsedTime, property.start, property.change, this.Duration);
+				this.Target[property.key] = this.Easeing(elapsedTime, property.start, property.change, this.Duration);
 			}
 		}
 		
@@ -163,6 +186,11 @@ namespace core {
 			{
 				property.start = this.Target[property.key];
 				property.change = property.end - property.start;
+			}
+			
+			for (let parallel of this.ParallelTweens)
+			{
+				parallel.callback(this.Manager.New(parallel.target).Start());
 			}
 		}
 	}

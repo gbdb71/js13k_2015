@@ -44,8 +44,8 @@ namespace game {
 		Tweens: core.TweenManager;
 		
 		Config = {
-			SpawnTime: 1,
-			LevelTime: 30
+			SpawnTime: 0.5,
+			LevelTime: 3
 		}
 		
 		Score: number = 0;
@@ -73,7 +73,6 @@ namespace game {
 		Update(timeDelta: number): void
 		{
 			this.TimeLeft -= timeDelta;
-			this.Tweens.Update(timeDelta);
 			
 			if (this.TimeLeft < 0) {
 				timeDelta /= 30;
@@ -82,6 +81,7 @@ namespace game {
 			else {
 				this.TimeLeftText.SetText(this.TimeLeft.toFixed(0));
 			}
+			this.Tweens.Update(timeDelta);
 			
 			this.Timers.Update(timeDelta);
 			this.UpdateShapes(timeDelta);
@@ -144,14 +144,17 @@ namespace game {
 		
 		AddShape(shape: shapes.AbstractShape): void
 		{
-			if (this.ShapesTail) {
+			if (this.ShapesTail)
+			{
 				this.ShapesTail.Next = shape;
 				shape.Prev = this.ShapesTail;
 				this.ShapesTail = shape;
 			}
-			else {
+			else
+			{
 				this.ShapesHead = this.ShapesTail = shape;
 			}
+			
 			shape.World = this;
 			this.ShapesCount += 1;
 		}
@@ -179,6 +182,7 @@ namespace game {
 					this.ShapesHead = this.ShapesTail = null;
 				}
 			}
+			
 			shape.World = undefined;
 			this.ShapesCount -= 1;
 		}
@@ -289,23 +293,20 @@ namespace game {
 						.To({Score: (shape.Score/2)|0}, 0.5)
 						.WhenDone((target) => {
 							let bonus = Math.round(target.Score);
-							this.Tweens.New(target).To({Alpha: 0}, 0.35).Start();
 							this.DisplayScore(target.Position, bonus);
 							this.Score += bonus;
 						})
 						.Then(shape.Scale)
 						.To({x: 5, y: 5}, 0.35)
+						.Parallel(shape, (t) => t.To({Alpha: 0}, 0.35))
 						.Then(shape)
 						.WhenDone((target) => {
 							this.RemoveChild(target);
 							this.RemoveShape(target);
 						});
 						
-					if (lastTween)
-					{
-						lastTween.Then(tween).WhenDone((t) => t.Start());
-						lastTween = tween;
-					}
+					lastTween.Then(tween).WhenDone((t) => t.Start());
+					lastTween = tween;
 				}
 			}
 			
@@ -321,12 +322,7 @@ namespace game {
 							.Delay(delay)
 							.Then()
 							.To({x: 5, y: 5}, 0.35)
-							.Start();
-							
-						this.Tweens.New(shape)
-							.Delay(delay)
-							.Then()
-							.To({Alpha: 0}, 0.25)
+							.Parallel(shape, (t) => t.To({Alpha: 0}, 0.25))
 							.Then(shape)
 							.WhenDone((target) => {
 								this.RemoveChild(target);
