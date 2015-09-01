@@ -19,7 +19,7 @@ class FillWindowResizeStrategy
 	) {
 		this.Listener = this.OnResize.bind(this);
 		window.addEventListener('resize', this.Listener);
-		this.Game.AddOnStateEndCallback(this.Dispose, this);
+		this.Game.AddOnStateEndCallback(this.Realase, this);
 	}
 	
 	OnResize(): void
@@ -29,7 +29,7 @@ class FillWindowResizeStrategy
 		this.Callback(w, h);
 	}
 	
-	Dispose(): void
+	Realase(): void
 	{
 		window.removeEventListener('resize', this.Listener);
 	}
@@ -70,7 +70,7 @@ class DemoState implements core.IState
 		this.Stage.Position.Set(0.5, 0.5);
 		
 		this.World = new game.World(this.DefaultWorldSize.x, this.DefaultWorldSize.y);
-		this.World.OnEndCallback = () => this.InputController = new NoopInputController();
+		this.World.OnEndCallback = () => this.InputController = new DefaultInputController(this);
 		// this.World.Position.Set(30, 30);
 		
 		this.Stage.AddChild(this.World);
@@ -153,9 +153,8 @@ class DemoState implements core.IState
 	
 	OnResize(width: number, height: number): void
 	{
-		this.Stage.Size.Set(width, height);
-		
 		let scale = Math.min(width / this.DefaultWorldSize.x, height / (this.DefaultWorldSize.y + 20));
+		this.Stage.Size.Set(width / scale, height / scale);
 		this.Stage.Scale.Set(scale, scale);
 		
 		this.Bar.Size.y = core.math.Clamp(height - this.DefaultWorldSize.y * scale, 20, 50);
@@ -178,6 +177,36 @@ class NoopInputController implements IInputController
 	OnPointerMove(x: number, y: number): void {}
 	OnPointerUp(x: number, y: number): void {}
 	Update(): void {}
+}
+
+class DefaultInputController implements IInputController
+{
+	RestartText: gfx.Text;
+	
+	constructor(
+		private State: DemoState
+	) {
+		this.RestartText = new gfx.Text(this.State.World.Size.x/2, this.State.World.Size.y/2, "RESTART");
+		this.RestartText.Anchor.Set(0.5, 0.5);
+	}
+	
+	OnPointerDown(x: number, y: number): void 
+	{
+		if (this.RestartText.IsPointInside({x, y}))
+		{
+			this.State.Game.Play('demo');
+		}
+	}
+	
+	OnPointerMove(x: number, y: number): void {}
+	OnPointerUp(x: number, y: number): void {}
+	Update(): void
+	{
+		if (this.State.World.IsOver && !this.RestartText.Parent)
+		{
+			this.State.Stage.AddChild(this.RestartText);
+		}
+	}
 }
 
 class GameInputController implements IInputController
@@ -250,6 +279,19 @@ class GameInputController implements IInputController
 			this.SelectedShape.AddTrajectoryPoint(this.State.World.ToLocal(this.CursorPosition));
 		}
 	}
+}
+
+let add = window.addEventListener;
+window.addEventListener = function()
+{
+	console.log('add listener', arguments);
+	add.apply(window, arguments);
+}
+let remove = window.removeEventListener;
+window.removeEventListener = function()
+{
+	console.log('remove listener', arguments);
+	remove.apply(window, arguments);
 }
 
 let mgame = new core.Game('canvas');
