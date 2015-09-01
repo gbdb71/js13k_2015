@@ -50,8 +50,8 @@ namespace core {
 			
 			this.Timers.push(timer = new Timer((...args) =>
 			{
-				callback.apply(ctx, args);
 				RemoveElement(this.Timers, timer);
+				callback.apply(ctx, args);
 				
 			}, ctx, delay));
 			
@@ -70,6 +70,11 @@ namespace core {
 		Update(timeDelta: number): void
 		{
 			for(let timer of this.Timers) timer.Update(timeDelta);
+		}
+		
+		RemoveAll(): void
+		{
+			this.Timers = [];
 		}
 	}
 }

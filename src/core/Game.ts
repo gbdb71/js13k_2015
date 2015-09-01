@@ -13,6 +13,7 @@ namespace core {
 		private ActiveState: IState;
 		private RequestAnimationFrame: Function;
 		private LastFrameTime: number = 0;
+		private OnStateEndCallbacks: Function[] = [];
 		
 		constructor(public canvasId: string)
 		{
@@ -31,13 +32,25 @@ namespace core {
 		
 		Play(stateName: string): void
 		{
+			if (this.ActiveState)
+			{
+				for(let callback of this.OnStateEndCallbacks) callback();
+				this.OnStateEndCallbacks = [];	
+			}
+			
 			if (this.ActiveState = this.States[stateName]) {
-				this.ActiveState.Start(this);
+				this.ActiveState.Game = this;
+				this.ActiveState.Start();
 				this.RequestAnimationFrame();
 			}
 			else {
 				throw new Error();
 			}	
+		}
+		
+		AddOnStateEndCallback(cb: Function, ctx?): void
+		{
+			this.OnStateEndCallbacks.push(cb.bind(ctx));
 		}
 		
 		private OnUpdate(now): void

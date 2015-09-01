@@ -44,8 +44,8 @@ namespace game {
 		Tweens: core.TweenManager;
 		
 		Config = {
-			SpawnTime: 0.5,
-			LevelTime: 3
+			SpawnTime: 2,
+			LevelTime: 15
 		}
 		
 		Score: number = 0;
@@ -53,6 +53,7 @@ namespace game {
 		TimeLeft: number = this.Config.LevelTime;
 		TimeLeftText: TimeLeftText;
 		IsOver: boolean = false;
+		OnEndCallback: Function;
 		
 		constructor(width: number, height: number)
 		{
@@ -73,19 +74,15 @@ namespace game {
 		Update(timeDelta: number): void
 		{
 			this.TimeLeft -= timeDelta;
-			
-			if (this.TimeLeft < 0) {
-				timeDelta /= 30;
-				// return;
-			}
-			else {
-				this.TimeLeftText.SetText(this.TimeLeft.toFixed(0));
-			}
 			this.Tweens.Update(timeDelta);
-			
 			this.Timers.Update(timeDelta);
-			this.UpdateShapes(timeDelta);
-			this.UpdateBonuses();
+			
+			if (this.TimeLeft >= 0) {
+				// return;
+				this.TimeLeftText.SetText(this.TimeLeft.toFixed(0));
+				this.UpdateShapes(timeDelta);
+				this.UpdateBonuses();
+			}
 		}
 		
 		UpdateShapes(timeDelta: number): void
@@ -282,14 +279,19 @@ namespace game {
 		
 		OnTimesUp(): void
 		{
+			this.Timers.RemoveAll();
+			if (this.OnEndCallback) this.OnEndCallback();
+			
 			let lastTween = this.Tweens.New(null);
 			lastTween.Start();
 			
 			for (let shape = this.ShapesHead; shape; shape = shape.Next)
 			{
-				if (shape.HasTrajectory() && shape.Score > 1)
+				if (shape.Score > 1)
 				{
-					let tween = this.Tweens.New(shape)
+					let tween = this.Tweens.New(shape.Scale)
+						.To({x: 2, y: 2}, 0.3, core.easing.OutCubic)
+						.Then(shape)
 						.To({Score: (shape.Score/2)|0}, 0.5)
 						.WhenDone((target) => {
 							let bonus = Math.round(target.Score);
@@ -314,7 +316,7 @@ namespace game {
 			{
 				for (let shape = this.ShapesHead; shape; shape = shape.Next)
 				{
-					if (!shape.HasTrajectory() && shape.World)
+					if (shape.Score <= 1 && shape.World)
 					{
 						let delay = core.Random(0, 0.6);
 						

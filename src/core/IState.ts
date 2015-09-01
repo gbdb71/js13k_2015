@@ -4,7 +4,12 @@ namespace core {
 	
 	export interface IState {
 		
-		Start(game: IGame): void;
+		Game: IGame;
+		
+		/**
+		 * Called once before first update
+		 */
+		Start(): void;
 		
 		/**
 		 * @param timeDelta time in seconds since last frame

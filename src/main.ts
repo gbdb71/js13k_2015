@@ -14,11 +14,12 @@ class FillWindowResizeStrategy
 	Listener: EventListener;
 	
 	constructor(
-		public Game: core.IGame,
+		public Game: core.Game,
 		public Callback: (w: number, h: number) => void
 	) {
 		this.Listener = this.OnResize.bind(this);
 		window.addEventListener('resize', this.Listener);
+		this.Game.AddOnStateEndCallback(this.Dispose, this);
 	}
 	
 	OnResize(): void
@@ -27,50 +28,64 @@ class FillWindowResizeStrategy
 		let h = this.Game.Canvas.height = window.innerHeight;
 		this.Callback(w, h);
 	}
+	
+	Dispose(): void
+	{
+		window.removeEventListener('resize', this.Listener);
+	}
+}
+
+
+interface IInputController
+{
+	OnPointerDown(x: number, y: number): void;
+	OnPointerMove(x: number, y: number): void;
+	OnPointerUp(x: number, y: number): void;
+	Update(): void;
 }
 
 	
-class DemoState implements core.IState{
-	
-	Cursor = new gfx.Rectangle(0, 0, 10, 10, {fillStyle: 'red'});
+class DemoState implements core.IState
+{
 	DefaultWorldSize = new core.Vector(320, 350);
 	
 	World: game.World;
-	SelectedShape: game.shapes.AbstractShape;
 	
 	Stage: core.Layer;
 	Game: core.Game;
 	ResizeStrategy: FillWindowResizeStrategy;
+	InputController: IInputController;
 	
 	ScoreText: gfx.Text;
 	FPSText: gfx.Text;
 	Bar: gfx.Rectangle;
 	
-	Start(mgame: core.Game): void
+	Start(): void
 	{
 		document.body.style.background = game.config.color.background;
-		
-		this.Game = mgame;
 		// this.Cursor.Anchor.Set(0.5, 0.5);
 		
-		this.Stage = new core.Layer(0, 0, mgame.Canvas.width, mgame.Canvas.height);
+		this.Stage = new core.Layer(0, 0, this.Game.Canvas.width, this.Game.Canvas.height);
 		// this.Stage.Scale.Set(0.5, 0.5);
 		this.Stage.Position.Set(0.5, 0.5);
 		
 		this.World = new game.World(this.DefaultWorldSize.x, this.DefaultWorldSize.y);
+		this.World.OnEndCallback = () => this.InputController = new NoopInputController();
 		// this.World.Position.Set(30, 30);
 		
 		this.Stage.AddChild(this.World);
 		
-		let mouse = new core.MouseInputManager(mgame);
-		mouse.SetOnMoveCb(this.OnMouseMove, this);
-		mouse.SetOnDownCb(this.OnMousDown, this);
-		mouse.SetOnUpCb(this.OnMouseUp, this);
+		let mouse = new core.MouseInputManager(this.Game);
+		mouse.SetOnMoveCb(this.OnPointerMove, this);
+		mouse.SetOnDownCb(this.OnPointerDown, this);
+		mouse.SetOnUpCb(this.OnPointerUp, this);
 		
-		let touch = new core.TouchInputController(mgame);
-		touch.SetOnMoveCb(this.OnMouseMove, this);
-		touch.SetOnDownCb(this.OnMousDown, this);
-		touch.SetOnUpCb(this.OnMouseUp, this);
+		let touch = new core.TouchInputController(this.Game);
+		touch.SetOnMoveCb(this.OnPointerMove, this);
+		touch.SetOnDownCb(this.OnPointerDown, this);
+		touch.SetOnUpCb(this.OnPointerUp, this);
+		
+		this.InputController = new GameInputController(this);
 		
 		this.Stage.AddChild(
 			this.Bar = new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, 20, {fillStyle: 'rgba(0, 0, 0, 0.5)'})
@@ -85,72 +100,30 @@ class DemoState implements core.IState{
 		this.FPSText.SetSize(10);
 		this.Stage.AddChild(this.FPSText);
 		
-		this.ResizeStrategy = new FillWindowResizeStrategy(mgame, this.OnResize.bind(this));
+		this.ResizeStrategy = new FillWindowResizeStrategy(this.Game, this.OnResize.bind(this));
 		this.ResizeStrategy.OnResize();
 	}
 	
-	OnMouseMove(x: number, y: number): void
+	OnPointerMove(x: number, y: number): void
 	{
-		this.Cursor.Position.Set(x, y);
-		
-		if (!this.SelectedShape) {
-			this.OnMousDown(x, y);
-		}
-		
-		let local = this.World.ToLocal(this.Cursor.Position);
-		if (this.SelectedShape &&
-			(
-				(local.y < 0 || local.y > this.World.Size.y) ||
-				(local.x < 0 || local.x > this.World.Size.y)
-			))
-		{
-			this.World.FinishTrajectory(this.SelectedShape)
-			this.SelectedShape = undefined
-		}
+		this.InputController.OnPointerMove(x, y);
 	}
 	
-	OnMousDown(x: number, y: number): void
+	OnPointerDown(x: number, y: number): void
 	{
-		this.Cursor.Position.Set(x, y);
-		if (this.World.IsOver) return;
-		
-		let shape = this.World.GetShapeUnder(this.Cursor.Position);
-		
-		if (shape) {
-			shape.Trajectory = [];
-			this.SelectedShape = shape;
-		}
+		this.InputController.OnPointerDown(x, y);
 	}
 	
-	OnMouseUp(x: number, y: number): void
+	OnPointerUp(x: number, y: number): void
 	{
-		if (this.SelectedShape)
-		{
-			this.World.FinishTrajectory(this.SelectedShape);
-			this.SelectedShape = undefined;
-		}
-		else if (this.World.TimeLeft < 0)
-		{
-			this.Stage.RemoveChild(this.World);
-			this.World = new game.World(this.DefaultWorldSize.x, this.DefaultWorldSize.y);
-			this.Stage.AddChild(this.World);
-			this.ResizeStrategy.OnResize();
-		}
+		this.InputController.OnPointerUp(x, y);
 	}
 	
 	Update(timeDelta: number): void
 	{
 		this.World.Update(timeDelta);
 		
-		if (this.SelectedShape) {
-			
-			if (!this.SelectedShape.Parent) {
-				this.SelectedShape = undefined;
-				return;
-			}
-			
-			this.SelectedShape.AddTrajectoryPoint(this.World.ToLocal(this.Cursor.Position));
-		}
+		this.InputController.Update();
 		
 		this.FPSText.SetText("FPS " + (timeDelta*1000).toFixed(1));
 		this.ScoreText.SetText("SCORE: " + this.World.Score);
@@ -196,6 +169,86 @@ class DemoState implements core.IState{
 		// console.log('h', height, 's', scale, 'wh', this.DefaultWorldSize.y * scale, 'bar size', this.Bar.Size.y);
 		// this.Game.Context.imageSmoothingEnabled = false;
 		// this.Game.Context.webkitImageSmoothingEnabled = false;
+	}
+}
+
+class NoopInputController implements IInputController
+{
+	OnPointerDown(x: number, y: number): void {}
+	OnPointerMove(x: number, y: number): void {}
+	OnPointerUp(x: number, y: number): void {}
+	Update(): void {}
+}
+
+class GameInputController implements IInputController
+{
+	CursorPosition = new core.Vector();
+	SelectedShape: game.shapes.AbstractShape;
+	
+	constructor(
+		private State: DemoState
+	) { }
+	
+	OnPointerDown(x: number, y: number): void
+	{
+		this.CursorPosition.Set(x, y);
+		if (this.State.World.IsOver) return;
+		
+		let shape = this.State.World.GetShapeUnder(this.CursorPosition);
+		
+		if (shape) {
+			shape.Trajectory = [];
+			this.SelectedShape = shape;
+		}
+	}
+	
+	OnPointerUp(x: number, y: number): void
+	{
+		if (this.SelectedShape)
+		{
+			this.State.World.FinishTrajectory(this.SelectedShape);
+			this.SelectedShape = undefined;
+		}
+		else if (this.State.World.TimeLeft < 0)
+		{
+			this.State.Stage.RemoveChild(this.State.World);
+			this.State.World = new game.World(this.State.DefaultWorldSize.x, this.State.DefaultWorldSize.y);
+			this.State.Stage.AddChild(this.State.World);
+			this.State.ResizeStrategy.OnResize();
+		}
+	}
+	
+	OnPointerMove(x: number, y: number): void
+	{
+		this.CursorPosition.Set(x, y);
+		
+		if (!this.SelectedShape) {
+			this.OnPointerDown(x, y);
+		}
+		
+		let local = this.State.World.ToLocal(this.CursorPosition);
+		if (this.SelectedShape &&
+			(
+				(local.y < 0 || local.y > this.State.World.Size.y) ||
+				(local.x < 0 || local.x > this.State.World.Size.y)
+			))
+		{
+			this.State.World.FinishTrajectory(this.SelectedShape)
+			this.SelectedShape = undefined
+		}
+	}
+	
+	Update(): void
+	{
+		if (this.SelectedShape) {
+			
+			if (!this.SelectedShape.Parent) {
+				this.SelectedShape = undefined;
+				return;
+			}
+			
+			this.SelectedShape.AddTrajectoryPoint(this.State.World.ToLocal(this.CursorPosition));
+		}
 	}
 }
 
