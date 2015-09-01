@@ -91,8 +91,10 @@ namespace game {
 		
 		UpdateShapes(timeDelta: number): void
 		{
-			for (let shape = this.ShapesHead; shape && shape.World; shape = shape.Next)
+			for (let shape = this.ShapesHead; shape; shape = shape.Next)
 			{
+				if (!shape.World) continue;
+				
 				shape.Update(timeDelta);
 				
 				if (shape.HasTrajectory())
@@ -129,9 +131,9 @@ namespace game {
 		UpdateBonuses(): void
 		{
 			let activeShapes: shapes.AbstractShape[] = [];
-			for (let shape = this.ShapesHead; shape && shape.HasTrajectory(); shape = shape.Next)
+			for (let shape = this.ShapesHead; shape; shape = shape.Next)
 			{
-				activeShapes.push(shape);
+				if (shape.HasTrajectory()) activeShapes.push(shape);
 			}
 			
 			let newMoveScore = activeShapes.length < 4 ? 1 : (activeShapes.length / 2) | 0;
