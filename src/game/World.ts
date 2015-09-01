@@ -10,7 +10,6 @@
 namespace game {
 	
 	const vec = core.vector;
-	const collisionData = { dist: 0, collide: false };
 	
 	class ScoreText extends gfx.AAText
 	{
@@ -101,17 +100,9 @@ namespace game {
 				{
 					for (let other = shape.Next; other; other = other.Next)
 					{
-						if (other.HasTrajectory())
+						if (other.HasTrajectory() && this.IsColliding(shape, other))
 						{
-							this.IsColliding(shape, other, collisionData)
-							if (collisionData.collide) 
-							{
-								this.OnShapeCollide(shape, other);
-							}
-							// else if (collisionData.dist < 30)
-							// {
-								
-							// }
+							this.OnShapeCollide(shape, other);
 						}
 					}
 				}
@@ -243,12 +234,12 @@ namespace game {
 			this.TimeLeftText.Draw(ctx);
 		}
 		
-		IsColliding(a: shapes.AbstractShape, b: shapes.AbstractShape, result: {dist: number, collide: boolean}): void
+		IsColliding(a: shapes.AbstractShape, b: shapes.AbstractShape): boolean
 		{
 			let dist = vec.Tmp;
 			vec.Subtract(a.Position, b.Position, dist);
 
-			result.collide = (result.dist = vec.Length(dist)) < (a.Size.x + b.Size.x) / 2;
+			return vec.Length(dist) < (a.Size.x + b.Size.x) / 2;
 		}
 		
 		OnShapeHitBorder(shape: shapes.AbstractShape): void
