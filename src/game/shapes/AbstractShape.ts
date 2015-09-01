@@ -80,8 +80,9 @@ namespace game.shapes {
 		{
 			let [moveTo] = this.Trajectory;
 			vec.Subtract(moveTo, this.Position, tvec);
-
-			if (vec.Length(tvec) < 5) {
+			
+			if (vec.Length(tvec) < 5)
+			{
 				this.Trajectory.shift();
 				this.AngleAcc = 0;
 				this.RotationSpeed = DEFAULT_ROTATION_SPEED;

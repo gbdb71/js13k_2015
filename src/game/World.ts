@@ -320,7 +320,7 @@ namespace game {
 			{
 				for (let shape = this.ShapesHead; shape; shape = shape.Next)
 				{
-					if (!shape.HasTrajectory())
+					if (!shape.HasTrajectory() && shape.World)
 					{
 						let delay = core.Random(0, 0.6);
 						
@@ -413,7 +413,6 @@ namespace game {
 		
 		WarnAboutTime(): void
 		{
-			console.log('time');
 			this.Tweens.New(this.TimeLeftText.Scale)
 				.To({x: 2, y: 2}, 0.01)
 				.Then()
