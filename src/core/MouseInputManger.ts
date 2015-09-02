@@ -1,4 +1,4 @@
-/// <reference path="IGame" />
+/// <reference path="Game" />
 
 namespace core {
 	
@@ -6,44 +6,29 @@ namespace core {
 	
 	export class MouseInputManager {
 		
-		// private OnMouseMoveCb: MouseCallback;
-		Listeners: EventListener[] = [];
-		
 		constructor(
-			private Game: IGame
+			private Game: core.Game
 		) { }
-		
-		// StartListening(): void
-		// {
-		// 	this.Game.Canvas.addEventListener(
-		// 		"mousemove", this.OnMouseMove.bind(this)
-		// 	);
-		// }
 		
 		SetOnMoveCb(cb: MouseCallback, ctx?: any): void
 		{
-			let listener;
-			this.Game.Canvas.addEventListener(
-				"mousemove", listener = this.HandleEvent.bind(null, cb.bind(ctx))
+			this.Game.AddDOMEventListener(this.Game.Canvas,
+				"mousemove", this.HandleEvent.bind(null, cb.bind(ctx))
 			);
-			this.Listeners.push(listener);
-			// this.OnMouseMoveCb = cb;	
 		}
 		
 		SetOnDownCb(cb: MouseCallback, ctx?: any): void
 		{
-			this.Game.Canvas.addEventListener(
+			this.Game.AddDOMEventListener(this.Game.Canvas,
 				"mousedown", this.HandleEvent.bind(null, cb.bind(ctx))
 			);
-			// this.OnMouseMoveCb = cb;
 		}
 		
 		SetOnUpCb(cb: MouseCallback, ctx?: any): void
 		{
-			this.Game.Canvas.addEventListener(
+			this.Game.AddDOMEventListener(this.Game.Canvas,
 				"mouseup", this.HandleEvent.bind(null, cb.bind(ctx))
 			);
-			// this.OnMouseMoveCb = cb;
 		}
 		
 		private HandleEvent(cb: MouseCallback, event: MouseEvent): void

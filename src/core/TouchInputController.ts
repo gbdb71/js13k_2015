@@ -12,21 +12,21 @@ namespace core {
 		
 		SetOnMoveCb(cb: TouchCallback, ctx?: any): void
 		{
-			this.Game.Canvas.addEventListener(
+			this.Game.AddDOMEventListener(this.Game.Canvas,
 				"touchmove", this.HandleEvent.bind(this, cb.bind(ctx))
 			);
 		}
 		
 		SetOnDownCb(cb: TouchCallback, ctx?: any): void
 		{
-			this.Game.Canvas.addEventListener(
+			this.Game.AddDOMEventListener(this.Game.Canvas,
 				"touchstart", this.HandleEvent.bind(this, cb.bind(ctx))
 			);
 		}
 		
 		SetOnUpCb(cb: TouchCallback, ctx?: any): void
 		{
-			this.Game.Canvas.addEventListener("touchend", (event: TouchEvent) => {
+			this.Game.AddDOMEventListener(this.Game.Canvas,"touchend", (event: TouchEvent) => {
 				cb.call(ctx, 0, 0);
 			});
 		}

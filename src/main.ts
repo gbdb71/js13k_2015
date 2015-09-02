@@ -18,8 +18,7 @@ class FillWindowResizeStrategy
 		public Callback: (w: number, h: number) => void
 	) {
 		this.Listener = this.OnResize.bind(this);
-		window.addEventListener('resize', this.Listener);
-		this.Game.AddOnStateEndCallback(this.Realase, this);
+		this.Game.AddDOMEventListener(window, 'resize', this.Listener);
 	}
 	
 	OnResize(): void
@@ -27,11 +26,6 @@ class FillWindowResizeStrategy
 		let w = this.Game.Canvas.width = window.innerWidth;
 		let h = this.Game.Canvas.height = window.innerHeight;
 		this.Callback(w, h);
-	}
-	
-	Realase(): void
-	{
-		window.removeEventListener('resize', this.Listener);
 	}
 }
 
@@ -279,19 +273,6 @@ class GameInputController implements IInputController
 			this.SelectedShape.AddTrajectoryPoint(this.State.World.ToLocal(this.CursorPosition));
 		}
 	}
-}
-
-let add = window.addEventListener;
-window.addEventListener = function()
-{
-	console.log('add listener', arguments);
-	add.apply(window, arguments);
-}
-let remove = window.removeEventListener;
-window.removeEventListener = function()
-{
-	console.log('remove listener', arguments);
-	remove.apply(window, arguments);
 }
 
 let mgame = new core.Game('canvas');

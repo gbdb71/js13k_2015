@@ -13,7 +13,7 @@ namespace core {
 		private ActiveState: IState;
 		private RequestAnimationFrame: Function;
 		private LastFrameTime: number = 0;
-		private OnStateEndCallbacks: Function[] = [];
+		private StateDOMListeners: Array<{element: HTMLElement | Window, type: string, listener: EventListener}> = [];
 		
 		constructor(public canvasId: string)
 		{
@@ -34,8 +34,12 @@ namespace core {
 		{
 			if (this.ActiveState)
 			{
-				for(let callback of this.OnStateEndCallbacks) callback();
-				this.OnStateEndCallbacks = [];	
+				for (let i = this.StateDOMListeners.length - 1; i >= 0; --i)
+				{
+					let l = this.StateDOMListeners[i];
+					this.RemoveDOMEventListener(l.element, l.type, l.listener);
+				}
+				this.StateDOMListeners = [];	
 			}
 			
 			if (this.ActiveState = this.States[stateName]) {
@@ -48,9 +52,26 @@ namespace core {
 			}	
 		}
 		
-		AddOnStateEndCallback(cb: Function, ctx?): void
+		AddDOMEventListener(element: HTMLElement | Window , type: string, listener: EventListener): void
 		{
-			this.OnStateEndCallbacks.push(cb.bind(ctx));
+			this.StateDOMListeners.push({element, type, listener});
+			element.addEventListener(type, listener);
+			console.log('Adding listener', element, type);
+		}
+		
+		RemoveDOMEventListener(element: HTMLElement | Window, type: string, listener: EventListener): void
+		{
+			for (let l of this.StateDOMListeners)
+			{
+				if (l.element === element && l.type === type && l.listener === listener)
+				{
+					RemoveElement(this.StateDOMListeners, l);
+					element.removeEventListener(type, listener);
+					console.log('Removing listener', element, type);
+					return;
+				}
+			}
+			throw Error("Couldn't find event listener.")
 		}
 		
 		private OnUpdate(now): void
