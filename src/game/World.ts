@@ -1,6 +1,7 @@
 /// <reference path="../core/DisplayObject" />
 /// <reference path="../core/Random" />
 /// <reference path="../core/Timer" />
+/// <reference path="../core/Tween" />
 
 /// <reference path="Config" />
 
