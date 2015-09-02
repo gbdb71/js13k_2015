@@ -1,7 +1,6 @@
 /// <reference path="core/Game" />
-/// <reference path="core/MouseInputManger" />
-/// <reference path="core/TouchInputController" />
 /// <reference path="core/Math" />
+/// <reference path="core/InputController" />
 
 /// <reference path="gfx/Rectangle" />
 /// <reference path="gfx/Text" />
@@ -29,16 +28,6 @@ class FillWindowResizeStrategy
 	}
 }
 
-
-interface IInputController
-{
-	OnPointerDown(x: number, y: number): void;
-	OnPointerMove(x: number, y: number): void;
-	OnPointerUp(x: number, y: number): void;
-	Update(): void;
-}
-
-	
 class DemoState implements core.IState
 {
 	DefaultWorldSize = new core.Vector(320, 350);
@@ -48,7 +37,7 @@ class DemoState implements core.IState
 	Stage: core.Layer;
 	Game: core.Game;
 	ResizeStrategy: FillWindowResizeStrategy;
-	InputController: IInputController;
+	InputController: core.IInputController;
 	
 	ScoreText: gfx.Text;
 	FPSText: gfx.Text;
@@ -68,20 +57,28 @@ class DemoState implements core.IState
 		this.Stage.Position.Set(0.5, 0.5);
 		
 		this.World = new game.World(this.DefaultWorldSize.x, this.DefaultWorldSize.y);
-		this.World.OnEndCallback = () => this.InputController = new DefaultInputController(this);
+		this.World.OnTimesUpCallback = () => 
+		{
+			let restart = new gfx.Text(this.World.Size.x/2, this.World.Size.y/2, "RESTART");
+			restart.Anchor.Set(0.5, 0.5);
+			this.Stage.AddChild(restart);
+			
+			this.InputController = new core.GenericInputController()
+				.WhenPointerDown(restart, () => this.Game.Play('demo'));
+				
+		}
 		// this.World.Position.Set(30, 30);
 		
 		this.Stage.AddChild(this.World);
 		
-		let mouse = new core.MouseInputManager(this.Game);
-		mouse.SetOnMoveCb(this.OnPointerMove, this);
-		mouse.SetOnDownCb(this.OnPointerDown, this);
-		mouse.SetOnUpCb(this.OnPointerUp, this);
+		this.Game.AddDOMEventListener(this.Game.Canvas, 'mousemove', core.MakeMouseEventTranslator(this.OnPointerMove, this));
+		this.Game.AddDOMEventListener(this.Game.Canvas, 'mousedown', core.MakeMouseEventTranslator(this.OnPointerDown, this));
+		this.Game.AddDOMEventListener(this.Game.Canvas, 'mouseup', core.MakeMouseEventTranslator(this.OnPointerUp, this));
 		
-		let touch = new core.TouchInputController(this.Game);
-		touch.SetOnMoveCb(this.OnPointerMove, this);
-		touch.SetOnDownCb(this.OnPointerDown, this);
-		touch.SetOnUpCb(this.OnPointerUp, this);
+		this.Game.AddDOMEventListener(this.Game.Canvas, 'touchmove', core.MakeTouchEventTranslator(this.OnPointerMove, this));
+		this.Game.AddDOMEventListener(this.Game.Canvas, 'touchstart', core.MakeTouchEventTranslator(this.OnPointerDown, this));
+		this.Game.AddDOMEventListener(this.Game.Canvas, 'touchend', core.MakeTouchEventTranslator(this.OnPointerUp, this));
+
 		
 		this.InputController = new GameInputController(this);
 		
@@ -102,19 +99,19 @@ class DemoState implements core.IState
 		this.ResizeStrategy.OnResize();
 	}
 	
-	OnPointerMove(x: number, y: number): void
+	OnPointerMove(point: core.Vector): void
 	{
-		this.InputController.OnPointerMove(x, y);
+		this.InputController.OnPointerMove(point);
 	}
 	
-	OnPointerDown(x: number, y: number): void
+	OnPointerDown(point: core.Vector): void
 	{
-		this.InputController.OnPointerDown(x, y);
+		this.InputController.OnPointerDown(point);
 	}
 	
-	OnPointerUp(x: number, y: number): void
+	OnPointerUp(point: core.Vector): void
 	{
-		this.InputController.OnPointerUp(x, y);
+		this.InputController.OnPointerUp(point);
 	}
 	
 	Update(timeDelta: number): void
@@ -169,45 +166,7 @@ class DemoState implements core.IState
 	}
 }
 
-class NoopInputController implements IInputController
-{
-	OnPointerDown(x: number, y: number): void {}
-	OnPointerMove(x: number, y: number): void {}
-	OnPointerUp(x: number, y: number): void {}
-	Update(): void {}
-}
-
-class DefaultInputController implements IInputController
-{
-	RestartText: gfx.Text;
-	
-	constructor(
-		private State: DemoState
-	) {
-		this.RestartText = new gfx.Text(this.State.World.Size.x/2, this.State.World.Size.y/2, "RESTART");
-		this.RestartText.Anchor.Set(0.5, 0.5);
-	}
-	
-	OnPointerDown(x: number, y: number): void 
-	{
-		if (this.RestartText.IsPointInside({x, y}))
-		{
-			this.State.Game.Play('demo');
-		}
-	}
-	
-	OnPointerMove(x: number, y: number): void {}
-	OnPointerUp(x: number, y: number): void {}
-	Update(): void
-	{
-		if (this.State.World.IsOver && !this.RestartText.Parent)
-		{
-			this.State.Stage.AddChild(this.RestartText);
-		}
-	}
-}
-
-class GameInputController implements IInputController
+class GameInputController implements core.IInputController
 {
 	CursorPosition = new core.Vector();
 	SelectedShape: game.shapes.AbstractShape;
@@ -216,9 +175,10 @@ class GameInputController implements IInputController
 		private State: DemoState
 	) { }
 	
-	OnPointerDown(x: number, y: number): void
+	OnPointerDown(point: core.Vector): void
 	{
-		this.CursorPosition.Set(x, y);
+		core.vector.Clone(point, this.CursorPosition);
+		
 		if (this.State.World.IsOver) return;
 		
 		let shape = this.State.World.GetShapeUnder(this.CursorPosition);
@@ -229,7 +189,7 @@ class GameInputController implements IInputController
 		}
 	}
 	
-	OnPointerUp(x: number, y: number): void
+	OnPointerUp(point: core.Vector): void
 	{
 		if (this.SelectedShape)
 		{
@@ -245,12 +205,12 @@ class GameInputController implements IInputController
 		}
 	}
 	
-	OnPointerMove(x: number, y: number): void
+	OnPointerMove(point: core.Vector): void
 	{
-		this.CursorPosition.Set(x, y);
+		core.vector.Clone(point, this.CursorPosition);
 		
 		if (!this.SelectedShape) {
-			this.OnPointerDown(x, y);
+			this.OnPointerDown(point);
 		}
 		
 		let local = this.State.World.ToLocal(this.CursorPosition);

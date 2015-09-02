@@ -53,7 +53,7 @@ namespace game {
 		TimeLeft: number = this.Config.LevelTime;
 		TimeLeftText: TimeLeftText;
 		IsOver: boolean = false;
-		OnEndCallback: Function;
+		OnTimesUpCallback: Function;
 		
 		constructor(width: number, height: number)
 		{
@@ -280,7 +280,7 @@ namespace game {
 		OnTimesUp(): void
 		{
 			this.Timers.RemoveAll();
-			if (this.OnEndCallback) this.OnEndCallback();
+			if (this.OnTimesUpCallback) this.OnTimesUpCallback();
 			
 			let lastTween = this.Tweens.New(null);
 			lastTween.Start();
