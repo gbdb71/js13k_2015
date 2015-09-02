@@ -54,8 +54,12 @@ class DemoState implements core.IState
 	FPSText: gfx.Text;
 	Bar: gfx.Rectangle;
 	
+	Id: number = 0;
+	
 	Start(): void
 	{
+		this.Id += 1;
+		
 		document.body.style.background = game.config.color.background;
 		// this.Cursor.Anchor.Set(0.5, 0.5);
 		
@@ -119,7 +123,7 @@ class DemoState implements core.IState
 		
 		this.InputController.Update();
 		
-		this.FPSText.SetText("FPS " + (timeDelta*1000).toFixed(1));
+		this.FPSText.SetText("FPS " +this.Id+ " " + (timeDelta*1000).toFixed(1));
 		this.ScoreText.SetText("SCORE: " + this.World.Score);
 	}
 	
@@ -278,3 +282,4 @@ class GameInputController implements IInputController
 let mgame = new core.Game('canvas');
 mgame.AddState('demo', new DemoState());
 mgame.Play('demo');
+mgame.Start();

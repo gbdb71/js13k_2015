@@ -45,11 +45,15 @@ namespace core {
 			if (this.ActiveState = this.States[stateName]) {
 				this.ActiveState.Game = this;
 				this.ActiveState.Start();
-				this.RequestAnimationFrame();
 			}
 			else {
 				throw new Error();
 			}	
+		}
+		
+		Start(): void
+		{
+			this.RequestAnimationFrame();
 		}
 		
 		AddDOMEventListener(element: HTMLElement | Window , type: string, listener: EventListener): void
