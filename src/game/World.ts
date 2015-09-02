@@ -44,11 +44,6 @@ namespace game {
 		Timers: core.TimersManager;
 		Tweens: core.TweenManager;
 		
-		Config = {
-			SpawnTime: 3,
-			LevelTime: 15
-		}
-		
 		Score: number = 0;
 		MoveScore: number = 1;
 		TimeLeft: number = this.Config.LevelTime;
@@ -56,8 +51,14 @@ namespace game {
 		IsOver: boolean = false;
 		OnTimesUpCallback: Function;
 		
-		constructor(width: number, height: number)
-		{
+		constructor(
+			width: number, height: number,
+			
+			public Config = {
+				SpawnTime: 3,
+				LevelTime: 15
+			}
+		) {
 			super(0, 0, width, height);
 			this.Tweens = new core.TweenManager();
 			this.Timers = new core.TimersManager();

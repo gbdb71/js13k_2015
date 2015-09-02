@@ -23,15 +23,18 @@ namespace state {
 
 	export class AbstractState implements core.IState
 	{
-		
+		DefaultGameSize = new core.Vector(320, 350);
+
 		Game: core.Game;
-		
+		Stage: core.Layer;
+			
 		ResizeStrategy: FillWindowResizeStrategy;
 		InputController: core.IInputController;
 		
 		Start(): void
 		{
-			this.ResizeStrategy = new FillWindowResizeStrategy(this.Game, this.OnResize.bind(this));	
+			this.Stage = new core.Layer(0, 0, this.Game.Canvas.width, this.Game.Canvas.height);
+			this.ResizeStrategy = new FillWindowResizeStrategy(this.Game, this.OnResize.bind(this));
 		}
 		
 		Update(timeDelta: number): void
@@ -41,7 +44,8 @@ namespace state {
 		
 		Draw(ctx: CanvasRenderingContext2D): void
 		{
-			/** Leave for concrete State */
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			this.Stage.Draw(ctx);
 		}
 		
 		OnPointerDown(point: core.Vector): void
@@ -70,7 +74,9 @@ namespace state {
 		
 		OnResize(width: number, height: number): void
 		{
-			/** Leave for concrete State */
+			let scale = Math.min(width / this.DefaultGameSize.x, height / (this.DefaultGameSize.y + 20));
+			this.Stage.Size.Set(width / scale, height / scale);
+			this.Stage.Scale.Set(scale, scale);
 		}
 		
 		protected ListenForMouseInput(): void

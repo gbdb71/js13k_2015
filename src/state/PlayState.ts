@@ -7,10 +7,8 @@ namespace state {
 	
 	export class PlayState extends AbstractState
 	{
-		DefaultWorldSize = new core.Vector(320, 350);
 		
 		World: game.World;
-		Stage: core.Layer;
 		
 		ScoreText: gfx.Text;
 		FPSText: gfx.Text;
@@ -18,19 +16,22 @@ namespace state {
 		
 		Id: number = 0;
 		
+		constructor(
+			public Config = {
+				SpawnTime: 3,
+				LevelTime: 15
+			}
+		) {
+			super();
+		}
+		
 		Start(): void
 		{
 			super.Start();
 			
 			this.Id += 1;
 			
-			document.body.style.background = game.config.color.background;
-			
-			this.Stage = new core.Layer(0, 0, this.Game.Canvas.width, this.Game.Canvas.height);
-			// this.Stage.Scale.Set(0.5, 0.5);
-			this.Stage.Position.Set(0.5, 0.5);
-			
-			this.World = new game.World(this.DefaultWorldSize.x, this.DefaultWorldSize.y);
+			this.World = new game.World(this.DefaultGameSize.x, this.DefaultGameSize.y, this.Config);
 			this.World.OnTimesUpCallback = this.OnTimesUp.bind(this);
 			// this.World.Position.Set(30, 30);
 			this.Stage.AddChild(this.World);
@@ -72,21 +73,28 @@ namespace state {
 		
 		OnTimesUp(): void
 		{
-			let restart = new gfx.Text(this.World.Size.x/2, this.World.Size.y/2, "RESTART");
+			let restart = new gfx.Text(this.World.Size.x/2, this.World.Size.y/3 + 50, "RESTART");
+			restart.SetSize(40);
 			restart.Anchor.Set(0.5, 0.5);
+			
+			let menu = new gfx.AAText(this.World.Size.x/2, this.World.Size.y/2 + 50, "MENU");
+			menu.Anchor.Set(0.5, 0.5);
+			
 			this.Stage.AddChild(restart);
+			this.Stage.AddChild(menu);
 			
 			this.InputController = new core.GenericInputController()
-				.WhenPointerDown(restart, () => this.Game.Play('demo'));
+				.WhenPointerDown(restart, () => this.Game.Play('game'))
+				.WhenPointerDown(menu, () => this.Game.Play('level-select'));
 		}
 		
 		OnResize(width: number, height: number): void
 		{
-			let scale = Math.min(width / this.DefaultWorldSize.x, height / (this.DefaultWorldSize.y + 20));
+			let scale = Math.min(width / this.DefaultGameSize.x, height / (this.DefaultGameSize.y + 20));
 			this.Stage.Size.Set(width / scale, height / scale);
 			this.Stage.Scale.Set(scale, scale);
 			
-			this.Bar.Size.y = core.math.Clamp(height - this.DefaultWorldSize.y * scale, 20, 50);
+			this.Bar.Size.y = core.math.Clamp(height - this.DefaultGameSize.y * scale, 20, 50);
 			
 			this.World.Size.y =	(height / scale) - this.Bar.Size.y;
 			

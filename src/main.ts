@@ -1,8 +1,10 @@
 /// <reference path="core/Game" />
-/// <reference path="state/PlayState" />
+/// <reference path="state/BootState" />
+/// <reference path="state/LevelSelect" />
 
 
 let mgame = new core.Game('canvas');
-mgame.AddState('demo', new state.PlayState());
-mgame.Play('demo');
+mgame.AddState('boot', new state.BootState());
+mgame.AddState('level-select', new state.LevelSelect());
+mgame.Play('boot');
 mgame.Start();

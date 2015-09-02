@@ -4,7 +4,8 @@ namespace gfx {
 	
 	interface IStyle {
 		fillStyle?: string;
-		strokeStyle?: string;	
+		strokeStyle?: string;
+		compositeOperation?: string;	
 	}
 	
 	export class Rectangle extends core.DisplayObject
@@ -20,11 +21,17 @@ namespace gfx {
 		
 		protected DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
-			if (this.Style.fillStyle) {
+			if (this.Style.compositeOperation)
+			{
+				ctx.globalCompositeOperation = this.Style.compositeOperation;
+			}
+			if (this.Style.fillStyle)
+			{
 				ctx.fillStyle = this.Style.fillStyle;
 				ctx.fillRect(0, 0, this.Size.x, this.Size.y);
 			}
-			if (this.Style.strokeStyle) {
+			if (this.Style.strokeStyle)
+			{
 				ctx.strokeStyle = this.Style.strokeStyle;
 				ctx.strokeRect(0, 0, this.Size.x, this.Size.y);
 			}
