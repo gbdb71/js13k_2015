@@ -6,7 +6,7 @@ namespace game.shapes {
 	let vec = core.vector;
 	let tvec = core.vector.Tmp;
 	
-	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 20;
+	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 30;
 	const DEFAULT_ROTATION_SPEED = 0.2;
 	
 	export class AbstractShape extends core.DisplayObject
@@ -25,9 +25,9 @@ namespace game.shapes {
 		
 		Update(timeDelta: number): void
 		{
-			if (this.Trajectory.length > 1) {
+			if (this.HasTrajectory()) {
 				this.Color = this.World.MoveScore > 1 ? game.config.color.other : game.config.color.active;
-				this.CalcDirection();
+				this.UpdateDirection();
 			}
 
 			vec.Clone(this.Velocity, tvec);
@@ -42,7 +42,7 @@ namespace game.shapes {
 		
 		HasTrajectory(): boolean
 		{
-			return this.Trajectory.length > 0;
+			return this.Trajectory.length > 1;
 		}
 		
 		AddTrajectoryPoint(point: core.IVector): void
@@ -72,11 +72,9 @@ namespace game.shapes {
 			{
 				this.Trajectory.push(vec.Clone(point));
 			}
-			
-			this.Color = game.config.color.active;	
 		}
 		
-		private CalcDirection(): void
+		private UpdateDirection(): void
 		{
 			let [moveTo] = this.Trajectory;
 			vec.Subtract(moveTo, this.Position, tvec);
