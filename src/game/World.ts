@@ -54,10 +54,7 @@ namespace game {
 		constructor(
 			width: number, height: number,
 			
-			public Config = {
-				SpawnTime: 3,
-				LevelTime: 15
-			}
+			public Config = { SpawnTime: 3, LevelTime: 15}
 		) {
 			super(0, 0, width, height);
 			this.Tweens = new core.TweenManager();

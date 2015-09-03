@@ -17,10 +17,7 @@ namespace state {
 		Id: number = 0;
 		
 		constructor(
-			public Config = {
-				SpawnTime: 3,
-				LevelTime: 15
-			}
+			public Config = {SpawnTime: 3, LevelTime: 15}
 		) {
 			super();
 		}
@@ -77,10 +74,14 @@ namespace state {
 			restart.SetSize(40);
 			restart.Anchor.Set(0.5, 0.5);
 			
+			let box = new gfx.Rectangle(restart.Position.x, restart.Position.y, restart.Size.x + 20, restart.Size.y + 10, {fillStyle: 'white', compositeOperation: 'xor'});
+			box.Anchor.Set(0.5, 0.5);
+			
 			let menu = new gfx.AAText(this.World.Size.x/2, this.World.Size.y/2 + 50, "MENU");
 			menu.Anchor.Set(0.5, 0.5);
 			
 			this.Stage.AddChild(restart);
+			this.Stage.AddChild(box);
 			this.Stage.AddChild(menu);
 			
 			this.InputController = new core.GenericInputController()

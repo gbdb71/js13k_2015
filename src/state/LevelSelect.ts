@@ -5,24 +5,26 @@
 
 namespace state {
 	
-	interface ILevelDefinition
+	interface ILevelData
 	{
 		SpawnTime: number;
 		LevelTime: number;
 		Min: number;
-		Max: number;	
+		Max: number;
+		Score: number;	
 	}
 	
 	export class LevelSelect extends AbstractState
 	{
-		Levels: ILevelDefinition[] = [
-			{SpawnTime: 4, LevelTime: 10, Min: 50, Max: 200},
-			{SpawnTime: 3, LevelTime: 15, Min: 50, Max: 200},
-			{SpawnTime: 3, LevelTime: 30, Min: 50, Max: 200},
-			{SpawnTime: 3, LevelTime: 60, Min: 50, Max: 200}
+		Levels: ILevelData[] = [
+			{SpawnTime: 4, LevelTime: 5, Min: 50, Max: 200, Score: 50},
+			{SpawnTime: 3, LevelTime: 15, Min: 50, Max: 200, Score: 20},
+			{SpawnTime: 3, LevelTime: 30, Min: 50, Max: 200, Score: 40},
+			{SpawnTime: 3, LevelTime: 60, Min: 50, Max: 200, Score: 1120}
 		];
 		
 		InputController: core.GenericInputController;
+		Tweens: core.TweenManager;
 		
 		Start(): void
 		{
@@ -32,65 +34,111 @@ namespace state {
 			this.ListenForMouseInput();
 			this.ListenForTouchInput();
 			
-			let challangeText = new gfx.AAText(this.Stage.Size.x/2, 10, "CHALANGE");
+			this.Tweens = new core.TweenManager();
+			
+			let challangeText = new gfx.AAText(this.DefaultGameSize.x/2, 10, "CHALANGE");
 			challangeText.Anchor.Set(0.5, 0);
 			challangeText.SetSize(10);
 			this.Stage.AddChild(challangeText);
 			
-			let challangeType = new gfx.AAText(this.Stage.Size.x/2, 30, "PRECISION");
+			let challangeType = new gfx.AAText(this.DefaultGameSize.x/2, 30, "PRECISION");
 			challangeType.Anchor.Set(0.5, 0);
 			this.Stage.AddChild(challangeType);
 			
-			this.Levels.forEach((definition, index) => 
+			let buttons: core.DisplayObject[] = [];
+			this.Levels.forEach((levelData, index) => 
 			{
-				let btn = this.CreateLevelBtn(index);
-				btn.Position.Set(20, 70 + index * 80);
+				let btn = new LevelButton(index, levelData);
+				btn.Position.Set(index & 1? this.DefaultGameSize.x + btn.Size.x : -btn.Size.x, 120 + index * 70);
+				btn.Anchor.Set(0.5, 0.5);
 				this.Stage.AddChild(btn);
+				buttons.push(btn);
 				
+				this.Tweens.New(btn.Position)
+					.To({x: this.DefaultGameSize.x/2}, 1, core.easing.OutCubic)
+					.WhenDone(() => btn.StartTweens(this.Tweens))
+					.Start();
+					
 				this.InputController.WhenPointerDown(btn, () => {
-					this.Game.AddState('game', new PlayState(definition));
-					this.Game.Play('game');
+					this.Tweens.New(btn.Scale)
+						.To({x: 1.1, y: 1.1}, 1, core.easing.OutCubic)
+						.WhenDone(() => {
+							this.Game.AddState('game', new PlayState(levelData));
+							this.Game.Play('game');
+						})
+						.Start();
+					for (let otherBtn of buttons)
+					{
+						if (otherBtn === btn) continue;
+						
+						this.Tweens.New(otherBtn.Scale)
+							.To({x: 0, y: 0}, 0.8)
+							.Parallel(otherBtn, (t) => t.To({Alpha: 0}, 0.6))
+							.Start();
+					}	
 				})
 			});
 			
 			this.ResizeStrategy.OnResize();
 		}
 		
-		CreateLevelBtn(index: number): core.DisplayObject
+		Update(timeDelta: number): void
 		{
-			console.log('btn i', index);
+			this.Tweens.Update(timeDelta);
+		}
 			
-			let layer = new core.Layer(0, 0, 275, 50);
-			
+	}
+	
+	class LevelButton extends core.Layer
+	{
+		Fill: gfx.Rectangle;
+		
+		constructor(index: number, data: ILevelData)
+		{
+			const btnWidth = 250, btnHeight = 40;
+			super(0, 0, btnWidth, btnHeight);
+
 			let indexText = new gfx.AAText(0, 0, index.toString());
 			indexText.SetSize(40);
-			layer.AddChild(indexText);
-			
-			let score = new gfx.AAText(50, 0, "HI-SCORE: 10");
+			indexText.SetColor(game.config.color.inactive);
+			this.AddChild(indexText);
+
+			let score = new gfx.AAText(50, 0, "HI-SCORE: " + data.Score);
 			score.SetSize(10);
-			layer.AddChild(score);
-			
+			this.AddChild(score);
+
+			let timeText = new gfx.AAText(251, 0, "TIME: " + data.LevelTime)
+			timeText.SetSize(10);
+			timeText.Anchor.Set(1, 0);
+			this.AddChild(timeText);
+
 			let bad = new gfx.AAText(55, 25, "BAD")
 			bad.SetSize(10);
-			layer.AddChild(bad);
-			
+			this.AddChild(bad);
+
 			let awesome = new gfx.AAText(245, 25, "AWESOME")
 			awesome.SetSize(10);
 			awesome.Anchor.Set(1, 0);
-			layer.AddChild(awesome);
-			
-			let progress = new gfx.Rectangle(50.5, 20.5, 200, 20, {strokeStyle: 'white'});
-			layer.AddChild(progress);
-			
-			let fill = new gfx.Rectangle(50.5, 20.5, Math.random() * 200, 20, {fillStyle: 'white', compositeOperation: 'xor'});
-			layer.AddChild(fill);
-			
-			let bg = new gfx.Rectangle(-10, -10, 285, 60, {fillStyle: 'rgba(0, 0, 0, 0.5)', compositeOperation: 'destination-over'});
-			layer.AddChild(bg);
-			
-			return layer;
+			this.AddChild(awesome);
+
+			let progress = new gfx.Rectangle(50.5, 20.5, 200, 20, { strokeStyle: 'white' });
+			this.AddChild(progress);
+
+			let fill = new gfx.Rectangle(51.5, 21.5, 200 - 2, 20 - 2, {fillStyle: 'white', compositeOperation: 'xor'});
+			fill.Scale.Set(0, 1);
+			this.AddChild(this.Fill = fill);
+
+			let bg = new gfx.Rectangle(btnWidth / 2, btnHeight / 2, btnWidth + 20, btnHeight + 20, { fillStyle: 'rgba(0, 0, 0, 0.5)', compositeOperation: 'destination-over' });
+			bg.Anchor.Set(0.5, 0.5);
+			this.AddChild(bg);
 		}
-			
+	
+		StartTweens(tweens: core.TweenManager): void
+		{
+			tweens.New(this.Fill.Scale)
+				.To({x: Math.random()}, 2, core.easing.OutCubic)
+				.Start();
+		}
 	}
 	
 }
