@@ -7,7 +7,6 @@ namespace game.shapes {
 	let tvec = core.vector.Tmp;
 	
 	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 30;
-	const DEFAULT_ROTATION_SPEED = 0.2;
 	
 	export class AbstractShape extends core.DisplayObject
 	{
@@ -20,19 +19,19 @@ namespace game.shapes {
 		Prev: AbstractShape;
 		World: World;
 		
-		private AngleAcc: number = 0;
-		private RotationSpeed: number = DEFAULT_ROTATION_SPEED;
-		
 		Update(timeDelta: number): void
 		{
-			if (this.HasTrajectory()) {
+			if (this.HasTrajectory()) 
+			{
 				this.Color = this.World.MoveScore > 1 ? game.config.color.other : game.config.color.active;
-				this.UpdateDirection();
+				this.UpdateDirection(timeDelta);
 			}
-
-			vec.Clone(this.Velocity, tvec);
-			vec.Scale(tvec, timeDelta);
-			vec.Add(this.Position, tvec, this.Position);
+			else
+			{
+				vec.Clone(this.Velocity, tvec);
+				vec.Scale(tvec, timeDelta);
+				vec.Add(this.Position, tvec, this.Position);
+			}
 		}
 		
 		DrawSelf(ctx: CanvasRenderingContext2D): void
@@ -74,34 +73,63 @@ namespace game.shapes {
 			}
 		}
 		
-		private UpdateDirection(): void
+		private UpdateDirection(timeDelta: number): void
 		{
-			let [moveTo] = this.Trajectory;
+			let velocity = vec.Length(this.Velocity),
+				step = velocity * timeDelta,
+				dist = 0;
+			
+			let [moveTo, next] = this.Trajectory;
 			vec.Subtract(moveTo, this.Position, tvec);
 			
-			if (vec.Length(tvec) < 5)
+			if (!IsParallel(this.Velocity, tvec))
 			{
+				tvec.Set(-tvec.x, -tvec.y);
+				let projection = this.Velocity; // velcity vector is used as tmp
+				
+				vec.Subtract(next, moveTo, projection);
+				let len = vec.Dot(tvec, projection) / vec.Length(projection);
+				vec.Unit(projection);
+				vec.Scale(projection, len);
+				vec.Add(moveTo, projection, this.Position);
 				this.Trajectory.shift();
-				this.AngleAcc = 0;
-				this.RotationSpeed = DEFAULT_ROTATION_SPEED;
-				this.Score += this.World.MoveScore;
+				
+				[moveTo, next] = this.Trajectory;
+				vec.Subtract(moveTo, this.Position, tvec);
 			}
-
-			let target = vec.Angle(tvec),
-				source = vec.Angle(this.Velocity);
-
-			let angle = Math.atan2(Math.sin(target - source), Math.cos(target - source));
-			angle *= this.RotationSpeed;
-
-			this.AngleAcc += angle;
-			vec.Rotate(this.Velocity, angle);
-
-			if (Math.abs(this.AngleAcc) > Math.PI * 2)
+			
+			while (step > 0)
 			{
-				this.RotationSpeed *= 2;
-				this.AngleAcc = 0;
+				if ((dist = vec.Length(tvec)) - step > 0)
+				{
+					vec.Unit(tvec);
+					vec.Clone(tvec, this.Velocity);
+					
+					vec.Scale(tvec, step);
+					vec.Add(this.Position, tvec, this.Position);
+					
+					vec.Scale(this.Velocity, velocity);
+					break;
+				}
+				else
+				{
+					step = step - dist;
+					vec.Add(this.Position, tvec, this.Position);
+					this.Trajectory.shift();
+					this.Score += this.World.MoveScore;
+				
+				}
+				
+				[moveTo, next] = this.Trajectory;
+				vec.Subtract(moveTo, this.Position, tvec);
 			}
 		}
+	}
+	
+	function IsParallel(a: core.IVector, b: core.IVector, epsilon: number = 0.01): boolean
+	{
+		if (a.y === 0 || b.y === 0) return a.y === b.y;
+		return Math.abs(Math.abs(a.x / a.y) - Math.abs(b.x / b.y)) < epsilon;
 	}
 	
 }

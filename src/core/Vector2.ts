@@ -34,12 +34,12 @@ namespace core.vector {
 	}
 	
 	export function Clone(a: IVector): Vector
-	export function Clone(a: IVector, b: IVector): void
-	export function Clone(a, b?)
+	export function Clone(a: IVector, o: IVector): void
+	export function Clone(a, o?)
 	{
-		if (b) {
-			b.x = a.x;
-			b.y = a.y;
+		if (o) {
+			o.x = a.x;
+			o.y = a.y;
 		}
 		else {
 			return New(a.x, a.y);
@@ -108,6 +108,11 @@ namespace core.vector {
 	{
 		o.x = a.x > 0 ? 1/a.x : 0;
 		o.y = a.y > 0 ? 1/a.y : 0;
+	}
+	
+	export function Dot(a: IVector, b: IVector): number
+	{
+		return a.x * b.x + a.y * b.y;
 	}
 	
 }
