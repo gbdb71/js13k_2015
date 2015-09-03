@@ -36,12 +36,12 @@ namespace state {
 			
 			this.Tweens = new core.TweenManager();
 			
-			let challangeText = new gfx.AAText(this.DefaultGameSize.x/2, 10, "CHALANGE");
+			let challangeText = new gfx.AAText(this.Stage.Size.x/2, 10, "CHALANGE");
 			challangeText.Anchor.Set(0.5, 0);
 			challangeText.SetSize(10);
 			this.Stage.AddChild(challangeText);
 			
-			let challangeType = new gfx.AAText(this.DefaultGameSize.x/2, 30, "PRECISION");
+			let challangeType = new gfx.AAText(this.Stage.Size.x/2, 30, "PRECISION");
 			challangeType.Anchor.Set(0.5, 0);
 			this.Stage.AddChild(challangeType);
 			
@@ -49,12 +49,12 @@ namespace state {
 			this.Levels.forEach((levelData, index) => 
 			{
 				let btn = new LevelButton(index, levelData);
-				btn.Position.Set(index & 1? this.DefaultGameSize.x + btn.Size.x : -btn.Size.x, 120 + index * 70);
+				btn.Position.Set(index & 1? this.Stage.Size.x + btn.Size.x : -btn.Size.x, 120 + index * 70);
 				btn.Anchor.Set(0.5, 0.5);
 				this.Stage.AddChild(btn);
 				
 				let appearTween = this.Tweens.New(btn.Position)
-					.To({x: this.DefaultGameSize.x/2}, 1, core.easing.OutCubic)
+					.To({x: this.Stage.Size.x/2}, 1, core.easing.OutCubic)
 					.WhenDone(() => btn.StartTweens(this.Tweens))
 					.Start();
 					
@@ -78,7 +78,7 @@ namespace state {
 				})
 			});
 			
-			this.ResizeStrategy.OnResize();
+			this.OnResize();
 		}
 		
 		Update(timeDelta: number): void

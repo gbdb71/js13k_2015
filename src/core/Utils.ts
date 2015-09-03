@@ -10,6 +10,11 @@ namespace core {
 		else throw new Error();
 	}
 	
+	export function Last<T>(array: Array<T>): T
+	{
+		return array[array.length - 1];
+	}
+	
 	export function Brightness(base: string, brightess: number): string
 	{
 		let rgb = base.substr(1).match(/.{2}/g).map((v) => parseInt(v, 16));

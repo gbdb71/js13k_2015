@@ -7,7 +7,7 @@ namespace state {
 	{
 		Start(): void
 		{
-			document.body.style.background = game.config.color.background;
+			this.Game.Canvas.style.background = game.config.color.background;
 			this.Game.Play('level-select');
 		}
 	}

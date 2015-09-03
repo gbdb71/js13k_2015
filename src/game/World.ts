@@ -212,7 +212,6 @@ namespace game {
 		DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
 			ctx.strokeStyle = game.config.color.active;
-			// ctx.strokeRect(0, 0, this.Size.x-1, this.Size.y-1);
 			
 			ctx.setLineDash([3, 9]);
 			ctx.lineWidth = 2;

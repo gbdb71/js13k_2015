@@ -6,7 +6,7 @@ namespace game.shapes {
 	let vec = core.vector;
 	let tvec = core.vector.Tmp;
 	
-	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 30;
+	const MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS = 20;
 	
 	export class AbstractShape extends core.DisplayObject
 	{
@@ -46,8 +46,9 @@ namespace game.shapes {
 		
 		AddTrajectoryPoint(point: core.IVector): void
 		{
-			let last = this.Trajectory[this.Trajectory.length - 1];
+			let last = core.Last(this.Trajectory);
 			let min = MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS;
+			let doCorrection = this.Trajectory.length < 2;
 			
 			if (last)
 			{
@@ -65,6 +66,23 @@ namespace game.shapes {
 						this.Trajectory.push(last = vec.Clone(tvec))
 						len -= min;
 					}
+					
+					if (!doCorrection) return;
+					
+					let [first, second] = this.Trajectory;
+					vec.Subtract(second, first, tvec);
+					if (!IsParallel(this.Velocity, tvec))
+					{
+						let velocity = vec.Length(this.Velocity);
+						vec.Subtract(second, this.Position, this.Velocity);
+						vec.Unit(this.Velocity)
+						
+						vec.Clone(this.Velocity, first);
+						vec.Scale(first, min/2);
+						vec.Add(this.Position, first, first);
+						
+						vec.Scale(this.Velocity, velocity);
+					}	
 				}
 			}
 			else
@@ -79,27 +97,11 @@ namespace game.shapes {
 				step = velocity * timeDelta,
 				dist = 0;
 			
-			let [moveTo, next] = this.Trajectory;
-			vec.Subtract(moveTo, this.Position, tvec);
-			
-			if (!IsParallel(this.Velocity, tvec))
-			{
-				tvec.Set(-tvec.x, -tvec.y);
-				let projection = this.Velocity; // velcity vector is used as tmp
-				
-				vec.Subtract(next, moveTo, projection);
-				let len = vec.Dot(tvec, projection) / vec.Length(projection);
-				vec.Unit(projection);
-				vec.Scale(projection, len);
-				vec.Add(moveTo, projection, this.Position);
-				this.Trajectory.shift();
-				
-				[moveTo, next] = this.Trajectory;
-				vec.Subtract(moveTo, this.Position, tvec);
-			}
-			
 			while (step > 0)
 			{
+				let [moveTo] = this.Trajectory;
+				vec.Subtract(moveTo, this.Position, tvec);
+				
 				if ((dist = vec.Length(tvec)) - step > 0)
 				{
 					vec.Unit(tvec);
@@ -119,9 +121,6 @@ namespace game.shapes {
 					this.Score += this.World.MoveScore;
 				
 				}
-				
-				[moveTo, next] = this.Trajectory;
-				vec.Subtract(moveTo, this.Position, tvec);
 			}
 		}
 	}

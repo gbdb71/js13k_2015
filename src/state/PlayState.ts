@@ -28,7 +28,7 @@ namespace state {
 			
 			this.Id += 1;
 			
-			this.World = new game.World(this.DefaultGameSize.x, this.DefaultGameSize.y, this.Config);
+			this.World = new game.World(this.Stage.Size.x, this.Stage.Size.y, this.Config);
 			this.World.OnTimesUpCallback = this.OnTimesUp.bind(this);
 			// this.World.Position.Set(30, 30);
 			this.Stage.AddChild(this.World);
@@ -50,7 +50,7 @@ namespace state {
 			this.FPSText.SetSize(10);
 			this.Stage.AddChild(this.FPSText);
 			
-			this.ResizeStrategy.OnResize();
+			this.OnResize();
 		}
 		
 		Update(timeDelta: number): void
@@ -89,15 +89,18 @@ namespace state {
 				.WhenPointerDown(menu, () => this.Game.Play('level-select'));
 		}
 		
-		OnResize(width: number, height: number): void
+		OnResize(): void
 		{
-			let scale = Math.min(width / this.DefaultGameSize.x, height / (this.DefaultGameSize.y + 20));
-			this.Stage.Size.Set(width / scale, height / scale);
-			this.Stage.Scale.Set(scale, scale);
+			super.OnResize();
+			// let scale = Math.min(width / this.DefaultGameSize.x, height / (this.DefaultGameSize.y + 20));
+			// this.Stage.Size.Set(width / scale, height / scale);
+			// this.Stage.Scale.Set(scale, scale);
+			let scale = this.Stage.Scale.x;
 			
-			this.Bar.Size.y = core.math.Clamp(height - this.DefaultGameSize.y * scale, 20, 50);
 			
-			this.World.Size.y =	(height / scale) - this.Bar.Size.y;
+			this.Bar.Size.y = core.math.Clamp(20 * scale, 20, 50);
+			
+			this.World.Size.y =	this.Stage.Size.y - this.Bar.Size.y;
 			
 			this.Bar.Position.Set(0, this.World.Size.y);
 			this.ScoreText.Position.Set(5.5, this.World.Size.y + 5.5);

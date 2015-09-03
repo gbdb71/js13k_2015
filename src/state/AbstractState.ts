@@ -4,37 +4,17 @@
 
 namespace state {
 	
-	class FillWindowResizeStrategy 
-	{
-		constructor(
-			public Game: core.Game,
-			public Callback: (w: number, h: number) => void
-		) {
-			this.Game.AddDOMEventListener(window, 'resize', this.OnResize.bind(this));
-		}
-		
-		OnResize(): void
-		{
-			let w = this.Game.Canvas.width = window.innerWidth;
-			let h = this.Game.Canvas.height = window.innerHeight;
-			this.Callback(w, h);
-		}
-	}
-
 	export class AbstractState implements core.IState
 	{
-		DefaultGameSize = new core.Vector(320, 350);
-
 		Game: core.Game;
 		Stage: core.Layer;
-			
-		ResizeStrategy: FillWindowResizeStrategy;
+		DefaultSize = new core.Vector(320, 370);
 		InputController: core.IInputController;
 		
 		Start(): void
 		{
-			this.Stage = new core.Layer(0, 0, this.Game.Canvas.width, this.Game.Canvas.height);
-			this.ResizeStrategy = new FillWindowResizeStrategy(this.Game, this.OnResize.bind(this));
+			this.Stage = new core.Layer(0, 0, 320, 370);
+			this.Game.AddDOMEventListener(window, 'resize', (e) => this.OnResize());
 		}
 		
 		Update(timeDelta: number): void
@@ -72,11 +52,18 @@ namespace state {
 			}
 		}
 		
-		OnResize(width: number, height: number): void
+		OnResize(): void
 		{
-			let scale = Math.min(width / this.DefaultGameSize.x, height / (this.DefaultGameSize.y + 20));
-			this.Stage.Size.Set(width / scale, height / scale);
+			let width = window.innerWidth, height = window.innerHeight;
+			
+			let scale = Math.min(width / this.DefaultSize.x, height / this.DefaultSize.y);
 			this.Stage.Scale.Set(scale, scale);
+			this.Stage.Size.Set(this.DefaultSize.x, height / scale);
+			// core.vector.Scale(this.Stage.Size, scale);
+			
+			console.log(this.Stage.Size.x);
+			this.Game.Canvas.width = this.Stage.Size.x * scale;
+			this.Game.Canvas.height = this.Stage.Size.y * scale;
 		}
 		
 		protected ListenForMouseInput(): void

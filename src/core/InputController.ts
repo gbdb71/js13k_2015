@@ -17,7 +17,10 @@ namespace core {
 
 	function TranslateMouseEvent(receiver: IInputEventReceiver, ctx: any, event: MouseEvent)
 	{
-		let point = new core.Vector(event.layerX, event.layerY);
+		let x = event.pageX, y = event.pageY;
+		
+		let rect = (<HTMLElement>event.target).getBoundingClientRect();
+		let point = new core.Vector(x - rect.left, y - rect.top);
 		receiver.call(ctx, point, event);
 	}
 	
@@ -29,6 +32,10 @@ namespace core {
 		{
 			x = event.targetTouches[0].pageX,
 			y = event.targetTouches[0].pageY;
+			
+			let rect = (<HTMLElement>event.target).getBoundingClientRect();
+			x -= rect.left;
+			y -= rect.top;
 		}
 		
 		receiver.call(ctx, vector.New(x, y), event);
