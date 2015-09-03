@@ -66,7 +66,7 @@ namespace game {
 			
 			this.TimeLeftText = new TimeLeftText(width/2, width/3);
 			this.TimeLeftText.Anchor.Set(0.5, 0.5);
-			this.TimeLeftText.SetColor('#42566a');
+			this.TimeLeftText.SetColor(core.Brightness(config.color.background, 1.4));
 			this.TimeLeftText.SetSize(120);
 		}
 		
