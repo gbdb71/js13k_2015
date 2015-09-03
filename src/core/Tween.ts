@@ -37,7 +37,7 @@ namespace core {
 		
 		OnDoneCallback: (target: any) => void;
 		IsDone: boolean = false;
-		
+		PlayReversed: boolean = false;
 		
 		constructor(
 			public Target: any,
@@ -135,6 +135,15 @@ namespace core {
 			return this.Then().To({}, duration);
 		}
 		
+		Reverse(): Tween
+		{
+			for (let tween = this; tween; tween = tween.Prev)
+			{
+				tween.PlayReversed = !tween.PlayReversed;
+			}
+			return this;
+		}
+		
 		Update(timeDelta: number): void
 		{
 			let self = this;
@@ -184,7 +193,17 @@ namespace core {
 		{
 			for (let property of this.TweenedProperties)
 			{
-				property.start = this.Target[property.key];
+				if (this.PlayReversed)
+				{
+					let start = property.start || this.Target[property.key];
+					property.start = property.end;
+					property.end = start;
+				}
+				else 
+				{
+					property.start = this.Target[property.key];
+				}
+				
 				property.change = property.end - property.start;
 			}
 			

@@ -45,21 +45,23 @@ namespace state {
 			challangeType.Anchor.Set(0.5, 0);
 			this.Stage.AddChild(challangeType);
 			
-			let buttons: core.DisplayObject[] = [];
+			let buttons: Array<[core.DisplayObject, core.Tween]> = [];
 			this.Levels.forEach((levelData, index) => 
 			{
 				let btn = new LevelButton(index, levelData);
 				btn.Position.Set(index & 1? this.DefaultGameSize.x + btn.Size.x : -btn.Size.x, 120 + index * 70);
 				btn.Anchor.Set(0.5, 0.5);
 				this.Stage.AddChild(btn);
-				buttons.push(btn);
 				
-				this.Tweens.New(btn.Position)
+				let appearTween = this.Tweens.New(btn.Position)
 					.To({x: this.DefaultGameSize.x/2}, 1, core.easing.OutCubic)
 					.WhenDone(() => btn.StartTweens(this.Tweens))
 					.Start();
 					
-				this.InputController.WhenPointerDown(btn, () => {
+				buttons.push([btn, appearTween]);
+				
+				this.InputController.WhenPointerDown(btn, () =>
+				{
 					this.Tweens.New(btn.Scale)
 						.To({x: 1.1, y: 1.1}, 1, core.easing.OutCubic)
 						.WhenDone(() => {
@@ -67,14 +69,11 @@ namespace state {
 							this.Game.Play('game');
 						})
 						.Start();
-					for (let otherBtn of buttons)
+						
+					for (let [otherBtn, appearTween] of buttons)
 					{
 						if (otherBtn === btn) continue;
-						
-						this.Tweens.New(otherBtn.Scale)
-							.To({x: 0, y: 0}, 0.8)
-							.Parallel(otherBtn, (t) => t.To({Alpha: 0}, 0.6))
-							.Start();
+						appearTween.Reverse().Start();
 					}	
 				})
 			});
@@ -84,7 +83,7 @@ namespace state {
 		
 		Update(timeDelta: number): void
 		{
-			this.Tweens.Update(timeDelta);
+			this.Tweens.Update(0.016);
 		}
 			
 	}
