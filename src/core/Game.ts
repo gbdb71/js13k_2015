@@ -60,7 +60,7 @@ namespace core {
 		{
 			this.StateDOMListeners.push({element, type, listener});
 			element.addEventListener(type, listener);
-			console.log('Adding listener', element, type);
+			// console.log('Adding listener', element, type);
 		}
 		
 		RemoveDOMEventListener(element: HTMLElement | Window, type: string, listener: EventListener): void
@@ -71,7 +71,7 @@ namespace core {
 				{
 					RemoveElement(this.StateDOMListeners, l);
 					element.removeEventListener(type, listener);
-					console.log('Removing listener', element, type);
+					// console.log('Removing listener', element, type);
 					return;
 				}
 			}

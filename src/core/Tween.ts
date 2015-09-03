@@ -33,11 +33,11 @@ namespace core {
 		TweenedProperties: IPropertyTween[] = []; 
 		Duration: number = 0;
 		Easeing: IEasingFunction;
-		ParallelTweens: Array<{target: any, callback: (tween: Tween) => void}> = [];
 		
 		OnDoneCallback: (target: any) => void;
-		IsDone: boolean = false;
-		PlayReversed: boolean = false;
+		OnStart = new CallbackSet();
+		IsDone = false;
+		PlayReversed = false;
 		
 		constructor(
 			public Target: any,
@@ -54,17 +54,19 @@ namespace core {
 			
 			if (root.Manager)
 			{
+				if (root.IsPlaying())
+				{
+					root.Manager.StopTween(root);
+				}
+				
 				root.Manager.StartTween(root);
 			}
 			
-			if (root.IsDone)
+			while(root)
 			{
-				while(root)
-				{
-					root.IsDone = false;
-					root.ElapsedTime = 0;
-					root = root.Next;
-				}
+				root.IsDone = false;
+				root.ElapsedTime = 0;
+				root = root.Next;
 			}
 			
 			return this;
@@ -115,14 +117,18 @@ namespace core {
 		 */
 		Parallel(target: any, callback: (tween: Tween) => void): Tween
 		{
-			if (this.Manager)
+			this.OnStart.Add(function() 
 			{
-				this.ParallelTweens.push({target, callback});
-			}
-			else
-			{
-				throw Error();
-			}
+				if (this.Manager)
+				{
+					callback(this.Manager.New(target).Start());
+				}
+				else
+				{
+					throw Error();
+				}
+				
+			}, this);
 			
 			return this;
 		}
@@ -141,6 +147,7 @@ namespace core {
 			{
 				tween.PlayReversed = !tween.PlayReversed;
 			}
+			
 			return this;
 		}
 		
@@ -178,8 +185,20 @@ namespace core {
 		GetRoot(): Tween
 		{
 			let root = this;
-			while(root.Prev) { root = root.Prev; }
+		 	while (root.Prev)
+			{
+				root = root.Prev;
+			}
 			return root;
+		}
+		
+		IsPlaying(): boolean
+		{
+			if (this.Manager)
+			{
+				return this.Manager.Tweens.indexOf(this.GetRoot()) >= 0;	
+			}
+			else throw Error();
 		}
 		
 		private UpdateProperties(elapsedTime: number): void
@@ -206,11 +225,8 @@ namespace core {
 				
 				property.change = property.end - property.start;
 			}
-			
-			for (let parallel of this.ParallelTweens)
-			{
-				parallel.callback(this.Manager.New(parallel.target).Start());
-			}
+		
+			this.OnStart.CallAll();	
 		}
 	}
 	

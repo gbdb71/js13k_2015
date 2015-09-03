@@ -10,4 +10,24 @@ namespace core {
 		else throw new Error();
 	}
 	
+	export class CallbackSet
+	{
+		Callbacks: Array<[Function, any]> = [];
+		
+		Add(callback: Function, ctx?): CallbackSet
+		{
+			this.Callbacks.push([callback, ctx]);
+			return this;
+		}
+		
+		CallAll(): void
+		{
+			for(let [callback, ctx] of this.Callbacks)
+			{
+				callback.call(ctx);
+			}
+		}
+		
+	}
+	
 }
