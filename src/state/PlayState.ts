@@ -122,8 +122,6 @@ namespace state {
 		{
 			core.vector.Clone(point, this.CursorPosition);
 			
-			if (this.State.World.IsOver) return;
-			
 			let shape = this.State.World.GetShapeUnder(this.CursorPosition);
 			
 			if (shape) {
@@ -149,12 +147,7 @@ namespace state {
 				this.OnPointerDown(point);
 			}
 			
-			let local = this.State.World.ToLocal(this.CursorPosition);
-			if (this.SelectedShape &&
-				(
-					(local.y < 0 || local.y > this.State.World.Size.y) ||
-					(local.x < 0 || local.x > this.State.World.Size.y)
-				))
+			if (this.SelectedShape && !this.State.World.IsPointInside(this.CursorPosition))
 			{
 				this.State.World.FinishTrajectory(this.SelectedShape)
 				this.SelectedShape = undefined
