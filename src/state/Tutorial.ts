@@ -102,7 +102,10 @@ namespace state {
 					this.TimeScale = 1;
 					if (this.World.Score < 1)
 					{
-						if (this.TapToContinue.Parent) this.TapToContinue.RemoveFromParent();
+						if (this.TapToContinue.Parent) 
+						{
+							this.TapToContinue.RemoveFromParent();
+						}
 						this.Timers.Delay(0.1, () => this.ExecuteTip());
 						return;
 					}
@@ -112,15 +115,18 @@ namespace state {
 					break;
 					
 				case 7:
+					this.TimeScale = 1;
+					this.Timers.Delay(1.5, () => this.TimeScale = 0);
+					break;
+					
 				case 8:
 				case 9:
 					break;
 					
 				case 10:
 					this.TimeScale = 1;
-					this.World.TimeLeft = 5;
-					this.World.WarnAboutTime();
-					this.Timers.Delay(2, () => this.TimeScale = 0);
+					this.World.Update(this.World.TimeLeft - 5.5);
+					this.Timers.Delay(5.3, () => this.TimeScale = 0);
 					
 				case 11:
 					break;
@@ -159,7 +165,7 @@ namespace state {
 			shape.AddTrajectoryPoint(shape.Position);
 			shape.AddTrajectoryPoint(point);
 			
-			point.Set(this.World.Size.x/2, this.World.Size.y/2);
+			point.Set(this.World.Size.x/2 + core.Random(-30, 30), this.World.Size.y/2 + 50);
 			shape.AddTrajectoryPoint(point);
 			
 			point.Set(this.World.Size.x/2, this.World.Size.y + 50);

@@ -99,19 +99,19 @@ namespace state {
 			let box = new gfx.Rectangle(restart.Position.x, restart.Position.y, restart.Size.x + 20, restart.Size.y + 10, {fillStyle: 'white'});
 			box.Anchor.Set(0.5, 0.5);
 			
-			let menu = new gfx.AAText(this.World.Size.x/2, this.World.Size.y/2 + 50, "MENU");
-			menu.Anchor.Set(0.5, 0.5);
+			let select = new gfx.AAText(this.World.Size.x/2, this.World.Size.y/2 + 50, "LEVEL SELECT");
+			select.Anchor.Set(0.5, 0.5);
 			
 			this.Stage.AddChild(box);
 			this.Stage.AddChild(restart);
-			this.Stage.AddChild(menu);
+			this.Stage.AddChild(select);
 			
 			this.MenuBtn.RemoveFromParent();
 			this.RestartBtn.RemoveFromParent();
 			
 			this.InputController = new core.GenericInputController()
 				.WhenPointerClick(restart, () => this.Game.Play('game'))
-				.WhenPointerClick(menu, () => this.Game.Play('select'));
+				.WhenPointerClick(select, () => this.Game.Play('select'));
 		}
 		
 		OnResize(): void

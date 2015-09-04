@@ -38,7 +38,7 @@ namespace core {
 			
 			let rect = (<HTMLElement>event.target).getBoundingClientRect();
 			
-			LAST_TOUCH_POS.Set(x - rect.top, y - rect.left);
+			LAST_TOUCH_POS.Set(x - rect.left, y - rect.top);
 		}
 		
 		receiver.call(ctx, LAST_TOUCH_POS.Clone(), event);

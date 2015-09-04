@@ -19,6 +19,7 @@ namespace core {
 		{
 			return new Vector(this.x, this.y);
 		}
+		
 	}
 	
 }
