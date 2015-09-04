@@ -32,7 +32,7 @@ namespace state {
 		
 		constructor()
 		{
-			super({SpawnTime: 15, LevelTime: 15});
+			super({SpawnTime: 15, LevelTime: 15, LevelName: ''});
 		}
 		
 		Start(): void
@@ -133,6 +133,7 @@ namespace state {
 					
 				case 12:
 					this.Game.Play('select');
+					game.player.PassedTutorial = true;
 					return;
 					
 				default: throw Error();	

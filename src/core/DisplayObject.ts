@@ -12,6 +12,7 @@ namespace core {
 		Rotation: number;
 		Alpha: number;
 		Parent: Layer;
+		IsVisible: boolean;
 		
 		constructor(x: number, y: number, width: number, height: number)
 		{
@@ -21,10 +22,13 @@ namespace core {
 			this.Scale = vector.New(1, 1);
 			this.Rotation = 0;
 			this.Alpha = 1;
+			this.IsVisible = true;
 		}
 		
 		Draw(ctx: CanvasRenderingContext2D): void
 		{
+			if (!this.IsVisible) return;
+			
 			ctx.save();
 			ctx.globalAlpha *= this.Alpha;
 			

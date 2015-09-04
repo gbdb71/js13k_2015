@@ -3,6 +3,7 @@
 /// <reference path="state/LevelSelect" />
 /// <reference path="state/Menu" />
 /// <reference path="state/Tutorial" />
+/// <reference path="game/Player" />
 
 
 let mgame = new core.Game('canvas');

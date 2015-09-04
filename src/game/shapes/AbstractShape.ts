@@ -119,7 +119,8 @@ namespace game.shapes {
 					vec.Add(this.Position, tvec, this.Position);
 					this.Trajectory.shift();
 					this.Score += this.World.MoveScore;
-				
+					
+					if (this.Trajectory.length < 1) return;
 				}
 			}
 		}

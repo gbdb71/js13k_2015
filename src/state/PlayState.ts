@@ -21,7 +21,7 @@ namespace state {
 		InputController: core.GenericInputController;
 		
 		constructor(
-			public Config = {SpawnTime: 3, LevelTime: 15}
+			public Config = {SpawnTime: 3, LevelTime: 15, LevelName: ''}
 		) {
 			super();
 		}
@@ -91,6 +91,14 @@ namespace state {
 		
 		OnTimesUp(): void
 		{
+			if (this.Config.LevelName)
+			{
+				if (game.player.GetHiScore(this.Config.LevelName) < this.World.Score)
+				{
+					game.player.SetHiScore(this.Config.LevelName, this.World.Score);	
+				}
+			}
+			
 			let restart = new gfx.Text(this.World.Size.x/2, this.World.Size.y/3 + 50, "RESTART");
 			restart.SetSize(40);
 			restart.Anchor.Set(0.5, 0.5);

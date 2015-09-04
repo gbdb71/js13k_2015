@@ -3,6 +3,7 @@
 /// <reference path="../gfx/Text" />
 /// <reference path="../core/Tween" />
 /// <reference path="../core/Utils" />
+/// <reference path="../game/Player" />
 
 namespace state {
 	
@@ -41,7 +42,7 @@ namespace state {
 			this.Title.AddChild(voteBtn);
 			
 			this.InputController
-				.WhenPointerClick(playBtn, () => this.Game.Play('tutorial'));
+				.WhenPointerClick(playBtn, () => this.Game.Play(game.player.PassedTutorial ? 'select' : 'tutorial'));
 				
 			this.Tweens.New(playBtn)
 				.To({Rotation: Math.PI/12}, 2, core.easing.SinusoidalInOut)

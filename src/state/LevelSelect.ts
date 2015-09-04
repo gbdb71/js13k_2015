@@ -11,16 +11,16 @@ namespace state {
 		LevelTime: number;
 		Min: number;
 		Max: number;
-		Score: number;	
+		LevelName: string;	
 	}
 	
 	export class LevelSelect extends AbstractState
 	{
 		Levels: ILevelData[] = [
-			{SpawnTime: 5, LevelTime: 5, Min: 50, Max: 200, Score: 50},
-			{SpawnTime: 3, LevelTime: 15, Min: 50, Max: 200, Score: 20},
-			{SpawnTime: 3, LevelTime: 30, Min: 50, Max: 200, Score: 40},
-			{SpawnTime: 3, LevelTime: 60, Min: 50, Max: 200, Score: 1120}
+			{LevelName: 'World1.Level1', SpawnTime: 5, LevelTime: 5, Min: 0, Max: 15},
+			{LevelName: 'World1.Level2', SpawnTime: 3, LevelTime: 15, Min: 50, Max: 200},
+			{LevelName: 'World1.Level3', SpawnTime: 3, LevelTime: 30, Min: 50, Max: 600},
+			{LevelName: 'World1.Level4', SpawnTime: 3, LevelTime: 60, Min: 100, Max: 1000}
 		];
 		
 		InputController: core.GenericInputController;
@@ -80,11 +80,18 @@ namespace state {
 				})
 			});
 			
-			let menuBtn = new gfx.AAText(20, 20, "MENU");
+			let menuBtn = new gfx.AAText(40, 30, "MENU");
+			menuBtn.Anchor.Set(0.5, 0.5);
 			menuBtn.SetSize(10);
 			
+			let menuBtnHitbox = new gfx.Rectangle(menuBtn.Position.x, menuBtn.Position.y, 50, 30, {strokeStyle: 'white'});
+			menuBtnHitbox.Anchor.Set(0.5, 0.5);
+			menuBtnHitbox.IsVisible = false;
+			
+			this.Stage.AddChild(menuBtnHitbox);
+			
 			this.InputController
-				.WhenPointerClick(menuBtn, () => this.Game.Play('menu'));
+				.WhenPointerClick(menuBtnHitbox, () => this.Game.Play('menu'));
 			
 			this.Stage.AddChild(menuBtn);
 			this.OnResize();
@@ -100,18 +107,23 @@ namespace state {
 	class LevelButton extends core.Layer
 	{
 		Fill: gfx.Rectangle;
+		Data: ILevelData;
+		Score: number;
 		
 		constructor(index: number, data: ILevelData)
 		{
 			const btnWidth = 250, btnHeight = 40;
 			super(0, 0, btnWidth, btnHeight);
+			
+			this.Data = data;
 
 			let indexText = new gfx.AAText(0, 0, index.toString());
 			indexText.SetSize(40);
 			indexText.SetColor(game.config.color.inactive);
 			this.AddChild(indexText);
 
-			let score = new gfx.AAText(50, 0, "HI-SCORE: " + data.Score);
+			this.Score = game.player.GetHiScore(data.LevelName);
+			let score = new gfx.AAText(50, 0, "HI-SCORE: " + this.Score);
 			score.SetSize(10);
 			this.AddChild(score);
 
@@ -143,9 +155,16 @@ namespace state {
 	
 		StartTweens(tweens: core.TweenManager): void
 		{
-			tweens.New(this.Fill.Scale)
-				.To({x: Math.random()}, 1, core.easing.OutCubic)
+			let progress = core.math.Clamp((this.Score - this.Data.Min)/(this.Data.Max - this.Data.Min), 0, 1);
+			
+			let tween = tweens.New(this.Fill.Scale)
+				.To({x: progress}, 1,core.easing.OutCubic)
 				.Start();
+				
+			if (progress === 1)
+			{
+				tween.WhenDone(() => this.Fill.Style.fillStyle = game.config.color.other);
+			}
 		}
 	}
 	
