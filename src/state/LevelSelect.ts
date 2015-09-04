@@ -60,7 +60,7 @@ namespace state {
 					
 				buttons.push([btn, appearTween]);
 				
-				this.InputController.WhenPointerDown(btn, () =>
+				this.InputController.WhenPointerClick(btn, () =>
 				{
 					this.Tweens.New(btn.Scale)
 						.To({x: 1.1, y: 1.1}, 1, core.easing.OutCubic)
@@ -77,7 +77,6 @@ namespace state {
 					}	
 				})
 			});
-			
 			this.OnResize();
 		}
 		

@@ -30,26 +30,17 @@ namespace state {
 		
 		OnPointerDown(point: core.Vector): void
 		{
-			if (this.InputController)
-			{
-				this.InputController.OnPointerDown(point);
-			}
+			this.InputController.OnPointerDown(point);
 		}
 		
 		OnPointerMove(point: core.Vector): void
 		{
-			if (this.InputController)
-			{
-				this.InputController.OnPointerMove(point);
-			}
+			this.InputController.OnPointerMove(point);
 		}
 		
 		OnPointerUp(point: core.Vector): void
 		{
-			if (this.InputController)
-			{
-				this.InputController.OnPointerUp(point);
-			}
+			this.InputController.OnPointerUp(point);
 		}
 		
 		OnResize(): void
@@ -59,15 +50,23 @@ namespace state {
 			let scale = Math.min(width / this.DefaultSize.x, height / this.DefaultSize.y);
 			this.Stage.Scale.Set(scale, scale);
 			this.Stage.Size.Set(this.DefaultSize.x, height / scale);
-			// core.vector.Scale(this.Stage.Size, scale);
 			
-			console.log(this.Stage.Size.x);
-			this.Game.Canvas.width = this.Stage.Size.x * scale;
-			this.Game.Canvas.height = this.Stage.Size.y * scale;
+			let canvasWidth = Math.floor(this.Stage.Size.x * scale);
+			if (this.Game.Canvas.width !== canvasWidth)
+			{
+				this.Game.Canvas.width = canvasWidth;
+			}
+			
+			let canvasHeight = Math.floor(this.Stage.Size.y * scale);
+			if (this.Game.Canvas.height !== canvasHeight)
+			{
+				this.Game.Canvas.height = canvasHeight;
+			}
 		}
 		
 		protected ListenForMouseInput(): void
 		{
+			if (!this.InputController) throw Error();
 			this.Game.AddDOMEventListener(this.Game.Canvas, 'mousemove', core.MakeMouseEventTranslator(this.OnPointerMove, this));
 			this.Game.AddDOMEventListener(this.Game.Canvas, 'mousedown', core.MakeMouseEventTranslator(this.OnPointerDown, this));
 			this.Game.AddDOMEventListener(this.Game.Canvas, 'mouseup', core.MakeMouseEventTranslator(this.OnPointerUp, this));
@@ -75,6 +74,7 @@ namespace state {
 		
 		protected ListenForTouchInput(): void
 		{
+			if (!this.InputController) throw Error();
 			this.Game.AddDOMEventListener(this.Game.Canvas, 'touchmove', core.MakeTouchEventTranslator(this.OnPointerMove, this));
 			this.Game.AddDOMEventListener(this.Game.Canvas, 'touchstart', core.MakeTouchEventTranslator(this.OnPointerDown, this));
 			this.Game.AddDOMEventListener(this.Game.Canvas, 'touchend', core.MakeTouchEventTranslator(this.OnPointerUp, this));

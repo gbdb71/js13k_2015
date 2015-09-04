@@ -402,8 +402,8 @@ namespace game {
 		
 		WarnAboutTime(): void
 		{
-			this.TimeLeftText.SetColor(game.config.color.inactive);
-			this.TimeLeftText.Alpha = 0.5;
+			// this.TimeLeftText.SetColor(game.config.color.inactive);
+			// this.TimeLeftText.Alpha = 0.5;
 			
 			this.Tweens.New(this.TimeLeftText.Scale)
 				.To({x: 2, y: 2}, 0.01)
