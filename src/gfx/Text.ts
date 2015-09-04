@@ -98,6 +98,7 @@ namespace gfx {
 			}
 			
 			ctx.globalAlpha = alphaSave;
+			
 		}
 	}
 	

@@ -8,7 +8,9 @@ namespace state {
 		Start(): void
 		{
 			this.Game.Canvas.style.background = game.config.color.background;
-			this.Game.Play('level-select');
+			// this.Game.Play('level-select');
+			this.Game.AddState('game', new PlayState());
+			this.Game.Play('game');
 		}
 	}
 	

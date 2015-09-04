@@ -11,10 +11,12 @@ namespace state {
 		World: game.World;
 		
 		ScoreText: gfx.Text;
+		RestartBtn: gfx.Text;
+		MenuBtn: gfx.Text;
 		FPSText: gfx.Text;
 		Bar: gfx.Rectangle;
 		
-		Id: number = 0;
+		BarInputController: core.GenericInputController;
 		
 		constructor(
 			public Config = {SpawnTime: 3, LevelTime: 15}
@@ -26,8 +28,6 @@ namespace state {
 		{
 			super.Start();
 			
-			this.Id += 1;
-			
 			this.World = new game.World(this.Stage.Size.x, this.Stage.Size.y, this.Config);
 			this.World.OnTimesUpCallback = this.OnTimesUp.bind(this);
 			// this.World.Position.Set(30, 30);
@@ -38,19 +38,39 @@ namespace state {
 			this.ListenForTouchInput();
 			
 			this.Stage.AddChild(
-				this.Bar = new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, 20, {fillStyle: 'rgba(0, 0, 0, 0.5)'})
+				this.Bar = new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, 30, {fillStyle: 'rgba(0, 0, 0, 0.5)'})
 			);
 			
-			this.ScoreText = new gfx.AAText(5.5, this.World.Size.y + 5.5);
-			this.ScoreText.SetSize(10);
+			this.ScoreText = new gfx.AAText(0, 0);
+			this.ScoreText.Anchor.Set(0.5, 0.5)
+			this.ScoreText.SetSize(15);
 			this.Stage.AddChild(this.ScoreText);
 			
-			this.FPSText = new gfx.AAText(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
-			this.FPSText.Anchor.Set(1, 0);
+			this.RestartBtn = new gfx.AAText(0, 0, "RESTART");
+			this.RestartBtn.SetSize(10);
+			this.RestartBtn.Anchor.Set(1, 0.5);
+			this.Stage.AddChild(this.RestartBtn);
+			
+			this.MenuBtn = new gfx.AAText(0, 0, "MENU");
+			this.MenuBtn.SetSize(10);
+			this.MenuBtn.Anchor.Set(0, 0.5);
+			this.Stage.AddChild(this.MenuBtn);
+			
+			this.FPSText = new gfx.AAText(0, 0);
 			this.FPSText.SetSize(10);
 			this.Stage.AddChild(this.FPSText);
 			
+			this.BarInputController = new core.GenericInputController()
+				.WhenPointerDown(this.RestartBtn, () => this.Game.Play('game'))
+				.WhenPointerDown(this.MenuBtn, () => this.Game.Play('level-select'))
+			
 			this.OnResize();
+		}
+		
+		OnPointerDown(point: core.Vector): void
+		{
+			this.InputController.OnPointerDown(point);
+			this.BarInputController.OnPointerDown(point);
 		}
 		
 		Update(timeDelta: number): void
@@ -58,8 +78,8 @@ namespace state {
 			this.World.Update(timeDelta);
 			this.InputController.Update();
 			
-			this.FPSText.SetText("FPS " +this.Id+ " " + (timeDelta*1000).toFixed(1));
-			this.ScoreText.SetText("SCORE: " + this.World.Score);
+			this.FPSText.SetText((timeDelta*1000).toFixed(1));
+			this.ScoreText.SetText(this.World.Score.toString());
 		}
 		
 		Draw(ctx: CanvasRenderingContext2D): void
@@ -92,23 +112,13 @@ namespace state {
 		OnResize(): void
 		{
 			super.OnResize();
-			// let scale = Math.min(width / this.DefaultGameSize.x, height / (this.DefaultGameSize.y + 20));
-			// this.Stage.Size.Set(width / scale, height / scale);
-			// this.Stage.Scale.Set(scale, scale);
-			let scale = this.Stage.Scale.x;
-			
-			
-			this.Bar.Size.y = core.math.Clamp(20 * scale, 20, 50);
-			
 			this.World.Size.y =	this.Stage.Size.y - this.Bar.Size.y;
 			
 			this.Bar.Position.Set(0, this.World.Size.y);
-			this.ScoreText.Position.Set(5.5, this.World.Size.y + 5.5);
-			this.FPSText.Position.Set(this.World.Size.x - 5.5, this.World.Size.y + 5.5);
-			
-			// console.log('h', height, 's', scale, 'wh', this.DefaultWorldSize.y * scale, 'bar size', this.Bar.Size.y);
-			// this.Game.Context.imageSmoothingEnabled = false;
-			// this.Game.Context.webkitImageSmoothingEnabled = false;
+			this.ScoreText.Position.Set(this.World.Size.x/2, this.World.Size.y + 13.5);
+			this.RestartBtn.Position.Set(this.World.Size.x - 10, this.World.Size.y + 13.5);
+			this.MenuBtn.Position.Set(10, this.World.Size.y + 13.5);
+			this.FPSText.Position.Set(10.5, 10.5);
 		}
 	}
 	
