@@ -30,6 +30,8 @@ namespace state {
 		{
 			super.Start();
 			
+			this.Game.Canvas.style.background = game.config.color.background;
+			
 			this.InputController = new core.GenericInputController();
 			this.ListenForMouseInput();
 			this.ListenForTouchInput();
