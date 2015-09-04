@@ -13,15 +13,14 @@ namespace state {
 		StepTip = [
 			"SEE THIS RED SQUARE?",
 			"THIS IS ITS TRAJECTORY",
-			"YOUR AIM IN THIS GAME",
-			"IS TO",
+			"YOUR GOAL IS TO",
 			"REVERSE ITS TRAJECTORY",
 			"LIKE THAT",
 			"SO IT WILL HIT THE BOTTOM",
-			"THEN YOU EARN POINTS",
-			"BUT, YOU HAVE TO",
+			"THEN YOU WILL EARN POINTS",
+			"BUT YOU HAVE TO",
 			"DO THIS BEFORE",
-			"TIMES RUN OUT",
+			"TIME RUN OUT",
 			"GOT IT?",
 			""
 		]
@@ -91,14 +90,13 @@ namespace state {
 				
 				case 2:
 				case 3:
-				case 4:
 					break;
 					
-				case 5:
+				case 4:
 					this.ReverseTrajectory(this.World.ShapesHead);
 					break;
 					
-				case 6:
+				case 5:
 					this.TimeScale = 1;
 					if (this.World.Score < 1)
 					{
@@ -114,24 +112,24 @@ namespace state {
 					this.Timers.RemoveAll();
 					break;
 					
-				case 7:
+				case 6:
 					this.TimeScale = 1;
 					this.Timers.Delay(1.5, () => this.TimeScale = 0);
 					break;
 					
+				case 7:
 				case 8:
-				case 9:
 					break;
 					
-				case 10:
+				case 9:
 					this.TimeScale = 1;
 					this.World.Update(this.World.TimeLeft - 5.5);
 					this.Timers.Delay(5.3, () => this.TimeScale = 0);
 					
-				case 11:
+				case 10:
 					break;
 					
-				case 12:
+				case 11:
 					this.Game.Play('select');
 					game.player.PassedTutorial = true;
 					return;

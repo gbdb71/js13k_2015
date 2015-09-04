@@ -33,16 +33,27 @@ namespace state {
 			playBtn.Anchor.Set(0.5, 0.5);
 			playBtn.Scale.Set(2, 2);
 			
-			let voteBtn = new gfx.AAText(0, 200, "VOTE");
+			let tutorialBtn = new gfx.AAText(0, 180, "TUTORIAL");
+			tutorialBtn.Anchor.Set(0.5, 0.5);
+			
+			let voteBtn = new gfx.AAText(0, 230, "VOTE");
 			voteBtn.Anchor.Set(0.5, 0.5);
+			
+			let clearBtn = new gfx.AAText(0, 260, "CLEAR DATA");
+			clearBtn.Anchor.Set(0.5, 0.5);
+			clearBtn.SetSize(10);
 			
 			
 			this.Title.AddChild(line1);
 			this.Title.AddChild(playBtn);
+			this.Title.AddChild(tutorialBtn);
 			this.Title.AddChild(voteBtn);
+			this.Title.AddChild(clearBtn);
 			
 			this.InputController
-				.WhenPointerClick(playBtn, () => this.Game.Play(game.player.PassedTutorial ? 'select' : 'tutorial'));
+				.WhenPointerClick(playBtn, () => this.Game.Play(game.player.PassedTutorial ? 'select' : 'tutorial'))
+				.WhenPointerClick(tutorialBtn, () => this.Game.Play('tutorial'))
+				.WhenPointerClick(clearBtn, () => {game.player.ClearData(); clearBtn.SetText("DONE")});
 				
 			this.Tweens.New(playBtn)
 				.To({Rotation: Math.PI/12}, 2, core.easing.SinusoidalInOut)
@@ -76,7 +87,7 @@ namespace state {
 		OnResize(): void
 		{
 			super.OnResize();
-			this.Title.Position.Set(this.Stage.Size.x/2, this.Stage.Size.y/4);		
+			this.Title.Position.Set(this.Stage.Size.x/2, this.Stage.Size.y/5);		
 		}
 	}
 	

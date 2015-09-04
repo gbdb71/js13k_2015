@@ -17,9 +17,9 @@ namespace state {
 	export class LevelSelect extends AbstractState
 	{
 		Levels: ILevelData[] = [
-			{LevelName: 'World1.Level1', SpawnTime: 5, LevelTime: 5, Min: 0, Max: 15},
+			{LevelName: 'World1.Level1', SpawnTime: 6, LevelTime: 5, Min: 0, Max: 15},
 			{LevelName: 'World1.Level2', SpawnTime: 3, LevelTime: 15, Min: 50, Max: 200},
-			{LevelName: 'World1.Level3', SpawnTime: 3, LevelTime: 30, Min: 50, Max: 600},
+			{LevelName: 'World1.Level3', SpawnTime: 3, LevelTime: 30, Min: 50, Max: 650},
 			{LevelName: 'World1.Level4', SpawnTime: 3, LevelTime: 60, Min: 100, Max: 1000}
 		];
 		
@@ -38,7 +38,7 @@ namespace state {
 			
 			this.Tweens = new core.TweenManager();
 			
-			let challangeText = new gfx.AAText(this.Stage.Size.x/2, 10, "CHALANGE");
+			let challangeText = new gfx.AAText(this.Stage.Size.x/2, 10, "CHALLANGE");
 			challangeText.Anchor.Set(0.5, 0);
 			challangeText.SetSize(10);
 			this.Stage.AddChild(challangeText);

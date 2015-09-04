@@ -21,6 +21,11 @@ namespace game {
 		{
 			localStorage.setItem('HiScore.' + levelName, score.toString());
 		}
+		
+		ClearData(): void
+		{
+			localStorage.clear();
+		}
 	}
 	
 	export var player = new Player();
