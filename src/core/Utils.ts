@@ -10,6 +10,18 @@ namespace core {
 		else throw new Error();
 	}
 	
+	/**
+	 * If element doesn't exist in collection, nothing happens.
+	 */
+	export function TryRemoveElement<T>(array: Array<T>, element: T): T[]
+	{
+		let i = array.indexOf(element);
+		if (i >= 0)
+		{
+			return array.splice(i, 1);
+		}
+	}
+	
 	export function Last<T>(array: Array<T>): T
 	{
 		return array[array.length - 1];

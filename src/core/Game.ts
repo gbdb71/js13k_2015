@@ -40,7 +40,6 @@ namespace core {
 					this.RemoveDOMEventListener(l.element, l.type, l.listener);
 				}
 				this.StateDOMListeners = [];
-				console.trace();	
 			}
 			
 			if (this.ActiveState = this.States[stateName]) {

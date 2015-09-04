@@ -50,7 +50,7 @@ namespace core {
 			
 			this.Timers.push(timer = new Timer((...args) =>
 			{
-				RemoveElement(this.Timers, timer);
+				TryRemoveElement(this.Timers, timer);
 				callback.apply(ctx, args);
 				
 			}, ctx, delay));

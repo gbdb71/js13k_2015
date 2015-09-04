@@ -5,7 +5,7 @@
 
 namespace state {
 	
-	export class BootState extends AbstractState
+	export class SplashScreen extends AbstractState
 	{
 		Title: core.Layer;
 		Tweens: core.TweenManager;
@@ -44,7 +44,7 @@ namespace state {
 				.Delay(1)
 				.Then()
 				.To({Alpha: 0})
-				.WhenDone(() => this.Game.Play('level-select'))
+				.WhenDone(() => this.Game.Play('menu'))
 				.Start();
 			
 			this.Stage.AddChild(this.Title);
@@ -59,7 +59,7 @@ namespace state {
 		OnResize(): void
 		{
 			super.OnResize();
-			this.Title.Position.Set(this.Stage.Size.x/2, this.Stage.Size.x/2.5);		
+			this.Title.Position.Set(this.Stage.Size.x/2, this.Stage.Size.y/3);
 		}
 	}
 	

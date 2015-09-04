@@ -17,7 +17,7 @@ namespace state {
 	export class LevelSelect extends AbstractState
 	{
 		Levels: ILevelData[] = [
-			{SpawnTime: 4, LevelTime: 5, Min: 50, Max: 200, Score: 50},
+			{SpawnTime: 5, LevelTime: 5, Min: 50, Max: 200, Score: 50},
 			{SpawnTime: 3, LevelTime: 15, Min: 50, Max: 200, Score: 20},
 			{SpawnTime: 3, LevelTime: 30, Min: 50, Max: 200, Score: 40},
 			{SpawnTime: 3, LevelTime: 60, Min: 50, Max: 200, Score: 1120}
@@ -79,6 +79,14 @@ namespace state {
 					}	
 				})
 			});
+			
+			let menuBtn = new gfx.AAText(20, 20, "MENU");
+			menuBtn.SetSize(10);
+			
+			this.InputController
+				.WhenPointerClick(menuBtn, () => this.Game.Play('menu'));
+			
+			this.Stage.AddChild(menuBtn);
 			this.OnResize();
 		}
 		
@@ -136,7 +144,7 @@ namespace state {
 		StartTweens(tweens: core.TweenManager): void
 		{
 			tweens.New(this.Fill.Scale)
-				.To({x: Math.random()}, 2, core.easing.OutCubic)
+				.To({x: Math.random()}, 1, core.easing.OutCubic)
 				.Start();
 		}
 	}

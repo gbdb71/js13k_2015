@@ -9,7 +9,7 @@ namespace state {
 	{
 		
 		World: game.World;
-		Play: boolean;
+		TimeScale: number;
 		
 		TapToStartText: gfx.Text;
 		ScoreText: gfx.Text;
@@ -29,7 +29,7 @@ namespace state {
 		Start(): void
 		{
 			super.Start();
-			this.Play = false;
+			this.TimeScale = 0;
 			
 			this.World = new game.World(this.Stage.Size.x, this.Stage.Size.y, this.Config);
 			this.World.OnTimesUpCallback = this.OnTimesUp.bind(this);
@@ -69,7 +69,7 @@ namespace state {
 			
 			this.InputController
 				.WhenPointerClick(this.RestartBtn, () => this.Game.Play('game'))
-				.WhenPointerClick(this.MenuBtn, () => this.Game.Play('level-select'))
+				.WhenPointerClick(this.MenuBtn, () => this.Game.Play('select'))
 			
 			this.OnResize();
 		}
@@ -77,7 +77,7 @@ namespace state {
 		Update(timeDelta: number): void
 		{
 			this.InputController.Update();
-			this.World.Update(timeDelta * (this.Play ? 1 : 0));
+			this.World.Update(timeDelta * this.TimeScale);
 			
 			this.FPSText.SetText((timeDelta*1000).toFixed(1));
 			this.ScoreText.SetText(this.World.Score.toString());
@@ -111,7 +111,7 @@ namespace state {
 			
 			this.InputController = new core.GenericInputController()
 				.WhenPointerClick(restart, () => this.Game.Play('game'))
-				.WhenPointerClick(menu, () => this.Game.Play('level-select'));
+				.WhenPointerClick(menu, () => this.Game.Play('select'));
 		}
 		
 		OnResize(): void
@@ -157,7 +157,7 @@ namespace state {
 		{
 			if (this.State.TapToStartText.Parent)
 			{
-				this.State.Play = true;
+				this.State.TimeScale = 1;
 				this.State.TapToStartText.RemoveFromParent();
 			}
 			

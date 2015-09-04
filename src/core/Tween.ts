@@ -151,6 +151,14 @@ namespace core {
 			return this;
 		}
 		
+		Loop(): Tween
+		{
+			this.OnStart.Add(() => {
+				setTimeout(this.Start.bind(this), 0);
+			});
+			return this;
+		}
+		
 		Update(timeDelta: number): void
 		{
 			let self = this;
@@ -237,11 +245,16 @@ namespace core {
 			return c * t / d + b;
 		}
 		
-		export function OutCubic(t, b, c, d)
+		export function OutCubic(t, b, c, d): number
 		{
 			t /= d;
 			t--;
 			return c * (t * t * t + 1) + b;
+		}
+		
+		export function SinusoidalInOut(t, b, c, d): number
+		{
+			return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
 		}
 		
 	}

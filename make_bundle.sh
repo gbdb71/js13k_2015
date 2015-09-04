@@ -16,8 +16,11 @@ echo -- Coping files from bin to $OUTDIR
 cp -rv bin bundle
 
 echo -- Minifying app.js
-java -jar compiler.jar --compilation_level ADVANCED --language_out ECMASCRIPT5\
-     --js_output_file $OUTDIR/app.min.js $OUTDIR/app.js
+java -jar compiler.jar \
+   --compilation_level ADVANCED\
+   --language_out ECMASCRIPT5\
+   --js_output_file $OUTDIR/app.min.js\
+   $OUTDIR/app.js
 
 echo -- Updating index.html so its load minified app
 sed -i "" s/app\.js/app.min.js/ $OUTDIR/index.html
