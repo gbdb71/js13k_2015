@@ -12,13 +12,12 @@ namespace state {
 		Title: core.Layer;
 		TimeElapse: number = 0;
 		
-		Tweens: core.TweenManager;
 		InputController: core.GenericInputController;
 		
 		Start(): void
 		{
 			super.Start();
-			this.Tweens = new core.TweenManager();
+			
 			this.InputController = new core.GenericInputController();
 			this.ListenForMouseInput();
 			this.ListenForTouchInput();
@@ -81,7 +80,7 @@ namespace state {
 				this.Game.Canvas.style.background = core.Brightness(game.config.color.background, this.TimeElapse);
 			}
 			
-			this.Tweens.Update(timeDelta);
+			super.Update(timeDelta);
 		}
 		
 		OnResize(): void

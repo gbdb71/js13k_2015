@@ -31,7 +31,7 @@ namespace state {
 		
 		constructor()
 		{
-			super({SpawnTime: 15, LevelTime: 15, LevelName: '', Min: 0, Max: 10});
+			super({SpawnTime: 15, LevelTime: 15, LevelName: '', Max: 10});
 		}
 		
 		Start(): void
@@ -40,8 +40,6 @@ namespace state {
 			let centerX = this.Stage.Size.x/2, centerY = this.Stage.Size.y/2;
 			
 			this.TimeScale = 1;
-			this.Timers = new core.TimersManager();
-			this.Tweens = new core.TweenManager();
 		
 			let tip = new gfx.AAText(centerX, 100);
 			tip.SetSize(15);
@@ -70,12 +68,6 @@ namespace state {
 				this.InputController
 					.WhenPointerClick(this.Stage, this.ExecuteTip.bind(this));
 			});
-		}
-		
-		Update(timeDelta: number): void
-		{
-			this.Timers.Update(timeDelta);
-			super.Update(timeDelta);
 		}
 		
 		ExecuteTip(): void

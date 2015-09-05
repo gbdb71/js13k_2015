@@ -19,10 +19,9 @@ namespace state {
 		Bar: gfx.Rectangle;
 		
 		InputController: core.GenericInputController;
-		Tweens: core.TweenManager;
 		
 		constructor(
-			public Config = {SpawnTime: 3, LevelTime: 1, LevelName: '', Min: 0, Max: 100}
+			public Config = {SpawnTime: 3, LevelTime: 1, LevelName: '', Max: 100}
 		) {
 			super();
 		}
@@ -32,10 +31,8 @@ namespace state {
 			super.Start();
 			this.TimeScale = 0;
 			
-			this.Tweens = new core.TweenManager();
-			
 			this.World = new game.World(this.Stage.Size.x, this.Stage.Size.y, this.Config);
-			this.World.OnTimesUpCallback = () => this.Tweens.New(null).Delay(1.0).WhenDone(() => this.OnTimesUp()).Start();
+			this.World.OnTimesUpCallback = () => this.Timers.Delay(1, this.OnTimesUp, this);
 			// this.World.Position.Set(30, 30);
 			this.Stage.AddChild(this.World);
 			
@@ -80,7 +77,7 @@ namespace state {
 		
 		Update(timeDelta: number): void
 		{
-			this.Tweens.Update(timeDelta);
+			super.Update(timeDelta);
 			
 			this.InputController.Update();
 			this.World.Update(timeDelta * this.TimeScale);
@@ -108,7 +105,7 @@ namespace state {
 			let layer = new core.Layer(this.Stage.Size.x/2, 150);
 			this.World.TimeLeftText.IsVisible = false;
 			
-			let progress = core.math.Clamp((this.World.Score - this.Config.Min)/(this.Config.Max - this.Config.Min), 0, 1);
+			let progress = core.math.Clamp(this.World.Score/this.Config.Max, 0, 1);
 			let progressBar = new LevelScoreProgressBar(0, 0);
 			progressBar.Anchor.Set(0.5, 0.5);
 			progressBar.TweenFill(this.Tweens, progress)

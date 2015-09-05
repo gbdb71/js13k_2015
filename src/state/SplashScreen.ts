@@ -8,13 +8,11 @@ namespace state {
 	export class SplashScreen extends AbstractState
 	{
 		Title: core.Layer;
-		Tweens: core.TweenManager;
 		
 		Start(): void
 		{
 			super.Start();
 			this.Game.Canvas.style.background = 'black';
-			this.Tweens = new core.TweenManager();
 		
 			this.Title = new core.Layer();
 			this.Title.Scale.Set(0.5, 0.5);
@@ -49,11 +47,6 @@ namespace state {
 			
 			this.Stage.AddChild(this.Title);
 			this.OnResize();
-		}
-		
-		Update(timeDelta: number)
-		{
-			this.Tweens.Update(timeDelta);
 		}
 		
 		OnResize(): void

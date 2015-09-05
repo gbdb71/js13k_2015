@@ -9,7 +9,6 @@ namespace state {
 	{
 		SpawnTime: number;
 		LevelTime: number;
-		Min: number;
 		Max: number;
 		LevelName: string;	
 	}
@@ -17,14 +16,13 @@ namespace state {
 	export class LevelSelect extends AbstractState
 	{
 		Levels: ILevelData[] = [
-			{LevelName: 'World1.Level1', SpawnTime: 6, LevelTime: 5, Min: 0, Max: 15},
-			{LevelName: 'World1.Level2', SpawnTime: 3, LevelTime: 15, Min: 50, Max: 200},
-			{LevelName: 'World1.Level3', SpawnTime: 3, LevelTime: 30, Min: 50, Max: 650},
-			{LevelName: 'World1.Level4', SpawnTime: 3, LevelTime: 60, Min: 100, Max: 1000}
+			{LevelName: 'World1.Level1', SpawnTime: 6, LevelTime: 5, Max: 15},
+			{LevelName: 'World1.Level2', SpawnTime: 3, LevelTime: 15, Max: 200},
+			{LevelName: 'World1.Level3', SpawnTime: 3, LevelTime: 30, Max: 650},
+			{LevelName: 'World1.Level4', SpawnTime: 3, LevelTime: 60, Max: 1000}
 		];
 		
 		InputController: core.GenericInputController;
-		Tweens: core.TweenManager;
 		
 		Start(): void
 		{
@@ -35,8 +33,6 @@ namespace state {
 			this.InputController = new core.GenericInputController();
 			this.ListenForMouseInput();
 			this.ListenForTouchInput();
-			
-			this.Tweens = new core.TweenManager();
 			
 			let challangeText = new gfx.AAText(this.Stage.Size.x/2, 10, "CHALLANGE");
 			challangeText.Anchor.Set(0.5, 0);
@@ -180,7 +176,7 @@ namespace state {
 	
 		StartTweens(tweens: core.TweenManager): void
 		{
-			let progress = core.math.Clamp((this.Score - this.Data.Min)/(this.Data.Max - this.Data.Min), 0, 1);
+			let progress = core.math.Clamp(this.Score/this.Data.Max, 0, 1);
 			
 			this.ScoreProgress.TweenFill(tweens, progress);
 		}

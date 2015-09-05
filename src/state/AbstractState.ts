@@ -10,16 +10,22 @@ namespace state {
 		Stage: core.Layer;
 		DefaultSize = new core.Vector(320, 370);
 		InputController: core.IInputController;
+		Tweens: core.TweenManager;
+		Timers: core.TimersManager;
 		
 		Start(): void
 		{
 			this.Stage = new core.Layer(0, 0, 320, 370);
+			this.Tweens = new core.TweenManager();
+			this.Timers = new core.TimersManager();
+
 			this.Game.AddDOMEventListener(window, 'resize', (e) => this.OnResize());
 		}
 		
 		Update(timeDelta: number): void
 		{
-			/** Leave for concrete State */
+			this.Timers.Update(timeDelta);
+			this.Tweens.Update(timeDelta);
 		}
 		
 		Draw(ctx: CanvasRenderingContext2D): void
