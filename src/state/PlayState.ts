@@ -19,9 +19,10 @@ namespace state {
 		Bar: gfx.Rectangle;
 		
 		InputController: core.GenericInputController;
+		Tweens: core.TweenManager;
 		
 		constructor(
-			public Config = {SpawnTime: 3, LevelTime: 15, LevelName: ''}
+			public Config = {SpawnTime: 3, LevelTime: 1, LevelName: '', Min: 0, Max: 100}
 		) {
 			super();
 		}
@@ -31,14 +32,17 @@ namespace state {
 			super.Start();
 			this.TimeScale = 0;
 			
+			this.Tweens = new core.TweenManager();
+			
 			this.World = new game.World(this.Stage.Size.x, this.Stage.Size.y, this.Config);
-			this.World.OnTimesUpCallback = this.OnTimesUp.bind(this);
+			this.World.OnTimesUpCallback = () => this.Tweens.New(null).Delay(1.0).WhenDone(() => this.OnTimesUp()).Start();
 			// this.World.Position.Set(30, 30);
 			this.Stage.AddChild(this.World);
 			
 			this.InputController = new GameInputController(this);
 			this.ListenForMouseInput();
 			this.ListenForTouchInput();
+			
 			
 			this.Stage.AddChild(
 				this.Bar = new gfx.Rectangle(0, this.World.Size.y, this.World.Size.x, 30, {fillStyle: 'rgba(0, 0, 0, 0.5)'})
@@ -76,6 +80,8 @@ namespace state {
 		
 		Update(timeDelta: number): void
 		{
+			this.Tweens.Update(timeDelta);
+			
 			this.InputController.Update();
 			this.World.Update(timeDelta * this.TimeScale);
 			
@@ -93,29 +99,45 @@ namespace state {
 		{
 			if (this.Config.LevelName)
 			{
-				if (game.player.GetHiScore(this.Config.LevelName) < this.World.Score)
+				if (this.World.Score > game.player.GetHiScore(this.Config.LevelName))
 				{
 					game.player.SetHiScore(this.Config.LevelName, this.World.Score);	
 				}
 			}
 			
-			let restart = new gfx.Text(this.World.Size.x/2, this.World.Size.y/3 + 50, "RESTART");
-			restart.SetSize(40);
+			let layer = new core.Layer(this.Stage.Size.x/2, 150);
+			this.World.TimeLeftText.IsVisible = false;
+			
+			let progress = core.math.Clamp((this.World.Score - this.Config.Min)/(this.Config.Max - this.Config.Min), 0, 1);
+			let progressBar = new LevelScoreProgressBar(0, 0);
+			progressBar.Anchor.Set(0.5, 0.5);
+			progressBar.TweenFill(this.Tweens, progress)
+			
+			let restart = new gfx.Text(0, 100, "RESTART");
+			restart.SetSize(20);
 			restart.Anchor.Set(0.5, 0.5);
 			restart.SetColor(game.config.color.background);
 			
 			let box = new gfx.Rectangle(restart.Position.x, restart.Position.y, restart.Size.x + 20, restart.Size.y + 10, {fillStyle: 'white'});
 			box.Anchor.Set(0.5, 0.5);
 			
-			let select = new gfx.AAText(this.World.Size.x/2, this.World.Size.y/2 + 50, "LEVEL SELECT");
+			let select = new gfx.AAText(0, 150, "LEVEL SELECT");
 			select.Anchor.Set(0.5, 0.5);
 			
-			this.Stage.AddChild(box);
-			this.Stage.AddChild(restart);
-			this.Stage.AddChild(select);
+			layer.AddChild(progressBar);
+			layer.AddChild(box);
+			layer.AddChild(restart);
+			layer.AddChild(select);
+			
+			this.Stage.AddChild(layer);
 			
 			this.MenuBtn.RemoveFromParent();
 			this.RestartBtn.RemoveFromParent();
+			
+			this.Tweens.New(this.ScoreText.Position)
+				.To({y: 100}, 1, core.easing.OutCubic)
+				.Parallel(this.ScoreText.Scale, (t) => t.To({x: 2, y: 2}))
+				.Start();
 			
 			this.InputController = new core.GenericInputController()
 				.WhenPointerClick(restart, () => this.Game.Play('game'))

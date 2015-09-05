@@ -31,7 +31,7 @@ namespace state {
 		
 		constructor()
 		{
-			super({SpawnTime: 15, LevelTime: 15, LevelName: ''});
+			super({SpawnTime: 15, LevelTime: 15, LevelName: '', Min: 0, Max: 10});
 		}
 		
 		Start(): void

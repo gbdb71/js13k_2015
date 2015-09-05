@@ -104,9 +104,47 @@ namespace state {
 			
 	}
 	
-	class LevelButton extends core.Layer
+	export class LevelScoreProgressBar extends core.Layer
 	{
 		Fill: gfx.Rectangle;
+		
+		constructor(x: number, y: number)
+		{
+			super(x, y, 200, 20);
+			
+			let bad = new gfx.AAText(5, 5, "BAD")
+			bad.SetSize(10);
+			this.AddChild(bad);
+
+			let awesome = new gfx.AAText(195, 5, "AWESOME")
+			awesome.SetSize(10);
+			awesome.Anchor.Set(1, 0);
+			this.AddChild(awesome);
+
+			let progress = new gfx.Rectangle(0.5, 0.5, 200, 20, { strokeStyle: 'white' });
+			this.AddChild(progress);
+
+			let fill = new gfx.Rectangle(1.5, 1.5, 200 - 2, 20 - 2, {fillStyle: 'white', compositeOperation: 'xor'});
+			fill.Scale.Set(0, 1);
+			this.AddChild(this.Fill = fill);
+		}
+		
+		TweenFill(tweens: core.TweenManager, progress: number): void
+		{
+			let tween = tweens.New(this.Fill.Scale)
+				.To({x: progress}, 1,core.easing.OutCubic)
+				.Start();
+				
+			if (progress === 1)
+			{
+				tween.WhenDone(() => this.Fill.Style.fillStyle = game.config.color.other);
+			}
+		}	
+	}
+	
+	class LevelButton extends core.Layer
+	{
+		ScoreProgress: LevelScoreProgressBar;
 		Data: ILevelData;
 		Score: number;
 		
@@ -131,23 +169,10 @@ namespace state {
 			timeText.SetSize(10);
 			timeText.Anchor.Set(1, 0);
 			this.AddChild(timeText);
-
-			let bad = new gfx.AAText(55, 25, "BAD")
-			bad.SetSize(10);
-			this.AddChild(bad);
-
-			let awesome = new gfx.AAText(245, 25, "AWESOME")
-			awesome.SetSize(10);
-			awesome.Anchor.Set(1, 0);
-			this.AddChild(awesome);
-
-			let progress = new gfx.Rectangle(50.5, 20.5, 200, 20, { strokeStyle: 'white' });
-			this.AddChild(progress);
-
-			let fill = new gfx.Rectangle(51.5, 21.5, 200 - 2, 20 - 2, {fillStyle: 'white', compositeOperation: 'xor'});
-			fill.Scale.Set(0, 1);
-			this.AddChild(this.Fill = fill);
-
+			
+			this.ScoreProgress = new LevelScoreProgressBar(50, 20);
+			this.AddChild(this.ScoreProgress);
+			
 			let bg = new gfx.Rectangle(btnWidth / 2, btnHeight / 2, btnWidth + 20, btnHeight + 20, { fillStyle: 'rgba(0, 0, 0, 0.5)', compositeOperation: 'destination-over' });
 			bg.Anchor.Set(0.5, 0.5);
 			this.AddChild(bg);
@@ -157,14 +182,7 @@ namespace state {
 		{
 			let progress = core.math.Clamp((this.Score - this.Data.Min)/(this.Data.Max - this.Data.Min), 0, 1);
 			
-			let tween = tweens.New(this.Fill.Scale)
-				.To({x: progress}, 1,core.easing.OutCubic)
-				.Start();
-				
-			if (progress === 1)
-			{
-				tween.WhenDone(() => this.Fill.Style.fillStyle = game.config.color.other);
-			}
+			this.ScoreProgress.TweenFill(tweens, progress);
 		}
 	}
 	

@@ -78,6 +78,8 @@ namespace gfx {
 	{
 		Draw(ctx: CanvasRenderingContext2D): void
 		{
+			if (!this.IsVisible) return;
+			
 			let scale = this.Style.Size / this.FontRenderer.Size,
 				{x, y} = this.Position;
 		
