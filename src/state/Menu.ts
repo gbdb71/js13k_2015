@@ -175,8 +175,8 @@ namespace state {
 				shape.Rotation += Math.PI/80;
 				
 				if (
-					shape.Position.x < 0 || shape.Position.x > this.Size.x ||
-					shape.Position.y < 0 || shape.Position.y > this.Size.y
+					shape.Position.y < 0 || shape.Position.y > this.Size.y ||
+					shape.Position.x < 0 || shape.Position.x > this.Size.x
 				)
 				{
 					this.RemoveShape(shape);
