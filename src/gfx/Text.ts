@@ -100,7 +100,11 @@ namespace gfx {
 			}
 			
 			ctx.globalAlpha = alphaSave;
-			
+		}
+		
+		Cache(): void
+		{
+			throw Error('Use gfx.Text if you want cache');
 		}
 	}
 	

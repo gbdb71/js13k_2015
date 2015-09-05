@@ -35,22 +35,30 @@ namespace state {
 			this.Stage.AddChild(this.FPS);
 		
 			this.Title = new core.Layer();
-			// this.Title.Scale.Set(0, 0.5);
+			// this.Title.Scale.Set(0.5, 0.5);
 				
-			let line1 = new gfx.AAText(0, 0, "GAME NAME");
+			let line1 = new gfx.Text(0, 0, "SHAPES ♥ NUMBERS");
 			line1.Cache();
 			line1.Anchor.Set(0.5, 0.5);
 			
-			let playBtn = new gfx.Text(0, 100, "PLAY");
-			playBtn.Cache();
+			let playBtn = new core.Layer(0, 100);
 			playBtn.Anchor.Set(0.5, 0.5);
 			playBtn.Scale.Set(2, 2);
 			
-			let tutorialBtn = new gfx.AAText(0, 200, "TUTORIAL");
+			let playTxt = new gfx.Text(5, 5, "PLAY");
+			
+			let playBox = new gfx.Rectangle(0, 0, playTxt.Size.x + 10, playTxt.Size.y + 10, {strokeStyle: 'white', fillStyle: 'rgba(0, 0, 0, 0.2)'});
+			
+			playBtn.AddChild(playTxt);
+			playBtn.AddChild(playBox);
+			vec.Clone(playBox.Size, playBtn.Size);
+			playBtn.Cache();
+			
+			let tutorialBtn = new gfx.Text(0, 200, "TUTORIAL");
 			tutorialBtn.Cache();
 			tutorialBtn.Anchor.Set(0.5, 0.5);
 			
-			let voteBtn = new gfx.AAText(0, 260, "VOTE");
+			let voteBtn = new gfx.Text(0, 260, "VOTE");
 			voteBtn.Cache();
 			voteBtn.Anchor.Set(0.5, 0.5);
 			
@@ -62,7 +70,7 @@ namespace state {
 			this.Title.AddChild(playBtn);
 			this.Title.AddChild(tutorialBtn);
 			this.Title.AddChild(voteBtn);
-			this.Title.AddChild(clearBtn);
+			// this.Title.AddChild(clearBtn);
 			
 			this.InputController
 				.WhenPointerClick(playBtn, () => this.Game.Play(game.player.PassedTutorial ? 'select' : 'tutorial'))
@@ -91,7 +99,10 @@ namespace state {
 		Update(timeDelta: number)
 		{
 			this.TimeElapse += timeDelta;
-			this.FPS.SetText((timeDelta*1000).toFixed(1));
+			this.FPSMeter.Update(timeDelta);
+			
+			let fps = this.FPSMeter.GetFPS();
+			this.FPS.SetText(fps.toFixed(1));
 			
 			timeDelta = 0.016;
 			
@@ -114,13 +125,14 @@ namespace state {
 		MakeBackground(): void
 		{
 			let layer = new core.Layer();
-			for (let i = 1; i < 3; ++i)
+			for (let i = 2; i >= 1; --i)
 			{
 				vec.Clone(this.Stage.Size, layer.Size);
-				let scale = 1/(i + 1);
-				let world = new SimpleWorld(layer.Size.x, layer.Size.y, { SpawnTime: 0.5, LevelTime: 1000 });
+				let scale = 1/(i/2 + 1);
+				let world = new SimpleWorld(layer.Size.x, layer.Size.y, { SpawnTime: 0.5, LevelTime: 1E9 });
 				world.Scale.Set(scale, (i & 1 ? -1 : 1) * scale);
 				world.Anchor.Set(0.5, 0.5);
+				// world.ShapesBrightness = scale;
 				world.Alpha = scale;
 				vec.Scale(world.Size, 1/scale);
 				world.TimeLeftText.IsVisible = false;
@@ -142,6 +154,7 @@ namespace state {
 	{
 		InactiveSquarCache: HTMLCanvasElement;
 		ActiveSquarCache: HTMLCanvasElement;
+		ShapesBrightness: number = 1;
 		
 		Update(timeDelta): void
 		{
@@ -177,6 +190,7 @@ namespace state {
 			super.SpawnShape();
 			
 			let shape = this.ShapesTail, tmp = vec.Tmp;
+			shape.Color = core.Brightness(shape.Color, this.ShapesBrightness);
 			
 			if (this.InactiveSquarCache)
 			{
@@ -190,7 +204,7 @@ namespace state {
 			
 			if (Math.random() > 0.5) return;
 			
-			shape.Color = game.config.color.active;
+			shape.Color = core.Brightness(game.config.color.active, this.ShapesBrightness);
 			
 			if (this.ActiveSquarCache)
 			{

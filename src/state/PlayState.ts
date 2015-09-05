@@ -79,10 +79,11 @@ namespace state {
 		{
 			super.Update(timeDelta);
 			
+			this.FPSMeter.Update(timeDelta);
 			this.InputController.Update();
 			this.World.Update(timeDelta * this.TimeScale);
 			
-			this.FPSText.SetText((timeDelta*1000).toFixed(1));
+			this.FPSText.SetText(this.FPSMeter.GetFPS().toFixed(1));
 			this.ScoreText.SetText(this.World.Score.toString());
 		}
 		
@@ -118,7 +119,7 @@ namespace state {
 			let box = new gfx.Rectangle(restart.Position.x, restart.Position.y, restart.Size.x + 20, restart.Size.y + 10, {fillStyle: 'white'});
 			box.Anchor.Set(0.5, 0.5);
 			
-			let select = new gfx.AAText(0, 180, "LEVEL SELECT");
+			let select = new gfx.AAText(0, 160, "LEVEL SELECT");
 			select.Anchor.Set(0.5, 0.5);
 			
 			layer.AddChild(progressBar);

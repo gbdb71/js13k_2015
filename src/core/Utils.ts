@@ -35,6 +35,35 @@ namespace core {
 		return '#' + (hex + 0x1000000).toString(16).substr(1);
 	}
 	
+	export class FPSMeter
+	{
+		Probes: number[];
+		ProbeIdx: number = 0;
+		
+		constructor(public ProbeNum: number = 60)
+		{
+			this.Probes = new Array(ProbeNum);
+			for (let i = 0; i < ProbeNum; ++i) this.Probes[i] = 0;	
+		}
+		
+		Update(timeDelta: number): void
+		{
+			this.Probes[(this.ProbeIdx++)%this.Probes.length] = timeDelta;
+		}
+		
+		GetFPS(): number
+		{
+			return 1 / this.GetAvgFrameTime();
+		}
+		
+		GetAvgFrameTime(): number
+		{
+			let avg = 0;
+			for (let i = 0; i < this.ProbeNum; ++i) avg += this.Probes[i];
+			return avg / this.ProbeNum;
+		}
+	}
+	
 	export class CallbackSet
 	{
 		Callbacks: Array<[Function, any]> = [];

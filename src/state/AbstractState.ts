@@ -12,13 +12,15 @@ namespace state {
 		InputController: core.IInputController;
 		Tweens: core.TweenManager;
 		Timers: core.TimersManager;
+		FPSMeter: core.FPSMeter;
 		
 		Start(): void
 		{
 			this.Stage = new core.Layer(0, 0, 320, 370);
 			this.Tweens = new core.TweenManager();
 			this.Timers = new core.TimersManager();
-
+			this.FPSMeter = new core.FPSMeter(3 * 60);
+			
 			this.Game.AddDOMEventListener(window, 'resize', (e) => this.OnResize());
 		}
 		
