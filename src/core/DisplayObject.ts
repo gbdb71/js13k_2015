@@ -13,6 +13,7 @@ namespace core {
 		Alpha: number;
 		Parent: Layer;
 		IsVisible: boolean;
+		CachedObject: HTMLCanvasElement;
 		
 		constructor(x: number, y: number, width: number, height: number)
 		{
@@ -40,7 +41,14 @@ namespace core {
 				ctx.translate(-this.Anchor.x * this.Size.x, - this.Anchor.y * this.Size.y);
 			}
 			
-			this.DrawSelf(ctx);
+			if (this.CachedObject)
+			{
+				this.DrawCache(ctx);	
+			}
+			else
+			{
+				this.DrawSelf(ctx);
+			}
 			
 			ctx.restore();
 		}
@@ -48,6 +56,11 @@ namespace core {
 		protected DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
 			throw new Error('Unimplemented');
+		}
+		
+		private DrawCache(ctx: CanvasRenderingContext2D): void
+		{
+			ctx.drawImage(this.CachedObject, 0, 0);
 		}
 		
 		ToLocal(point: IVector): Vector;
@@ -122,6 +135,16 @@ namespace core {
 			this.Parent.RemoveChild(this);
 		}
 		
+		Cache(): void
+		{
+			console.log('new cache ', this.Size);
+			this.CachedObject = document.createElement('canvas');
+			this.CachedObject.width = this.Size.x;
+			this.CachedObject.height = this.Size.y;
+			
+			this.DrawSelf(this.CachedObject.getContext('2d'));
+		}
+		
 	}
 	
 	export class Layer extends DisplayObject
@@ -135,10 +158,12 @@ namespace core {
 		
 		AddChild(child: DisplayObject): void
 		{
-			if (child.Parent) {
+			if (child.Parent)
+			{
 				throw Error("Child has parent");
 			}
-			else {
+			else
+			{
 				child.Parent = this;
 				this.Children.push(child);
 			}
@@ -147,18 +172,21 @@ namespace core {
 		RemoveChild(child: DisplayObject): void
 		{
 			let index = this.Children.indexOf(child);
-			if (index >= 0) {
+			if (index >= 0)
+			{
 				child.Parent = undefined;
 				this.Children.splice(index, 1);
 			}
-			else {
+			else
+			{
 				throw Error("Child doesn't exist in this layer");
 			}
 		}
 		
 		DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
-			for (let child of this.Children) {
+			for (let child of this.Children)
+			{
 				child.Draw(ctx);
 			}
 		}	

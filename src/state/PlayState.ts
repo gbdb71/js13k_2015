@@ -118,7 +118,7 @@ namespace state {
 			let box = new gfx.Rectangle(restart.Position.x, restart.Position.y, restart.Size.x + 20, restart.Size.y + 10, {fillStyle: 'white'});
 			box.Anchor.Set(0.5, 0.5);
 			
-			let select = new gfx.AAText(0, 150, "LEVEL SELECT");
+			let select = new gfx.AAText(0, 180, "LEVEL SELECT");
 			select.Anchor.Set(0.5, 0.5);
 			
 			layer.AddChild(progressBar);
