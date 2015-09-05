@@ -62,7 +62,7 @@ namespace state {
 			this.Title.AddChild(playBtn);
 			this.Title.AddChild(tutorialBtn);
 			this.Title.AddChild(voteBtn);
-			// this.Title.AddChild(clearBtn);
+			this.Title.AddChild(clearBtn);
 			
 			this.InputController
 				.WhenPointerClick(playBtn, () => this.Game.Play(game.player.PassedTutorial ? 'select' : 'tutorial'))

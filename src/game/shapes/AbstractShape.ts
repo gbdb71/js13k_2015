@@ -46,6 +46,8 @@ namespace game.shapes {
 		
 		AddTrajectoryPoint(point: core.IVector): void
 		{
+			if (this.Trajectory.length > 100) return;
+			
 			let last = core.Last(this.Trajectory);
 			let min = MIN_DISTANCE_BETWEEN_TRAJECTORY_POINTS;
 			let doCorrection = this.Trajectory.length < 2;
