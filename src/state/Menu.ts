@@ -46,15 +46,15 @@ namespace state {
 			playBtn.Anchor.Set(0.5, 0.5);
 			playBtn.Scale.Set(2, 2);
 			
-			let tutorialBtn = new gfx.AAText(0, 180, "TUTORIAL");
+			let tutorialBtn = new gfx.AAText(0, 200, "TUTORIAL");
 			tutorialBtn.Cache();
 			tutorialBtn.Anchor.Set(0.5, 0.5);
 			
-			let voteBtn = new gfx.AAText(0, 230, "VOTE");
+			let voteBtn = new gfx.AAText(0, 260, "VOTE");
 			voteBtn.Cache();
 			voteBtn.Anchor.Set(0.5, 0.5);
 			
-			let clearBtn = new gfx.AAText(0, 260, "CLEAR DATA");
+			let clearBtn = new gfx.AAText(0, 280, "CLEAR DATA");
 			clearBtn.Anchor.Set(0.5, 0.5);
 			clearBtn.SetSize(10);
 			
@@ -92,6 +92,8 @@ namespace state {
 		{
 			this.TimeElapse += timeDelta;
 			this.FPS.SetText((timeDelta*1000).toFixed(1));
+			
+			timeDelta = 0.016;
 			
 			if (this.TimeElapse < 1)
 			{

@@ -137,7 +137,6 @@ namespace core {
 		
 		Cache(): void
 		{
-			console.log('new cache ', this.Size);
 			this.CachedObject = document.createElement('canvas');
 			this.CachedObject.width = this.Size.x;
 			this.CachedObject.height = this.Size.y;

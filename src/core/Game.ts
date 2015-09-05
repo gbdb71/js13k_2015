@@ -2,7 +2,7 @@
 
 namespace core {
 	
-	export class Game implements IGame {
+	export class Game {
 		
 		States: { [name:string]: IState } = { };
 		Context: CanvasRenderingContext2D;
@@ -34,12 +34,7 @@ namespace core {
 		{
 			if (this.ActiveState)
 			{
-				for (let i = this.StateDOMListeners.length - 1; i >= 0; --i)
-				{
-					let l = this.StateDOMListeners[i];
-					this.RemoveDOMEventListener(l.element, l.type, l.listener);
-				}
-				this.StateDOMListeners = [];
+				this.CleanAfterState();
 			}
 			
 			if (this.ActiveState = this.States[stateName]) {
@@ -76,6 +71,22 @@ namespace core {
 				}
 			}
 			throw Error("Couldn't find event listener.")
+		}
+		
+		private CleanAfterState(): void
+		{
+			for (let i = this.StateDOMListeners.length - 1; i >= 0; --i)
+			{
+				let l = this.StateDOMListeners[i];
+				this.RemoveDOMEventListener(l.element, l.type, l.listener);
+			}
+			
+			this.StateDOMListeners = [];
+
+			if (this.ActiveState.Dispose)
+			{
+				this.ActiveState.Dispose();
+			}
 		}
 		
 		private OnUpdate(now): void
