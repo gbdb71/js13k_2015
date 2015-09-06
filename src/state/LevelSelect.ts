@@ -19,7 +19,7 @@ namespace state {
 			{LevelName: 'World1.Level1', SpawnTime: 6, LevelTime: 5, Max: 15},
 			{LevelName: 'World1.Level2', SpawnTime: 3, LevelTime: 15, Max: 200},
 			{LevelName: 'World1.Level3', SpawnTime: 3, LevelTime: 30, Max: 650},
-			{LevelName: 'World1.Level4', SpawnTime: 3, LevelTime: 60, Max: 1000}
+			{LevelName: 'World1.Level4', SpawnTime: 3, LevelTime: 60, Max: 2100}
 		];
 		
 		InputController: core.GenericInputController;
@@ -92,12 +92,6 @@ namespace state {
 			this.Stage.AddChild(menuBtn);
 			this.OnResize();
 		}
-		
-		Update(timeDelta: number): void
-		{
-			this.Tweens.Update(0.016);
-		}
-			
 	}
 	
 	export class LevelScoreProgressBar extends core.Layer

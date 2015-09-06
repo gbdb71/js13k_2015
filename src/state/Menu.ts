@@ -82,8 +82,6 @@ namespace state {
 			let fps = this.FPSMeter.GetFPS();
 			this.FPS.SetText(fps.toFixed(1));
 			
-			timeDelta = 0.016;
-			
 			if (this.TimeElapse < 1)
 			{
 				this.Game.Canvas.style.background = core.Brightness(game.config.color.background, this.TimeElapse);
@@ -190,7 +188,7 @@ namespace state {
 				vec.Clone(shape.Velocity, tmp);
 				vec.Scale(tmp, timeDelta);
 				vec.Add(shape.Position, tmp, shape.Position);
-				shape.Rotation += Math.PI/80;
+				shape.Rotation += Math.PI * timeDelta;
 				
 				if (
 					shape.Position.y < 0 || shape.Position.y > this.Size.y ||
@@ -207,7 +205,7 @@ namespace state {
 		{
 			super.SpawnShape();
 			
-			let shape = this.ShapesTail, tmp = vec.Tmp;
+			let shape = this.ShapesTail;
 			shape.Color = core.Brightness(shape.Color, this.ShapesBrightness);
 			
 			if (this.InactiveSquarCache)
@@ -234,12 +232,18 @@ namespace state {
 				this.ActiveSquarCache = shape.CachedObject;
 			}
 			
-			// vec.Clone(shape.Velocity, tmp);
+			// if (Math.random() > 0.3) return;
+			
+			// let tmp = shape.Velocity.Clone(vec.Tmp);
 			// vec.Scale(tmp, 20);
-			// vec.Add(shape.Position, tmp, tmp);
-			// shape.Trajectory.push(tmp.Clone());
+			
+			// let dir = tmp.Clone();
+			
+			// vec.Add(shape.Position, tmp, dir);
+			// shape.Trajectory.push(dir);
 			
 			// vec.Scale(tmp, 1.1);
+			// vec.Add(shape.Position, tmp, tmp);
 			// shape.Trajectory.push(tmp.Clone());
 		}
 	}
