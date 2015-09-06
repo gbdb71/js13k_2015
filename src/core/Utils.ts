@@ -48,7 +48,7 @@ namespace core {
 		
 		Update(timeDelta: number): void
 		{
-			this.Probes[(this.ProbeIdx++)%this.Probes.length] = timeDelta;
+			this.Probes[(this.ProbeIdx++)%this.ProbeNum] = timeDelta;
 		}
 		
 		GetFPS(): number

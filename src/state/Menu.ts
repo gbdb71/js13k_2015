@@ -11,10 +11,15 @@ namespace state {
 	
 	export class Menu extends AbstractState
 	{
-		Title: core.Layer;
 		TimeElapse: number = 0;
 		Worlds: game.World[];
 		WorldsTimeScale: number;
+		
+		Title: gfx.Text;
+		PlayBtn: core.Layer;
+		TutorialBtn
+		Menus: core.Layer;
+		Version: gfx.Text;
 		
 		FPS: gfx.AAText;
 		InputController: core.GenericInputController;
@@ -26,55 +31,22 @@ namespace state {
 			this.Worlds = [];
 			this.WorldsTimeScale = 12;
 			
-			this.InputController = new core.GenericInputController();
-			this.ListenForMouseInput();
-			this.ListenForTouchInput();
-			
 			this.FPS = new gfx.AAText(10, 10);
 			this.FPS.SetSize(10);
-			this.Stage.AddChild(this.FPS);
 		
-			this.Title = new core.Layer();
-			// this.Title.Scale.Set(0.5, 0.5);
-				
-			let line1 = new gfx.Text(0, 0, "SHAPES ♥ NUMBERS");
-			line1.Cache();
-			line1.Anchor.Set(0.5, 0.5);
+			this.Title = new gfx.Text(0, 0, "SHAPES ♥ NUMBERS");
+			this.Title.Cache();
+			this.Title.Anchor.Set(0.5, 0.5);
 			
-			let playBtn = new core.Layer(0, 100);
-			playBtn.Anchor.Set(0.5, 0.5);
-			playBtn.Scale.Set(2, 2);
+			this.MakePlayBtn();
+			this.MakeMenus();
 			
-			let playTxt = new gfx.Text(5, 5, "PLAY");
-			
-			let playBox = new gfx.Rectangle(0, 0, playTxt.Size.x + 10, playTxt.Size.y + 10, {strokeStyle: 'white', fillStyle: 'rgba(0, 0, 0, 0.2)'});
-			
-			playBtn.AddChild(playTxt);
-			playBtn.AddChild(playBox);
-			vec.Clone(playBox.Size, playBtn.Size);
-			playBtn.Cache();
-			
-			let tutorialBtn = new gfx.Text(0, 200, "TUTORIAL");
-			tutorialBtn.Cache();
-			tutorialBtn.Anchor.Set(0.5, 0.5);
-			
-			let voteBtn = new gfx.Text(0, 260, "VOTE");
-			voteBtn.Cache();
-			voteBtn.Anchor.Set(0.5, 0.5);
-			
-			let clearBtn = new gfx.AAText(0, 290, "CLEAR DATA");
-			clearBtn.Anchor.Set(0.5, 0.5);
-			clearBtn.SetSize(10);
-			
-			this.Title.AddChild(line1, playBtn, tutorialBtn, voteBtn);
-			this.Title.AddChild(clearBtn);
-			
-			this.InputController
-				.WhenPointerClick(playBtn, () => this.Game.Play(game.player.PassedTutorial() ? 'select' : 'tutorial'))
-				.WhenPointerClick(tutorialBtn, () => this.Game.Play('tutorial'))
-				.WhenPointerClick(clearBtn, () => {game.player.ClearData(); clearBtn.SetText("DONE")});
-				
-			this.Tweens.New(playBtn)
+			this.Version = new gfx.Text(0, 0, "0.6B");
+			this.Version.SetSize(10);
+			this.Version.Anchor.Set(1, 1);
+			this.Version.Cache();
+		
+			this.Tweens.New(this.PlayBtn)
 				.To({Rotation: Math.PI/12}, 2, core.easing.SinusoidalInOut)
 				.Then()
 				.To({Rotation: -Math.PI/12}, 2, core.easing.SinusoidalInOut)
@@ -87,10 +59,19 @@ namespace state {
 				.To({Alpha: 1})
 				.Start();
 			
+			this.InputController = new core.GenericInputController();
+			this.ListenForMouseInput();
+			this.ListenForTouchInput();
+			
+			this.InputController
+				.WhenPointerClick(this.PlayBtn, () => this.Game.Play(game.player.PassedTutorial() ? 'select' : 'tutorial'))
+				.WhenPointerClick(this.TutorialBtn, () => this.Game.Play('tutorial'));
+				// .WhenPointerClick(clearBtn, () => {game.player.ClearData(); clearBtn.SetText("DONE")});
+				
 			this.OnResize();
 			
 			this.MakeBackground();
-			this.Stage.AddChild(this.Title);
+			this.Stage.AddChild(this.FPS, this.Title, this.PlayBtn, this.Menus, this.Version);
 		}
 		
 		Update(timeDelta: number)
@@ -116,17 +97,24 @@ namespace state {
 		OnResize(): void
 		{
 			super.OnResize();
-			this.Title.Position.Set(this.Stage.Size.x/2, this.Stage.Size.y/5);		
+			
+			let centerX = this.Stage.Size.x/2,
+				centerY = this.Stage.Size.y/2,
+				scaleH = this.Stage.Size.y/this.DefaultSize.y;
+			
+			this.Title.Position.Set(centerX, centerY - 100 * scaleH);
+			this.PlayBtn.Position.Set(centerX, centerY - 10 * scaleH);
+			this.Menus.Position.Set(centerX, centerY + 70 * scaleH);
+			this.Version.Position.Set(this.Stage.Size.x - 10, this.Stage.Size.y - 10);
 		}
 		
 		MakeBackground(): void
 		{
-			let layer = new core.Layer();
 			for (let i = 2; i >= 1; --i)
 			{
-				vec.Clone(this.Stage.Size, layer.Size);
 				let scale = 1/(i/2 + 1);
-				let world = new SimpleWorld(layer.Size.x, layer.Size.y, { SpawnTime: 0.5, LevelTime: 1E9 });
+				let world = new SimpleWorld(this.Stage.Size.x, this.Stage.Size.y, { SpawnTime: 0.5, LevelTime: 1E9 });
+				world.Position.Set(this.Stage.Size.x/2, this.Stage.Size.y/2);
 				world.Scale.Set(scale, (i & 1 ? -1 : 1) * scale);
 				world.Anchor.Set(0.5, 0.5);
 				// world.ShapesBrightness = scale;
@@ -134,16 +122,49 @@ namespace state {
 				vec.Scale(world.Size, 1/scale);
 				world.TimeLeftText.IsVisible = false;
 				
-				layer.AddChild(world);
+				this.Stage.AddChild(world);
 				this.Worlds.push(world);
-				
 			};
-			layer.Position.Set(this.Stage.Size.x/2, this.Stage.Size.y/2);	
-			this.Stage.AddChild(layer)
 			
 			this.Tweens.New(this)
 				.To({WorldsTimeScale: 1}, 2, core.easing.OutCubic)
 				.Start();
+		}
+		
+		MakePlayBtn(): void
+		{
+			let playBtn = new core.Layer(0, 100);
+			playBtn.Anchor.Set(0.5, 0.5);
+			playBtn.Scale.Set(2, 2);
+			
+			let playTxt = new gfx.Text(5, 5, "PLAY");
+			
+			let playBox = new gfx.Rectangle(0, 0, playTxt.Size.x + 10, playTxt.Size.y + 10, {strokeStyle: 'white', fillStyle: 'rgba(0, 0, 0, 0.2)'});
+			
+			playBtn.AddChild(playBox, playTxt)
+			vec.Clone(playBox.Size, playBtn.Size);
+			playBtn.Cache();
+			
+			this.PlayBtn = playBtn;
+		}
+		
+		MakeMenus(): void
+		{
+			let tutorialBtn = new gfx.Text(0, 0, "TUTORIAL");
+			tutorialBtn.Cache();
+			tutorialBtn.Anchor.Set(0.5, 0.5);
+			this.TutorialBtn = tutorialBtn;
+			
+			let voteBtn = new gfx.Text(0, 60, "VOTE");
+			voteBtn.Cache();
+			voteBtn.Anchor.Set(0.5, 0.5);
+			
+			// let clearBtn = new gfx.AAText(0, 90, "CLEAR DATA");
+			// clearBtn.Anchor.Set(0.5, 0.5);
+			// clearBtn.SetSize(10);
+			
+			this.Menus = new core.Layer();
+			this.Menus.AddChild(tutorialBtn, voteBtn);
 		}
 	}
 	
