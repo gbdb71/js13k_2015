@@ -123,7 +123,7 @@ namespace state {
 					
 				case 11:
 					this.Game.Play('select');
-					game.player.PassedTutorial = true;
+					game.player.PassedTutorial(true);
 					return;
 					
 				default: throw Error();	

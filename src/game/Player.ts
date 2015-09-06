@@ -2,14 +2,13 @@ namespace game {
 	
 	class Player
 	{
-		get PassedTutorial(): boolean
+		PassedTutorial(value?: boolean): boolean
 		{
+			if (value)
+			{
+				localStorage.setItem('UserPassedTutorial', value.toString());
+			}
 			return !!localStorage.getItem('UserPassedTutorial');
-		}
-		
-		set PassedTutorial(value: boolean)
-		{
-			localStorage.setItem('UserPassedTutorial', '' + value)
 		}
 		
 		GetHiScore(levelName: string): number
