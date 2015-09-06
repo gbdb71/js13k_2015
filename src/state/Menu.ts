@@ -15,7 +15,7 @@ namespace state {
 		Worlds: game.World[];
 		WorldsTimeScale: number;
 		
-		Title: gfx.Text;
+		Title: core.Layer;
 		PlayBtn: core.Layer;
 		TutorialBtn
 		Menus: core.Layer;
@@ -34,14 +34,12 @@ namespace state {
 			this.FPS = new gfx.AAText(10, 10);
 			this.FPS.SetSize(10);
 		
-			this.Title = new gfx.Text(0, 0, "SHAPES ♥ NUMBERS");
-			this.Title.Cache();
-			this.Title.Anchor.Set(0.5, 0.5);
 			
+			this.MakeTitle();
 			this.MakePlayBtn();
 			this.MakeMenus();
 			
-			this.Version = new gfx.Text(0, 0, "0.6B");
+			this.Version = new gfx.Text(0, 0, "0.61B");
 			this.Version.SetSize(10);
 			this.Version.Anchor.Set(1, 1);
 			this.Version.Cache();
@@ -164,6 +162,25 @@ namespace state {
 			this.Menus = new core.Layer();
 			this.Menus.AddChild(tutorialBtn, voteBtn);
 		}
+		
+		MakeTitle(): void
+		{
+			this.Title = new core.Layer();
+			 
+			let shapes = new gfx.Text(0, 0, "SHAPES");
+			
+			let heart = new gfx.Text(shapes.Size.x + 20, 0, "♥");
+			heart.SetColor('red');
+			heart.Anchor.Set(0.5, 0);
+			
+			let numbers = new gfx.Text(heart.Position.x + 20, 0, "NUMBERS");
+			
+			let width = numbers.Position.x + numbers.Size.x;
+			this.Title.Size.Set(width, shapes.Size.y);
+			this.Title.Anchor.Set(heart.Position.x/width, 0.5);
+			this.Title.AddChild(shapes, heart, numbers);
+			this.Title.Cache();
+		}	
 	}
 	
 	class SimpleWorld extends game.World
