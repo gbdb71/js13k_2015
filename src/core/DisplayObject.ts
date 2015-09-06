@@ -155,16 +155,19 @@ namespace core {
 			super(x, y, width, height);
 		}
 		
-		AddChild(child: DisplayObject): void
+		AddChild(...childs: DisplayObject[]): void
 		{
-			if (child.Parent)
+			for (let child of childs)
 			{
-				throw Error("Child has parent");
-			}
-			else
-			{
-				child.Parent = this;
-				this.Children.push(child);
+				if (child.Parent)
+				{
+					throw Error("Child has parent");
+				}
+				else
+				{
+					child.Parent = this;
+					this.Children.push(child);
+				}
 			}
 		}
 		

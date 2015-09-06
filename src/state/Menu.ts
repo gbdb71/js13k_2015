@@ -62,15 +62,12 @@ namespace state {
 			voteBtn.Cache();
 			voteBtn.Anchor.Set(0.5, 0.5);
 			
-			let clearBtn = new gfx.AAText(0, 280, "CLEAR DATA");
+			let clearBtn = new gfx.AAText(0, 290, "CLEAR DATA");
 			clearBtn.Anchor.Set(0.5, 0.5);
 			clearBtn.SetSize(10);
 			
-			this.Title.AddChild(line1);
-			this.Title.AddChild(playBtn);
-			this.Title.AddChild(tutorialBtn);
-			this.Title.AddChild(voteBtn);
-			// this.Title.AddChild(clearBtn);
+			this.Title.AddChild(line1, playBtn, tutorialBtn, voteBtn);
+			this.Title.AddChild(clearBtn);
 			
 			this.InputController
 				.WhenPointerClick(playBtn, () => this.Game.Play(game.player.PassedTutorial() ? 'select' : 'tutorial'))
