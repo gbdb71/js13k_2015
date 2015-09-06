@@ -29,27 +29,21 @@ namespace core {
 		Draw(ctx: CanvasRenderingContext2D): void
 		{
 			if (!this.IsVisible) return;
-			
+
 			ctx.save();
 			ctx.globalAlpha *= this.Alpha;
-			
+
 			ctx.translate(this.Position.x, this.Position.y);
 			ctx.scale(this.Scale.x, this.Scale.y);
 			ctx.rotate(this.Rotation);
-			
-			if (!vector.IsZero(this.Anchor)) {
+
+			if (!vector.IsZero(this.Anchor))
+			{
 				ctx.translate(-this.Anchor.x * this.Size.x, - this.Anchor.y * this.Size.y);
 			}
-			
-			if (this.CachedObject)
-			{
-				this.DrawCache(ctx);	
-			}
-			else
-			{
-				this.DrawSelf(ctx);
-			}
-			
+
+			this.CachedObject ? this.DrawCache(ctx) : this.DrawSelf(ctx);
+
 			ctx.restore();
 		}
 		
