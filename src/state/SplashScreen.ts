@@ -20,19 +20,24 @@ namespace state {
 			let line1 = new gfx.AAText(0, 0, "A GAME BY KAKUS");
 			line1.Anchor.Set(0.5, 0.5);
 			
-			let line2 = new gfx.AAText(0, line1.Size.y + 10, "MADE FOR JS13K WITH ");
-			line2.Anchor.Set(0.5, 0.5);
+			let line2 = new core.Layer(0 , line1.Size.y + 10);
 			
-			let heart = new gfx.AAText(line2.Size.x/2, line2.Position.y, "♥");
-			heart.Anchor.Set(0, 0.5);
+			let made = new gfx.AAText(0, 0, "MADE WITH ");
+			
+			let heart = new gfx.AAText(made.Size.x, 0, "♥");
 			heart.SetColor('red');
+			
+			let js13k = new gfx.AAText(heart.Position.x + heart.Size.x, 0, " FOR JS13K");
+			
+			line2.Anchor.Set(0.5, 0.5);
+			line2.Size.Set(js13k.Position.x + js13k.Size.x, js13k.Size.y);
+			line2.AddChild(made, heart, js13k);
 			
 			let year = new gfx.AAText(0, line2.Position.y + 300, "2015");
 			year.Anchor.Set(0.5, 0.5);
 			
 			this.Title.AddChild(line1)
 			this.Title.AddChild(line2)
-			this.Title.AddChild(heart)
 			this.Title.AddChild(year)
 			
 			this.Stage.Alpha = 0;
