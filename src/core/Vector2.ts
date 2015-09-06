@@ -15,8 +15,15 @@ namespace core {
 			this.y = y;
 		}
 		
-		Clone(): Vector
+		Clone(out?: Vector): Vector
 		{
+			if (out)
+			{
+				out.x = this.x;
+				out.y = this.y;
+				return out;
+			}
+			
 			return new Vector(this.x, this.y);
 		}
 		
