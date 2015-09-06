@@ -34,7 +34,7 @@ namespace state {
 			this.ListenForMouseInput();
 			this.ListenForTouchInput();
 			
-			let challangeText = new gfx.AAText(this.Stage.Size.x/2, 10, "CHALLANGE");
+			let challangeText = new gfx.AAText(this.Stage.Size.x/2, 10, "CHALLENGE");
 			challangeText.Anchor.Set(0.5, 0);
 			challangeText.SetSize(10);
 			this.Stage.AddChild(challangeText);
