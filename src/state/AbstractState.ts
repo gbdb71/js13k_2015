@@ -19,7 +19,7 @@ namespace state {
 			this.Stage = new core.Layer(0, 0, 320, 370);
 			this.Tweens = new core.TweenManager();
 			this.Timers = new core.TimersManager();
-			this.FPSMeter = new core.FPSMeter(3 * 60);
+			this.FPSMeter = new core.FPSMeter(2 * 60);
 			
 			this.Game.AddDOMEventListener(window, 'resize', (e) => this.OnResize());
 		}
