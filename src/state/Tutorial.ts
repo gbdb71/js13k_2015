@@ -18,9 +18,8 @@ namespace state {
 			"LIKE THAT",
 			"SO IT WILL HIT THE BOTTOM",
 			"THEN YOU WILL EARN POINTS",
-			"BUT YOU HAVE TO",
-			"DO THIS BEFORE",
-			"TIME RUN OUT",
+			"BUT YOU HAVE TO DO THIS",
+			"BEFORE TIME RUNS OUT",
 			"GOT IT?",
 			""
 		]
@@ -110,18 +109,17 @@ namespace state {
 					break;
 					
 				case 7:
-				case 8:
 					break;
 					
-				case 9:
+				case 8:
 					this.TimeScale = 1;
 					this.World.Update(this.World.TimeLeft - 5.5);
 					this.Timers.Delay(5.3, () => this.TimeScale = 0);
 					
-				case 10:
+				case 9:
 					break;
 					
-				case 11:
+				case 10:
 					this.Game.Play('select');
 					game.player.PassedTutorial(true);
 					return;
