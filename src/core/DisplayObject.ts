@@ -129,13 +129,16 @@ namespace core {
 			this.Parent.RemoveChild(this);
 		}
 		
-		Cache(): void
+		Cache(setup?: (ctx: CanvasRenderingContext2D) => void): void
 		{
 			this.CachedObject = document.createElement('canvas');
 			this.CachedObject.width = this.Size.x;
 			this.CachedObject.height = this.Size.y;
 			
-			this.DrawSelf(this.CachedObject.getContext('2d'));
+			let ctx = this.CachedObject.getContext('2d');
+			if (setup) setup(ctx);
+			
+			this.DrawSelf(ctx);
 		}
 		
 	}
