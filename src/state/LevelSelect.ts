@@ -163,7 +163,7 @@ namespace state {
 			this.ScoreProgress = new LevelScoreProgressBar(50, 20);
 			this.AddChild(this.ScoreProgress);
 			
-			let bg = new gfx.Rectangle(btnWidth / 2, btnHeight / 2, btnWidth + 20, btnHeight + 20, { fillStyle: 'rgba(0, 0, 0, 0.5)', compositeOperation: 'destination-over' });
+			let bg = new gfx.Rectangle(btnWidth / 2, btnHeight / 2, btnWidth + 20, btnHeight + 20, { fillStyle: 'rgba(0, 0, 0, 0.3)', compositeOperation: 'destination-over' });
 			bg.Anchor.Set(0.5, 0.5);
 			this.AddChild(bg);
 		}

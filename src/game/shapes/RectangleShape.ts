@@ -25,11 +25,6 @@ namespace game.shapes {
 		
 		DrawSelf(ctx: CanvasRenderingContext2D): void
 		{
-			ctx.globalCompositeOperation = 'xor';
-			
-			// this.Rectangle.Style.fillStyle = this.Color;
-			// this.Rectangle.Draw(ctx);
-			
 			ctx.fillStyle = this.Color;
 			ctx.fillRect(0, 0, this.Size.x, this.Size.y);
 			

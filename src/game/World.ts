@@ -12,29 +12,6 @@ namespace game {
 	
 	const vec = core.vector;
 	
-	class ScoreText extends gfx.AAText
-	{
-		Draw(ctx: CanvasRenderingContext2D): void
-		{
-			let op = ctx.globalCompositeOperation;
-			ctx.globalCompositeOperation = 'xor';
-			super.Draw(ctx);
-			ctx.globalCompositeOperation = op;
-		}
-	}
-	
-	
-	class TimeLeftText extends gfx.AAText
-	{
-		Draw(ctx: CanvasRenderingContext2D): void
-		{
-			let op = ctx.globalCompositeOperation;
-			ctx.globalCompositeOperation = 'destination-over';
-			super.Draw(ctx);
-			ctx.globalCompositeOperation = op;
-		}
-	}
-	
 	export class World extends core.Layer
 	{
 		ShapesHead: shapes.AbstractShape;
@@ -47,7 +24,7 @@ namespace game {
 		Score: number = 0;
 		MoveScore: number = 1;
 		TimeLeft: number = this.Config.LevelTime;
-		TimeLeftText: TimeLeftText;
+		TimeLeftText: gfx.AAText;
 		IsOver: boolean = false;
 		OnTimesUpCallback: Function;
 		
@@ -64,7 +41,7 @@ namespace game {
 			this.Timers.Delay(this.Config.LevelTime, this.OnTimesUp, this);
 			this.Timers.Repeat(1, this.WarnAboutTime, this, this.Config.LevelTime - 5.5);
 			
-			this.TimeLeftText = new TimeLeftText(width/2, width/3);
+			this.TimeLeftText = new gfx.AAText(width/2, width/3);
 			this.TimeLeftText.Anchor.Set(0.5, 0.5);
 			this.TimeLeftText.SetColor(core.Brightness(config.color.background, 1.4));
 			this.TimeLeftText.SetSize(120);
@@ -214,7 +191,9 @@ namespace game {
 			ctx.strokeStyle = game.config.color.active;
 			
 			ctx.setLineDash([3, 9]);
+			ctx.lineCap = 'butt';
 			ctx.lineWidth = 2;
+			
 			for (let shape = this.ShapesHead; shape; shape = shape.Next)
 			{
 				if (shape.HasTrajectory()) 
@@ -228,8 +207,10 @@ namespace game {
 				}
 			}
 			
+			ctx.globalCompositeOperation = 'xor';
 			super.DrawSelf(ctx);
 			
+			ctx.globalCompositeOperation = 'destination-over';
 			this.TimeLeftText.Draw(ctx);
 		}
 		
@@ -367,7 +348,7 @@ namespace game {
 		
 		DisplayScore(position: core.IVector, score: number): void
 		{
-			let text = new ScoreText(position.x, position.y, (score > 0 ? '+' : '') + score);
+			let text = new gfx.AAText(position.x, position.y, (score > 0 ? '+' : '') + score);
 			text.Anchor.Set(0.5, 0.5);
 			text.SetColor(score > 0 ? config.color.active : config.color.inactive);
 
