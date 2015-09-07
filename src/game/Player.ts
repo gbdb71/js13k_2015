@@ -27,6 +27,24 @@ namespace game {
 		}
 	}
 	
+	if (typeof localStorage === 'object')
+	{
+		let showMessage = true;
+		try 
+		{
+			localStorage.setItem('storageTest', '1');
+			localStorage.removeItem('storageTest');
+		}
+		catch (e)
+		{
+			Storage.prototype.setItem = function() 
+			{
+				if (showMessage) alert('If you want to save your scores please leave private browsing.');
+				showMessage = false;
+			};	
+		}
+	}
+	
 	export var player = new Player();
 	
 }
