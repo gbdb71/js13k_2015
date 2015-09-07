@@ -211,6 +211,8 @@ namespace game {
 			super.DrawSelf(ctx);
 			
 			ctx.globalCompositeOperation = 'destination-over';
+			ctx['imageSmoothingEnabled'] = false;
+			ctx['webkitImageSmoothingEnabled'] = false;
 			this.TimeLeftText.Draw(ctx);
 		}
 		

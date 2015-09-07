@@ -8,7 +8,7 @@ namespace state {
 	{
 		Game: core.Game;
 		Stage: core.Layer;
-		DefaultSize = new core.Vector(320, 370);
+		DefaultSize = new core.Vector(320, 440);
 		InputController: core.IInputController;
 		Tweens: core.TweenManager;
 		Timers: core.TimersManager;
@@ -54,6 +54,8 @@ namespace state {
 		OnResize(): void
 		{
 			let width = window.innerWidth, height = window.innerHeight;
+			
+			this.DefaultSize.x = core.math.Clamp(width, 320, 400);
 			
 			let scale = Math.min(width / this.DefaultSize.x, height / this.DefaultSize.y);
 			this.Stage.Scale.Set(scale, scale);

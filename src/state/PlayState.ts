@@ -146,8 +146,12 @@ namespace state {
 		{
 			super.OnResize();
 			this.World.Size.y =	this.Stage.Size.y - this.Bar.Size.y;
+			this.World.Size.x = this.Stage.Size.x;
+			this.World.TimeLeftText.Position.Set(this.World.Size.x / 2, this.World.Size.y / 3);
 			
 			this.Bar.Position.Set(0, this.World.Size.y);
+			this.Bar.Size.x = this.World.Size.x;
+			
 			this.TapToStartText.Position.Set(this.World.Size.x/2, this.World.Size.y/2);
 			this.ScoreText.Position.Set(this.World.Size.x/2, this.World.Size.y + 13.5);
 			this.RestartBtn.Position.Set(this.World.Size.x - 10, this.World.Size.y + 13.5);

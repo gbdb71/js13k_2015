@@ -39,7 +39,7 @@ namespace state {
 			this.MakePlayBtn();
 			this.MakeMenus();
 			
-			this.Version = new gfx.Text(0, 0, "0.61B");
+			this.Version = new gfx.Text(0, 0, "0.7B");
 			this.Version.SetSize(10);
 			this.Version.Anchor.Set(1, 1);
 			this.Version.Cache();
@@ -196,6 +196,11 @@ namespace state {
 			this.UpdateShapes(timeDelta);
 		}
 		
+		DrawSelf(ctx: CanvasRenderingContext2D): void
+		{
+			for(let c of this.Children) c.Draw(ctx);
+		}
+		
 		UpdateShapes(timeDelta: number): void
 		{
 			let tmp = vec.Tmp;
@@ -231,7 +236,7 @@ namespace state {
 			}
 			else
 			{
-				shape.Cache();
+				shape.Cache((ctx) => ctx.globalCompositeOperation = 'xor');
 				this.InactiveSquarCache = shape.CachedObject;
 			}
 			
@@ -245,7 +250,7 @@ namespace state {
 			}
 			else
 			{
-				shape.Cache();
+				shape.Cache((ctx) => ctx.globalCompositeOperation = 'xor');
 				this.ActiveSquarCache = shape.CachedObject;
 			}
 			
