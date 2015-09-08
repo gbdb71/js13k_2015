@@ -31,13 +31,13 @@ namespace game {
 		constructor(
 			width: number, height: number,
 			
-			public Config = { SpawnTime: 3, LevelTime: 15}
+			public Config = { SpawnTime: 3, LevelTime: 15, SpawnLimit: 0 }
 		) {
 			super(0, 0, width, height);
 			this.Tweens = new core.TweenManager();
 			this.Timers = new core.TimersManager();
 			
-			this.Timers.Repeat(this.Config.SpawnTime, this.SpawnShape, this);
+			this.Timers.Repeat(this.Config.SpawnTime, this.SpawnShape, this, Config.SpawnLimit);
 			this.Timers.Delay(this.Config.LevelTime, this.OnTimesUp, this);
 			this.Timers.Repeat(1, this.WarnAboutTime, this, this.Config.LevelTime - 5.5);
 			

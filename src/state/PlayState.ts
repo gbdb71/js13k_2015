@@ -21,7 +21,7 @@ namespace state {
 		InputController: core.GenericInputController;
 		
 		constructor(
-			public Config = {SpawnTime: 3, LevelTime: 1, LevelName: '', Max: 100}
+			public Config = {SpawnTime: 3, LevelTime: 1, LevelName: '', Max: 100, SpawnLimit: 0}
 		) {
 			super();
 		}

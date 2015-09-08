@@ -109,7 +109,7 @@ namespace state {
 			for (let i = 2; i >= 1; --i)
 			{
 				let scale = 1/(i/2 + 1);
-				let world = new SimpleWorld(this.Stage.Size.x, this.Stage.Size.y, { SpawnTime: 0.5, LevelTime: 1E9 });
+				let world = new SimpleWorld(this.Stage.Size.x, this.Stage.Size.y, { SpawnTime: 0.5, LevelTime: 1E9, SpawnLimit: 0 });
 				world.Position.Set(this.Stage.Size.x/2, this.Stage.Size.y/2);
 				world.Scale.Set(scale, (i & 1 ? -1 : 1) * scale);
 				world.Anchor.Set(0.5, 0.5);

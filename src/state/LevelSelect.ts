@@ -10,17 +10,18 @@ namespace state {
 		SpawnTime: number;
 		LevelTime: number;
 		Max: number;
-		LevelName: string;	
+		LevelName: string;
+		SpawnLimit: number;
 	}
 	
 	export class LevelSelect extends AbstractState
 	{
 		Levels: ILevelData[] = [
-			{LevelName: 'World1.Level0', SpawnTime: 6, LevelTime: 5, Max: 15},
-			{LevelName: 'World1.Level1', SpawnTime: 5, LevelTime: 10, Max: 30},
-			{LevelName: 'World1.Level2', SpawnTime: 3, LevelTime: 15, Max: 170},
-			{LevelName: 'World1.Level3', SpawnTime: 3, LevelTime: 30, Max: 600},
-			{LevelName: 'World1.Level4', SpawnTime: 3, LevelTime: 60, Max: 1500}
+			{LevelName: 'World1.Level0', SpawnTime: 5, SpawnLimit: 1, LevelTime: 5, Max: 15},
+			{LevelName: 'World1.Level1', SpawnTime: 3, SpawnLimit: 2, LevelTime: 10, Max: 45},
+			{LevelName: 'World1.Level2', SpawnTime: 3, SpawnLimit: 5, LevelTime: 15, Max: 170},
+			{LevelName: 'World1.Level3', SpawnTime: 3, SpawnLimit: 10, LevelTime: 30, Max: 600},
+			{LevelName: 'World1.Level4', SpawnTime: 3, SpawnLimit: 20, LevelTime: 60, Max: 1500}
 		];
 		
 		InputController: core.GenericInputController;
