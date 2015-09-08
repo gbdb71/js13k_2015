@@ -55,7 +55,7 @@ namespace state {
 		{
 			let width = window.innerWidth, height = window.innerHeight;
 			
-			this.DefaultSize.x = core.math.Clamp(width, 320, 400);
+			this.DefaultSize.x = core.math.Clamp(width, 320, 480);
 			
 			let scale = Math.min(width / this.DefaultSize.x, height / this.DefaultSize.y);
 			this.Stage.Scale.Set(scale, scale);
