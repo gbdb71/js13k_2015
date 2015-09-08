@@ -54,7 +54,7 @@ namespace core {
 		
 		private DrawCache(ctx: CanvasRenderingContext2D): void
 		{
-			ctx.drawImage(this.CachedObject, 0, 0);
+			ctx.drawImage(this.CachedObject, 0, 0, this.Size.x, this.Size.y, 0, 0, this.Size.x, this.Size.y);
 		}
 		
 		ToLocal(point: IVector): Vector;
@@ -132,8 +132,8 @@ namespace core {
 		Cache(setup?: (ctx: CanvasRenderingContext2D) => void): void
 		{
 			this.CachedObject = document.createElement('canvas');
-			this.CachedObject.width = this.Size.x;
-			this.CachedObject.height = this.Size.y;
+			this.CachedObject.width = Math.max(256, this.Size.x);
+			this.CachedObject.height = Math.max(256, this.Size.y);
 			
 			let ctx = this.CachedObject.getContext('2d');
 			if (setup) setup(ctx);
