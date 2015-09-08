@@ -16,7 +16,9 @@ namespace core {
 			public Callback: ITimerCallback,
 			public Ctx: any,
 			public Delay: number,
-			public Interval: number = NaN
+			public Interval: number = NaN,
+			/** How many times this callback can be called */
+			public CallLimit: number = 0
 		) { }
 		
 		Update(timeDelta): void
@@ -25,11 +27,14 @@ namespace core {
 			
 			if (this.ElapsedTime > this.Delay)
 			{
+				if (this.CallLimit > 0 && this.CallCount > this.CallLimit - 1) return;
+				
 				if (this.CallCount === 0) 
 				{
 					this.Callback.call(this.Ctx, timeDelta);
 					this.CallCount += 1;
 				}
+				
 				
 				if (this.ElapsedTime - this.Delay > this.Interval * this.CallCount)
 				{
@@ -58,11 +63,11 @@ namespace core {
 			return timer;
 		}
 		
-		Repeat(interval: number, callback: ITimerCallback, ctx?: any, delay: number = 0): Timer
+		Repeat(interval: number, callback: ITimerCallback, ctx?: any, callLimit?: number, delay: number = 0): Timer
 		{
 			let timer;
 			
-			this.Timers.push(timer = new Timer(callback, ctx, delay, interval));
+			this.Timers.push(timer = new Timer(callback, ctx, delay, interval, callLimit));
 			
 			return timer;
 		}
