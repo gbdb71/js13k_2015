@@ -76,7 +76,11 @@ namespace state {
 						if (otherBtn === btn) continue;
 						appearTween.Reverse().Start();
 					}	
-				})
+				});
+				
+				this.InputController
+					.WhenPointerDown(btn, () => btn.OnPress())
+					.WhenPointerUp(this.Stage, () => btn.OnRelease());
 			});
 			
 			let menuBtn = new gfx.AAText(40, 30, "MENU");
@@ -140,6 +144,8 @@ namespace state {
 		Data: ILevelData;
 		Score: number;
 		
+		Border: gfx.Rectangle;
+		
 		constructor(index: number, data: ILevelData)
 		{
 			const btnWidth = 250, btnHeight = 40;
@@ -153,13 +159,15 @@ namespace state {
 			this.AddChild(indexText);
 
 			this.Score = game.player.GetHiScore(data.LevelName);
-			let score = new gfx.AAText(50, 0, "HI-SCORE: " + this.Score);
+			let score = new gfx.Text(50, 0, "HI-SCORE: " + this.Score);
 			score.SetSize(10);
+			score.Cache();
 			this.AddChild(score);
 
-			let timeText = new gfx.AAText(251, 0, "TIME: " + data.LevelTime)
+			let timeText = new gfx.Text(251, 0, "TIME: " + data.LevelTime)
 			timeText.SetSize(10);
 			timeText.Anchor.Set(1, 0);
+			timeText.Cache();
 			this.AddChild(timeText);
 			
 			this.ScoreProgress = new LevelScoreProgressBar(50, 20);
@@ -168,6 +176,25 @@ namespace state {
 			let bg = new gfx.Rectangle(btnWidth / 2, btnHeight / 2, btnWidth + 20, btnHeight + 20, { fillStyle: 'rgba(0, 0, 0, 0.3)', compositeOperation: 'destination-over' });
 			bg.Anchor.Set(0.5, 0.5);
 			this.AddChild(bg);
+			
+			this.Border = new gfx.Rectangle(bg.Position.x, bg.Position.y + bg.Size.y/2, bg.Size.x, 5, { fillStyle: 'rgba(0, 0, 0, 0.5)', compositeOperation: 'destination-over' });
+			this.Border.Anchor.Set(0.5, 0);
+			this.AddChild(this.Border);
+		}
+		
+		OnPress(): void
+		{
+			this.Border.IsVisible = false;
+			this.Position.y += this.Border.Size.y;
+		}
+		
+		OnRelease(): void
+		{
+			if (!this.Border.IsVisible)
+			{
+				this.Border.IsVisible = true;
+				this.Position.y -= this.Border.Size.y;
+			}
 		}
 	
 		StartTweens(tweens: core.TweenManager): void

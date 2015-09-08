@@ -68,6 +68,12 @@ namespace core {
 			return this;
 		}
 		
+		WhenPointerUp(object: core.DisplayObject, action: Function): GenericInputController
+		{
+			this.OnUpListeners.push({object, action});
+			return this;
+		}
+		
 		WhenPointerClick(object: core.DisplayObject, action: Function): GenericInputController
 		{
 			let timeOfDownEvent = 0;

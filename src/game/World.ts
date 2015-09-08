@@ -39,7 +39,7 @@ namespace game {
 			
 			this.Timers.Repeat(this.Config.SpawnTime, this.SpawnShape, this, Config.SpawnLimit);
 			this.Timers.Delay(this.Config.LevelTime, this.OnTimesUp, this);
-			this.Timers.Repeat(1, this.WarnAboutTime, this, this.Config.LevelTime - 5.5);
+			this.Timers.Repeat(1, this.WarnAboutTime, this, 5, this.Config.LevelTime - 5.5);
 			
 			this.TimeLeftText = new gfx.AAText(width/2, width/3);
 			this.TimeLeftText.Anchor.Set(0.5, 0.5);
