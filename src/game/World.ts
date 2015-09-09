@@ -20,6 +20,7 @@ namespace game {
 		
 		Timers: core.TimersManager;
 		Tweens: core.TweenManager;
+		TweenTimeScale: number = 1;
 		
 		Score: number = 0;
 		MoveScore: number = 1;
@@ -27,6 +28,7 @@ namespace game {
 		TimeLeftText: gfx.AAText;
 		IsOver: boolean = false;
 		OnTimesUpCallback: Function;
+		
 		
 		constructor(
 			width: number, height: number,
@@ -50,7 +52,7 @@ namespace game {
 		Update(timeDelta: number): void
 		{
 			this.TimeLeft -= timeDelta;
-			this.Tweens.Update(timeDelta);
+			this.Tweens.Update(timeDelta * this.TweenTimeScale);
 			this.Timers.Update(timeDelta);
 			
 			if (this.TimeLeft >= 0) {
@@ -262,7 +264,9 @@ namespace game {
 		{
 			this.Timers.RemoveAll();
 			
-			let lastTween = this.Tweens.New(null);
+			let lastTween = this.Tweens.New(null),
+				bonusShapes = 0;
+				
 			lastTween.Start();
 			
 			for (let shape = this.ShapesHead; shape; shape = shape.Next)
@@ -289,7 +293,14 @@ namespace game {
 						
 					lastTween.Then(tween).WhenDone((t) => t.Start());
 					lastTween = tween;
+					
+					bonusShapes += 1;
 				}
+			}
+			
+			if (bonusShapes > 3)
+			{
+				this.TweenTimeScale = 2;
 			}
 			
 			lastTween.Then().WhenDone(() => 
