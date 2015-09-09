@@ -5,7 +5,7 @@
 
 namespace state {
 	
-	interface ILevelData
+	export interface ILevelData
 	{
 		SpawnTime: number;
 		LevelTime: number;
@@ -25,6 +25,9 @@ namespace state {
 		];
 		
 		InputController: core.GenericInputController;
+		ChallangeName: gfx.Text;
+		NextBtn: gfx.Text;
+		NextBtnHitBox: gfx.Rectangle;
 		
 		Start(): void
 		{
@@ -42,9 +45,10 @@ namespace state {
 			challangeText.SetSize(10);
 			this.Stage.AddChild(challangeText);
 			
-			let challangeType = new gfx.AAText(this.Stage.Size.x/2, 30, "PRECISION");
-			challangeType.Anchor.Set(0.5, 0);
-			this.Stage.AddChild(challangeType);
+			this.ChallangeName = new gfx.AAText(this.Stage.Size.x/2, 30);
+			this.ChallangeName.Anchor.Set(0.5, 0);
+			this.Stage.AddChild(this.ChallangeName);
+			
 			
 			let buttons: Array<[core.DisplayObject, core.Tween]> = [];
 			this.Levels.forEach((levelData, index) => 
@@ -91,12 +95,24 @@ namespace state {
 			menuBtnHitbox.Anchor.Set(0.5, 0.5);
 			menuBtnHitbox.IsVisible = false;
 			
-			this.Stage.AddChild(menuBtnHitbox);
+			this.NextBtn = new gfx.AAText(this.Stage.Size.x - 40, menuBtn.Position.y, "NEXT");
+			this.NextBtn.Anchor.Set(0.5, 0.5);
+			this.NextBtn.SetSize(10);
+			
+			this.NextBtnHitBox = new gfx.Rectangle(this.NextBtn.Position.x, this.NextBtn.Position.y, 50, 30, {strokeStyle: 'white'});
+			this.NextBtnHitBox.Anchor.Set(0.5, 0.5);
+			this.NextBtnHitBox.IsVisible = false;
+			
+			this.Stage.AddChild(menuBtn, menuBtnHitbox, this.NextBtn, this.NextBtnHitBox);
 			
 			this.InputController
 				.WhenPointerClick(menuBtnHitbox, () => this.Game.Play('menu'));
-			
-			this.Stage.AddChild(menuBtn);
+		}
+		
+		SetChallengeName(value: string): void
+		{
+			this.ChallangeName.SetText(value);
+			game.player.CurrentChallenge(value.toLowerCase() + '-challenge');
 		}
 	}
 	

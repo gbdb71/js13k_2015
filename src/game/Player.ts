@@ -11,6 +11,15 @@ namespace game {
 			return !!localStorage.getItem('UserPassedTutorial');
 		}
 		
+		CurrentChallenge(value?: string): string
+		{
+			if (value)
+			{
+				localStorage.setItem('CurrentChallenge', value)
+			}
+			return localStorage.getItem('CurrentChallenge');
+		}
+		
 		GetHiScore(levelName: string): number
 		{
 			return parseInt(localStorage.getItem('HiScore.' + levelName), 10) || 0;
@@ -20,6 +29,7 @@ namespace game {
 		{
 			localStorage.setItem('HiScore.' + levelName, score.toString());
 		}
+		
 		
 		ClearData(): void
 		{

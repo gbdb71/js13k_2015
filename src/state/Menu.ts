@@ -62,7 +62,7 @@ namespace state {
 			this.ListenForTouchInput();
 			
 			this.InputController
-				.WhenPointerClick(this.PlayBtn, () => this.Game.Play(game.player.PassedTutorial() ? 'select' : 'tutorial'))
+				.WhenPointerClick(this.PlayBtn, () => this.Game.Play(game.player.PassedTutorial() ? 'precision-challenge' : 'tutorial'))
 				.WhenPointerClick(this.TutorialBtn, () => this.Game.Play('tutorial'));
 				// .WhenPointerClick(clearBtn, () => {game.player.ClearData(); clearBtn.SetText("DONE")});
 				

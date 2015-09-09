@@ -139,7 +139,7 @@ namespace state {
 			
 			this.InputController = new core.GenericInputController()
 				.WhenPointerClick(restart, () => this.Game.Play('game'))
-				.WhenPointerClick(select, () => this.Game.Play('select'));
+				.WhenPointerClick(select, () => this.Game.Play(game.player.CurrentChallenge()));
 		}
 		
 		OnResize(): void
