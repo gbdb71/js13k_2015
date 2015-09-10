@@ -17,7 +17,7 @@ namespace game {
 			{
 				localStorage.setItem('CurrentChallenge', value)
 			}
-			return localStorage.getItem('CurrentChallenge');
+			return localStorage.getItem('CurrentChallenge') || 'precision-challenge';
 		}
 		
 		GetHiScore(levelName: string): number
