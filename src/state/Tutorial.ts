@@ -120,7 +120,7 @@ namespace state {
 					break;
 					
 				case 10:
-					this.Game.Play('select');
+					this.Game.Play('precision-challenge');
 					game.player.PassedTutorial(true);
 					return;
 					
