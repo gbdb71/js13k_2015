@@ -79,11 +79,11 @@ namespace state {
 		{
 			super.Update(timeDelta);
 			
-			this.FPSMeter.Update(timeDelta);
+			// this.FPSMeter.Update(timeDelta);
 			this.InputController.Update();
 			this.World.Update(timeDelta * this.TimeScale);
 			
-			this.FPSText.SetText(this.FPSMeter.GetFPS().toFixed(1));
+			// this.FPSText.SetText(this.FPSMeter.GetFPS().toFixed(1));
 			this.ScoreText.SetText(this.World.Score.toString());
 		}
 		

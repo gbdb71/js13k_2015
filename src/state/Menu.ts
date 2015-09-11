@@ -79,10 +79,10 @@ namespace state {
 		Update(timeDelta: number)
 		{
 			this.TimeElapse += timeDelta;
-			this.FPSMeter.Update(timeDelta);
+			// this.FPSMeter.Update(timeDelta);
 			
-			let fps = this.FPSMeter.GetFPS();
-			this.FPS.SetText(fps.toFixed(1));
+			// let fps = this.FPSMeter.GetFPS();
+			// this.FPS.SetText(fps.toFixed(1));
 			
 			if (this.TimeElapse < 1)
 			{
