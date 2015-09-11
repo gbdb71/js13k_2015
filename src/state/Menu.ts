@@ -17,7 +17,8 @@ namespace state {
 		
 		Title: core.Layer;
 		PlayBtn: core.Layer;
-		TutorialBtn
+		TutorialBtn: gfx.Text;
+		VoteBtn: gfx.Text;
 		Menus: core.Layer;
 		Version: gfx.Text;
 		
@@ -63,7 +64,10 @@ namespace state {
 			
 			this.InputController
 				.WhenPointerClick(this.PlayBtn, () => this.Game.Play(game.player.PassedTutorial() ? 'precision-challenge' : 'tutorial'))
-				.WhenPointerClick(this.TutorialBtn, () => this.Game.Play('tutorial'));
+				.WhenPointerClick(this.TutorialBtn, () => this.Game.Play('tutorial'))
+				.WhenPointerClick(this.VoteBtn, () => {
+					window.location = <any>"http://js13kgames.com/games/shapes-love-numbers/index.html";
+				});
 				// .WhenPointerClick(clearBtn, () => {game.player.ClearData(); clearBtn.SetText("DONE")});
 				
 			this.OnResize();
@@ -151,16 +155,16 @@ namespace state {
 			tutorialBtn.Anchor.Set(0.5, 0.5);
 			this.TutorialBtn = tutorialBtn;
 			
-			let voteBtn = new gfx.Text(0, 60, "VOTE");
-			voteBtn.Cache();
-			voteBtn.Anchor.Set(0.5, 0.5);
+			this.VoteBtn = new gfx.Text(0, 60, "VOTE");
+			this.VoteBtn.Cache();
+			this.VoteBtn.Anchor.Set(0.5, 0.5);
 			
 			// let clearBtn = new gfx.AAText(0, 90, "CLEAR DATA");
 			// clearBtn.Anchor.Set(0.5, 0.5);
 			// clearBtn.SetSize(10);
 			
 			this.Menus = new core.Layer();
-			this.Menus.AddChild(tutorialBtn, voteBtn);
+			this.Menus.AddChild(tutorialBtn, this.VoteBtn);
 		}
 		
 		MakeTitle(): void
