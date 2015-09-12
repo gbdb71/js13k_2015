@@ -40,7 +40,7 @@ namespace state {
 			this.MakePlayBtn();
 			this.MakeMenus();
 			
-			this.Version = new gfx.Text(0, 0, "0.81B");
+			this.Version = new gfx.Text(0, 0, "0.82B");
 			this.Version.SetSize(10);
 			this.Version.Anchor.Set(1, 1);
 			this.Version.Cache();
