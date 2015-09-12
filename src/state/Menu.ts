@@ -63,10 +63,10 @@ namespace state {
 			this.ListenForTouchInput();
 			
 			this.InputController
-				.WhenPointerClick(this.PlayBtn, () => this.Game.Play(game.player.PassedTutorial() ? 'precision-challenge' : 'tutorial'))
+				.WhenPointerClick(this.PlayBtn, () => this.Game.Play(game.player.PassedTutorial() ? game.player.CurrentChallenge() : 'tutorial'))
 				.WhenPointerClick(this.TutorialBtn, () => this.Game.Play('tutorial'))
 				.WhenPointerClick(this.VoteBtn, () => {
-					window.location = <any>"http://js13kgames.com/games/shapes-love-numbers/index.html";
+					window.location = <any>"http://js13kgames.com/entries/shapes-love-numbers";
 				});
 				// .WhenPointerClick(clearBtn, () => {game.player.ClearData(); clearBtn.SetText("DONE")});
 				

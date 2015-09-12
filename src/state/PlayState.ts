@@ -70,7 +70,7 @@ namespace state {
 			
 			this.InputController
 				.WhenPointerClick(this.RestartBtn, () => this.Game.Play('game'))
-				.WhenPointerClick(this.MenuBtn, () => this.Game.Play('select'))
+				.WhenPointerClick(this.MenuBtn, () => this.Game.Play(game.player.CurrentChallenge()))
 			
 			this.OnResize();
 		}
