@@ -18,10 +18,10 @@ namespace state {
 			
 			super.Start();
 			this.SetChallengeName('PRECISION');
-			
+
 			this.InputController
 				.WhenPointerClick(this.NextBtnHitBox, () => this.Game.Play('speed-challenge'));
 		}
 	}
-	
+
 }

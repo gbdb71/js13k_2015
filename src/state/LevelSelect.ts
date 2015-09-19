@@ -136,15 +136,15 @@ namespace state {
 			let progress = new gfx.Rectangle(0.5, 0.5, 200, 20, { strokeStyle: 'white' });
 			this.AddChild(progress);
 
-			let fill = new gfx.Rectangle(1.5, 1.5, 200 - 2, 20 - 2, {fillStyle: 'white', compositeOperation: 'xor'});
-			fill.Scale.Set(0, 1);
-			this.AddChild(this.Fill = fill);
+			this.Fill = new gfx.Rectangle(1.5, 1.5, 200 - 2, 20 - 2, {fillStyle: 'white', compositeOperation: 'xor'});
+			this.Fill.Scale.Set(0.001, 1);
+			this.AddChild(this.Fill);
 		}
 		
 		TweenFill(tweens: core.TweenManager, progress: number): void
 		{
 			let tween = tweens.New(this.Fill.Scale)
-				.To({x: progress}, 1,core.easing.OutCubic)
+				.To({x: Math.max(0.001, progress)}, 1,core.easing.OutCubic)
 				.Start();
 				
 			if (progress === 1)
